@@ -1,1 +1,1 @@
-Here all my academic writing can be found. They are all in the form of LaTeX sources should easily build.
+Here all my academic writing can be found. It is all in the form of LaTeX sources that should painlessly build.
