@@ -1,11 +1,14 @@
 \documentclass[a4paper,draft]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
 \usepackage{authblk}
+\usepackage[german, vlined, ruled]{algorithm2e}
+\usepackage[standard,thmmarks]{ntheorem}
 \renewcommand\Affilfont{\itshape\small}
 
 \begin{document}
 
-\title{A Solution to the Stable Marriage Problem and some Extensions}
+\title{Eine Lösung des Stable Marriage Problems und drei Erweiterungen}
 \author{Fabio Madge Pimentel}
 \affil{Technische Universität München}
 \date{}
@@ -15,20 +18,22 @@
 \input{tex/abstract}
 \end{abstract}
 
-\section{Introduction}
+\section{Einleitung}
 \input{tex/introduction}
 
-\section{Foundations}
+\section{Grundlagen}
 \input{tex/foundations}
 
-\section{Extensions}
+\section{Erweiterungen}
 \input{tex/extensions}
 
-\section{Asymptotic Optimality}
+\section{Asymptotische Optimalität}
 \input{tex/asymptotic_optimality}
 
-\section{Conclusion}
+\section{Schluss}
 \input{tex/conclusion}
+
+\listofalgorithms
 
 \bibliographystyle{plaindin}
 \bibliography{cites}

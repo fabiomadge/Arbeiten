@@ -1,1 +1,6 @@
-The SMP is a matching problem on bipartite graphs. It describes a situation where there are two distinct sets of equal size, organized by the sex. Each person supplies a total preference list constituted of each member of the other group. The goal is the find a set of pairings that satisfies all subjects best. \cite{Gusfield:1989}
+Das SMP ist ein bipartites Matchingproblem. Die Gesamtmenge der Knoten wird in zwei disjunkte Teilmengen M und W gleicher Mächtigkeit aufgeteilt. Für jeden Knoten liegt eine Präferenzliste vor, die eine totale Ordung der anderen Teilmenge darstellt. Das Ziel ist, eine stabile Paarung P zu bestimmen.
+
+\begin{Definition}
+\label{stabil}
+  Ein Matching ist genau dann nicht stabil, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m <_{w} p_{P}(w) = m'$ in der Präferenzliste von $w$ und $w <_{m} p_{P}(m) = w'$ in der Präferenzliste von $m$.
+\end{Definition}

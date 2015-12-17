@@ -1,2 +1,35 @@
-\subsection{Problem Statement}
-\subsection{Gale–Shapley Algorithm}
+\subsection{Problembeschreibung}
+
+Im Kontext des Szenarios heißt das also, dass es eine Gemeinschaft von Frauen und Männern gibt die alle eine heterosexuelle Ehe eingehen wollen. Dabei muss die Anzahl der Männer gleich der der Frauen sein. Zum Zweck der optimal Verteilung der Heiratswilligen aufeinander, muss jedes Individuum alle Personen des anderen Geschlecht in eine Ordnung bringen. Die erste Person ist jede welche das Individuum am ehsten heiraten möchte. Auf dieser Grundlage soll nun eine stabile Paarung gefunden werden, es wird also jeder Frau ein Mann zugeordet und umgekehrt.
+
+Sabilität heißt hier also, dass es kein Paar aus einer Frau und einem Mann gibt, das nicht in der Paarung verheiratet ist, das sich aber gegenseitig ihrem Ehepartner in der Paarung vorziehen. Ein Algorithmus zur Überprüfung dieser Eigenschaft lässt sich leicht aus Definition \ref{stabil} ableiten.
+
+\input{tex/stabilityCheck}
+
+\subsection{Gale–Shapley Algorithmus}
+
+Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem vorgestellt, sondern zeitgleich eine Lösung in Form des nach ihnen benannten Alogrithmus präsentiert. Er formt zusammen mit Lemma \ref{gsa_terminiert} den konstrukiven Beweis von Theorem \ref{paarung_existiert}.
+
+\input{tex/gsa}
+
+\begin{Lemma}
+\label{gsa_terminiert}
+  Für jedes Instanz des Stable Marriage Problems terminiert der Gale–Shapley Algorithmus.
+\end{Lemma}
+
+\begin{Beweis}
+\label{gsa_terminiert_bew}
+  Der Algorithmus terminiert genau dann, wenn alle Männer verlobt sind. Dieser Fall tritt immer ein, weil kein Mann von allen Frauen abgewiesen werden kann. Denn Frauen können Männer nur abweisen, wenn sie bereits verlobt sind. Damit der Mann vor allen Frauen auf seiner Liste abgelehnt werden kann, müssten sie also alle verlobt sein, das kann aber nicht sein, weil es dafür $n$ verlobte Männer und einen weiteren bräuchte.
+\end{Beweis}
+
+\begin{Theorem}
+\label{paarung_existiert}
+  Für jedes Instanz des Stable Marriage Problems existiert mindestens eine stabile Paarung.
+\end{Theorem}
+
+\begin{Beweis}
+\label{paarung_existiert_bew}
+  Die Paare die nach Terminierung des Alogrithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m,w)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwinged einen Antrag gemacht und wurde entweder direkt abgewiesen, oder anschließend durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein.
+\end{Beweis}
+
+Er ist der konstrukive Beweis von Theorem \ref{paarung_existiert} \ref{paarung_existiert_bew}.

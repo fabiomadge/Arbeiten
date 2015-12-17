@@ -1,0 +1,18 @@
+\begin{algorithm}[H]
+  \SetKwData{KwM}{m}\SetKwData{KwM'}{m'}\SetKwData{KwW}{w}
+  setze alle Personen auf $frei$\;
+  \Solange{ein Mann \KwM keine Partnerin hat}{
+    \KwW $\leftarrow$ höchstpriorisierte Frau, um deren Hand \KwM nicht angehalten hat\;
+    \eWenn{\KwW keinen Partner hat}{
+      setze \KwW und \KwM als jeweiligen Partner\;
+    }
+    {
+      \eWenn{\KwW \KwM ihrem Verlobten \KwM' vorzieht}{
+        setze \KwW und \KwW als jeweiligen Partner und \KwM' auf $frei$\;
+      }{
+        \KwW lehnt den Antrag ab\;
+      }
+    }
+  }
+  \caption{Gale–Shapley Algorithmus}
+\end{algorithm}

@@ -1,0 +1,12 @@
+\begin{algorithm}[H]
+  \SetKwData{KwM}{m}\SetKwData{KwW}{w}
+  \FuerAlle{$\KwM \in M$}{
+    \FuerJedes{$\KwW \in W . \KwW <_{\KwM} p_{P}(\KwM)$}{
+      \Wenn{$\KwM <_{\KwW} p_{P}(\KwW)$}{
+        \Return{instabile Paarung}\;
+      }
+    }
+  }
+  \Return{stabile Paarung}\;
+  \caption{Stabilitätsüberprüfung}
+\end{algorithm}
