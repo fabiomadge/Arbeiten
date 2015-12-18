@@ -33,3 +33,13 @@ Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem v
 \end{Beweis}
 
 Er ist der konstrukive Beweis von Theorem \ref{paarung_existiert} \ref{paarung_existiert_bew}.
+
+\begin{Theorem}
+\label{mann_optimal}
+  In jeder vom Gale–Shapley Algorithmus erzeugten Paarung, hat jeder Mann jene Frau als Partnerin, die vom ihn am höchsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist. Der Alogrithmus ist also auch deterministisch.
+\end{Theorem}
+
+\begin{Beweis}
+\label{mann_optimal_bew}
+  Die Paare die nach Terminierung des Alogrithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m,w)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwinged einen Antrag gemacht und wurde entweder direkt abgewiesen, oder anschließend durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein.
+\end{Beweis}
