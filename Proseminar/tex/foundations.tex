@@ -8,7 +8,7 @@ Sabilität heißt hier also, dass es kein Paar aus einer Frau und einem Mann gib
 
 \subsection{Gale–Shapley Algorithmus}
 
-Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem vorgestellt, sondern zeitgleich eine Lösung in Form des nach ihnen benannten Alogrithmus präsentiert. Er formt zusammen mit Lemma \ref{gsa_terminiert} den konstrukiven Beweis von Theorem \ref{paarung_existiert}.
+Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem vorgestellt, sondern zeitgleich eine Lösung in Form des nach ihnen benannten Alogrithmus präsentiert. Er bildet zusammen mit Lemma \ref{gsa_terminiert} den konstrukiven Beweis von Theorem \ref{paarung_existiert}.
 
 \input{tex/gsa}
 
@@ -24,22 +24,42 @@ Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem v
 
 \begin{Theorem}
 \label{paarung_existiert}
-  Für jedes Instanz des Stable Marriage Problems existiert mindestens eine stabile Paarung.
+  Für jedes Instanz des Stable Marriage Problems existiert mindestens eine stabile Paarung. Sie wird vom Gale–Shapley Algorithmus gefunden.
 \end{Theorem}
 
 \begin{Beweis}
 \label{paarung_existiert_bew}
-  Die Paare die nach Terminierung des Alogrithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m,w)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwinged einen Antrag gemacht und wurde entweder direkt abgewiesen, oder anschließend durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein.
+  Die Paare die nach Terminierung des Algorithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m,w)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwinged einen Antrag gemacht und wurde entweder direkt abgewiesen, oder anschließend durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein. Nachdem der Algorithmus für jede Eingabe terminiert (Lemma~\ref{gsa_terminiert}), lieft er immer eine stabile Paarung.
 \end{Beweis}
 
-Er ist der konstrukive Beweis von Theorem \ref{paarung_existiert} \ref{paarung_existiert_bew}.
+Theorem \ref{paarung_existiert} deutet schon an, dass nicht immer nur ein mögliche stabile Paarung existiert. Tatsächlich gibt es in den meisten Fällen eine Vielzahl, die sich in der Menge der stabilen Paarungen befindet. Deshalb beleuchtet Theorem \ref{mann_optimal} die Natur der vom Gale–Shapley Algorithmus berechneten Paarung. Dabei lässt sich auch beobachten, dass, obwohl die Reihenfolge der Heiratsanträge nicht sehr stark geordnet ist, der Algorithmus für jede mögliche Reihenfolge das selbe Ergebnis liefert.
+
+\begin{Definition}
+\label{man_optimal}
+  Eine Paarung heißt genau dann man-optimal, wenn jeder Mann jene Frau zur Partnerin hat, die vom ihn am höchsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
+\end{Definition}
+
+\begin{Definition}
+\label{woman_pessimal}
+  Eine Paarung heißt genau dann woman-pessimal, wenn jede Frau jenen Mann zum Partner hat, der vom ihr am niedrigsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
+\end{Definition}
+
+\begin{Lemma}
+\label{man_optimal_woman_pessimal}
+  Ist eine Paarung man-optimal, so muss sie gleichzeitig auch woman-pessimal sein.
+\end{Lemma}
+
+\begin{Beweis}
+\label{man_optimal_woman_pessimal_bew}
+  Sei $P$ eine man-optimal Paarung und $P'$ eine stabile Paarung für die $m = p_{P}(w) <_{w} m' = p_{P'}(w)$ gilt. In diesem Fall müssten $(m,w)$ aber $P'$ blockieren, da $m <_{w} m'$ ($P'$) und $w <_{m} p_{P'}(m)$ (man-optimal).
+\end{Beweis}
 
 \begin{Theorem}
 \label{mann_optimal}
-  In jeder vom Gale–Shapley Algorithmus erzeugten Paarung, hat jeder Mann jene Frau als Partnerin, die vom ihn am höchsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist. Der Alogrithmus ist also auch deterministisch.
+  Der Gale–Shapley Algorithmus ist deterministisch und vom ihm erzeugte Paarungen sind man-optimal und woman-pessimal.
 \end{Theorem}
 
 \begin{Beweis}
 \label{mann_optimal_bew}
-  Die Paare die nach Terminierung des Alogrithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m,w)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwinged einen Antrag gemacht und wurde entweder direkt abgewiesen, oder anschließend durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein.
+  Sie $P$ eine vom Algorithmus in beliebiger Ausführungsreihenfolge berechnete Paarung und $P'$ eine stabile Paarung in der $w' = p_{P'}(m) <_{m} w = p_{P}(m)$ gilt. Dies ist gleichbedeutend damit, dass $m$ während der Ausführung durch $m'$, für den gilt $m' <_{w'} m$ gilt, als Partner von $w'$ ersetzt wurde. Nun wird angenommen, dass dies das erste Vorkommen einer Abweisung eines stabilen Partners war. Dies schwächt den Beweis nicht ab, erlaubt aber die Feststellung, dass $P'$ durch $(m',w')$ blockiert wird, da $m' <_{w'} m$ [$m'$] und $w' <_{m'} p_{P'}(m')$ [erste Ablehnung]. $P'$ kann also nicht stabil sein und mit der Tatsache, dass Präferenzlisten total geordnet sind, ist der Algorithmus deterministisch. Da jeder Mann seine bestmögliche Partnerin hat($\nexists P'$), ist $P$ man-optimal und somit auch woman-pessimal (Lemma~\ref{man_optimal_woman_pessimal}).
 \end{Beweis}
