@@ -1,6 +1,6 @@
 \subsection{Problembeschreibung}
 
-Im Kontext des Szenarios heißt das also, dass es eine Gemeinschaft von Frauen und Männern gibt die alle eine heterosexuelle Ehe eingehen wollen. Dabei muss die Anzahl der Männer gleich der der Frauen sein. Zum Zweck der optimal Verteilung der Heiratswilligen aufeinander, muss jedes Individuum alle Personen des anderen Geschlecht in eine Ordnung bringen. Die erste Person ist jede welche das Individuum am ehesten heiraten möchte. Auf dieser Grundlage soll nun eine stabile Paarung gefunden werden, es wird also jeder Frau ein Mann zugeordnet und umgekehrt.
+Im Kontext des Szenarios kann das Problem wie folgt beschrieben werden. Es gibt eine Gemeinschaft von Frauen und Männern, die alle eine heterosexuelle Ehe eingehen wollen. Dabei muss die Anzahl der Männer gleich der der Frauen sein. Zum Zweck der optimal Verteilung der Heiratswilligen aufeinander, muss jedes Individuum alle Personen des anderen Geschlecht in eine Ordnung bringen. Darin ist die erste Person jene, welche das Individuum am ehesten heiraten möchte. Auf dieser Grundlage soll nun eine stabile Paarung gefunden werden. Es soll also jeder Frau ein Mann zugeordnet werden und umgekehrt.
 
 Stabilität heißt hier also, dass es kein Paar aus einer Frau und einem Mann gibt, das nicht in der Paarung verheiratet ist, das sich aber gegenseitig ihrem Ehepartner in der Paarung vorziehen. Ein Algorithmus zur Überprüfung dieser Eigenschaft lässt sich leicht aus Definition \ref{stabil} ableiten.
 
@@ -8,7 +8,7 @@ Stabilität heißt hier also, dass es kein Paar aus einer Frau und einem Mann gi
 
 \subsection{Gale–Shapley Algorithmus}
 
-Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem vorgestellt, sondern zeitgleich eine Lösung in Form des nach ihnen benannten Algorithmus präsentiert. Er bildet zusammen mit Lemma \ref{gsa_terminiert} den konstruktiven Beweis von Theorem \ref{paarung_existiert}.
+Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem erstmals vorgestellt, sondern zeitgleich eine Lösung in Form des nach ihnen benannten Algorithmus präsentiert. Er bildet zusammen mit Lemma \ref{gsa_terminiert} den konstruktiven Beweis von Theorem \ref{paarung_existiert}.
 
 \input{tex/gsa}
 
@@ -19,7 +19,7 @@ Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem v
 
 \begin{Beweis}
 \label{gsa_terminiert_bew}
-  Der Algorithmus terminiert genau dann, wenn alle Männer verlobt sind. Dieser Fall tritt immer ein, weil kein Mann von allen Frauen abgewiesen werden kann. Denn Frauen können Männer nur abweisen, wenn sie bereits verlobt sind. Damit der Mann vor allen Frauen auf seiner Liste abgelehnt werden kann, müssten sie also alle verlobt sein, das kann aber nicht sein, weil es dafür $n$ verlobte Männer und einen weiteren brauchte.
+  Der Algorithmus terminiert genau dann, wenn alle Männer verlobt sind. Dieser Fall tritt immer ein, weil kein Mann von allen Frauen abgewiesen werden kann, denn Frauen können Männer nur dann abweisen, wenn sie bereits verlobt sind. Damit der Mann von allen Frauen auf seiner Liste abgelehnt werden kann, müssten sie alle mit anderen Männern verlobt sein, das kann aber nicht sein, weil es dafür $n$ verlobte Männer und einen weiteren brauchte.
 \end{Beweis}
 
 \begin{Theorem}
@@ -29,19 +29,19 @@ Gale und Shapley haben in ihrem Artikel \cite{Gale:1962} nicht nur das Problem v
 
 \begin{Beweis}
 \label{paarung_existiert_bew}
-  Die Paare die nach Terminierung des Algorithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m,w)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwingend einen Antrag gemacht und wurde entweder direkt abgewiesen, oder anschließend durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein. Nachdem der Algorithmus für jede Eingabe terminiert (Lemma~\ref{gsa_terminiert}), liefert er immer eine stabile Paarung.
+  Die Paare die nach Terminierung des Algorithmus vorliegen sind offensichtlich eine Paarung $P$. Damit $P$ nicht stabil ist, muss sie ein blockierendes Paar $(m \in M,w \in W)$ enthalten. Wenn $w <_{m} p_{P}(m)$ gilt, hat $m$ $w$ zwingend einen Antrag gemacht und wurde entweder direkt abgewiesen, oder später durch $m' <_{w} m$ ersetzt. Daraus folgt $p_{P}(w) <_{w} m$. $(m,w)$ kann also kein blockierendes Paar sein. Nachdem der Algorithmus für jede Eingabe terminiert (Lemma~\ref{gsa_terminiert}), liefert er immer eine stabile Paarung.
 \end{Beweis}
 
-Theorem \ref{paarung_existiert} deutet schon an, dass nicht immer nur ein mögliche stabile Paarung existiert. Tatsächlich gibt es in den meisten Fällen eine Vielzahl, die sich in der Menge der stabilen Paarungen befindet. Deshalb beleuchtet Theorem \ref{mann_optimal} die Natur der vom Gale–Shapley Algorithmus berechneten Paarung. Dabei lässt sich auch beobachten, dass, obwohl die Reihenfolge der Heiratsanträge nicht sehr stark geordnet ist, der Algorithmus für jede mögliche Reihenfolge das selbe Ergebnis liefert.
+Theorem \ref{paarung_existiert} deutet schon an, dass nicht immer nur ein mögliche stabile Paarung existiert. Tatsächlich gibt es in den meisten Fällen viele die sich in der Menge der stabilen Paarungen befinden. Deshalb beleuchtet Theorem \ref{mann_optimal} die Natur der vom Gale–Shapley Algorithmus berechneten Paarung. Dabei lässt sich auch beobachten, dass, obwohl die Reihenfolge der Heiratsanträge nicht strikt geordnet ist, der Algorithmus für jede mögliche Reihenfolge das selbe Ergebnis liefert.
 
 \begin{Definition}
 \label{man_optimal}
-  Eine Paarung heißt genau dann man-optimal, wenn jeder Mann jene Frau zur Partnerin hat, die vom ihn am höchsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
+  Eine Paarung heißt genau dann \textit{man-optimal}, wenn jeder Mann jene Frau zur Partnerin hat, die vom ihn am höchsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
 \end{Definition}
 
 \begin{Definition}
 \label{woman_pessimal}
-  Eine Paarung heißt genau dann woman-pessimal, wenn jede Frau jenen Mann zum Partner hat, der vom ihr am niedrigsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
+  Eine Paarung heißt genau dann \textit{woman-pessimal}, wenn jede Frau jenen Mann zum Partner hat, der vom ihr am niedrigsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
 \end{Definition}
 
 \begin{Lemma}
@@ -61,5 +61,5 @@ Theorem \ref{paarung_existiert} deutet schon an, dass nicht immer nur ein mögli
 
 \begin{Beweis}
 \label{mann_optimal_bew}
-  Sie $P$ eine vom Algorithmus in beliebiger Ausführungsreihenfolge berechnete Paarung und $P'$ eine stabile Paarung in der $w' = p_{P'}(m) <_{m} w = p_{P}(m)$ gilt. Dies ist gleichbedeutend damit, dass $m$ während der Ausführung durch $m'$, für den gilt $m' <_{w'} m$ gilt, als Partner von $w'$ ersetzt wurde. Nun wird angenommen, dass dies das erste Vorkommen einer Abweisung eines stabilen Partners war. Dies schwächt den Beweis nicht ab, erlaubt aber die Feststellung, dass $P'$ durch $(m',w')$ blockiert wird, da $m' <_{w'} m$ ($m'$) und $w' <_{m'} p_{P'}(m')$ (erste Ablehnung). $P'$ kann also nicht stabil sein und mit der Tatsache, dass Präferenzlisten total geordnet sind, ist der Algorithmus deterministisch. Da jeder Mann seine bestmögliche Partnerin hat($\nexists P'$), ist $P$ man-optimal und somit auch woman-pessimal (Lemma~\ref{man_optimal_woman_pessimal}).
+  Sie $P$ eine vom Algorithmus in beliebiger Ausführungsreihenfolge berechnete Paarung und $P'$ eine stabile Paarung in der $w' = p_{P'}(m) <_{m} w = p_{P}(m)$ gilt. Dies ist gleichbedeutend damit, dass $m$ während der Ausführung durch $m' \in M.m' <_{w'} m$, als Partner von $w'$ ersetzt wurde. Nun wird angenommen, dass dies das erste Vorkommen einer Abweisung eines stabilen Partners war. Dies schwächt den Beweis nicht ab, erlaubt aber die Feststellung, dass $P'$ durch $(m',w')$ blockiert wird, da $m' <_{w'} m$ ($m'$) und $w' <_{m'} p_{P'}(m')$ (erste Ablehnung). $P'$ kann also nicht stabil sein und somit ist der Algorithmus deterministisch. Da jeder Mann seine bestmögliche Partnerin hat($\nexists P'$), ist $P$ man-optimal und somit auch woman-pessimal (Lemma~\ref{man_optimal_woman_pessimal}).
 \end{Beweis}

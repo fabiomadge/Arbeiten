@@ -3,18 +3,18 @@ Häufig lassen sich reale Fragestellungen nicht genau durch das SMP modellieren,
 \subsection{Mengen unterschiedlicher Größe}
 \label{subsec:size}
 
-Hier wird angenommen, dass die Anzahl der Männer und Frauen nicht gleich ist. Dies macht eine Anpassung der Definition von Stabilität nötig.
+Hier wird angenommen, dass die Anzahl der Männer und Frauen nicht gleich ist. Dadurch wird eine Anpassung der Definition von Stabilität nötig.
 
 \begin{Definition}
 \label{stabil_diff}
-  Eine Paarung $P$ ist genau dann nicht stabil, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m <_{w} p_{P}(w)$ und $w <_{m} p_{P}(m)$. Liefert $p_{P}(x)$ keinen Partner, ist das Ergebnis größer als jedes Element der Präferenzliste von $x$.
+  Eine Paarung $P$ ist genau dann nicht \textit{stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m <_{w} p_{P}(w)$ und $w <_{m} p_{P}(m)$. Liefert $p_{P}(x)$ keinen Partner, ist das Ergebnis größer als jedes Element der Präferenzliste von $x$.
 \end{Definition}
 
-Falls $|W| < |M|$ muss der GSA Abbrechen, sobald für alle unverlobten Männer keine Frau existiert, um deren Hand sie anhalten können.
+Falls $|W| < |M|$ darf der GSA erst Abbrechen, sobald für alle unverlobten Männer keine Frau existiert, um deren Hand sie anhalten können.
 
 \begin{Theorem}
 \label{paarung_existiert_diff}
-  Für jede Instanz des Stable Marriage Problems, in der $|W| \neq |M|$ gilt, existiert mindestens eine stabile Paarung mit $\min\{|W|,|M|\}$ Paaren. Sie wird vom Gale–Shapley Algorithmus gefunden.
+  Für jede Instanz des Stable Marriage Problems, in der $|W| \neq |M|$ gilt, existiert mindestens eine stabile Paarung mit $\min\{|W|,|M|\}$ Paaren. Der Gale–Shapley Algorithmus findet sie.
 \end{Theorem}
 
 \begin{Beweis}
@@ -24,7 +24,7 @@ Falls $|W| < |M|$ muss der GSA Abbrechen, sobald für alle unverlobten Männer k
 
 \begin{Definition}
 \label{vorziehen}
-  Seien P und P' Paarungen und eine Person $x$ bevorzugt $P$ gegenüber $P'$, wenn gilt $p_{P}(x) <_{x} p_{P'}(x)$. Die Ordnung verhält sich wie in Definition \ref{stabil_diff} für nicht existente Partner. Hat $x$ in beiden Paarungen keinen Partner, ist $x$ indifferent.
+  Seien P und P' Paarungen und eine Person $x$ \textit{bevorzugt} $P$ gegenüber $P'$, wenn gilt $p_{P}(x) <_{x} p_{P'}(x)$. Die Ordnung verhält sich wie in Definition \ref{stabil_diff} für nicht existente Partner. Hat $x$ in beiden Paarungen keinen Partner, ist $x$ indifferent.
 \end{Definition}
 
 \begin{Lemma}
@@ -34,7 +34,7 @@ Falls $|W| < |M|$ muss der GSA Abbrechen, sobald für alle unverlobten Männer k
 
 \begin{Beweis}
 \label{strikte_ordnung_bew}
-  $\mathcal{X}$ und $\mathcal{Y}$ seien die Mengen von Männern und Frauen, die $P$ gegenüber $P'$ bevorzugen. $\mathcal{X'}$ und $\mathcal{Y'}$ sind analog definiert, wobei $P$ und $P'$ vertauscht sind.\\
+  $\mathcal{X} \subseteq M$ und $\mathcal{Y} \subseteq W$ seien die Mengen von Männern und Frauen, die $P$ gegenüber $P'$ bevorzugen. $\mathcal{X'}$ und $\mathcal{Y'}$ sind analog definiert, wobei $P$ und $P'$ vertauscht sind.\\
   In $P$ kann es das Paar $(m \in \mathcal{X},w \in \mathcal{Y})$ nicht geben, weil $P'$ stabil ist und $(m,w)$ $P$ folglich blockieren würde. Deshalb können die Männer in $\mathcal{X}$ nur mit Frauen aus $\mathcal{Y'}$ in $P$ eine Partnerschaft eingehen, die indifferenten Frauen kommen nicht in Frage, weil sie den Partner nicht wechseln, sie also auch die Partnerin in $P'$ sein müssten. Somit gilt $|\mathcal{X}| \leq |\mathcal{Y'}|$.\\
   Analog dazu gibt es in $P'$ kein Paar $(m \in \mathcal{X'},w \in \mathcal{Y'})$. Hier gilt $|\mathcal{X'}| \leq |\mathcal{Y}|$.\\
   Es muss aber $|\mathcal{X}| + |\mathcal{X'}| = |\mathcal{Y}| + |\mathcal{Y'}|$ gelten, da beide Seiten die Anzahl derer beschreibt, die in $P$ einen anderen Partner als in $P'$ haben. Daraus folgt $|\mathcal{X}| = |\mathcal{Y'}|$ und $|\mathcal{X'}| = |\mathcal{Y}|$. Somit muss jeder Mann in $\mathcal{X}$ eine Partnerin aus $\mathcal{Y'}$ in $P$ haben und jeder Mann in $\mathcal{X'}$ eine Partnerin aus $\mathcal{Y}$ haben.
@@ -42,12 +42,12 @@ Falls $|W| < |M|$ muss der GSA Abbrechen, sobald für alle unverlobten Männer k
 
 \begin{Theorem}
 \label{partner_oder_nicht_diff}
-  Für jede Instanz des Stable Marriage Problems, in der $|W| \neq |M|$ gilt, dass die größere Menge in zwei Untermengen aufgeteilt werden kann, eine mit jenen die in jeder stabilen Paarung einen Partner haben und die andere mit jenen die in keiner einen Partner haben.
+  Für jede Instanz des Stable Marriage Problems, in der $|W| \neq |M|$ gilt, dass die größere Menge in zwei Untermengen aufgeteilt werden kann, eine mit jenen Personen die in jeder stabilen Paarung einen Partner haben und die andere mit jenen die in keiner einen Partner haben.
 \end{Theorem}
 
 \begin{Beweis}
 \label{partner_oder_nicht_diff_bew}
-  Hier werden zwei Paarungen $P$ und $P'$ als gerichteter bipartiter Graph mit $\{M,W\}$ als Bipartition dargestellt. Jeder Knoten hat also höchstens den Eingangsgrad eins und den Ausgangsgrad eins.\\
+  Zwei Paarungen $P$ und $P'$ werden als gerichteter bipartiter Graph mit $\{M,W\}$ als Bipartition dargestellt. Jeder Knoten hat also höchstens den Eingangsgrad eins und den Ausgangsgrad eins.\\
   Sei $x \in \max\{W,M\}$ eine Person die einen Partner in $P$ hat, aber nicht in $P'$, dadurch also $P$ bevorzugt. Somit ist $x$ eine Quelle, von der ein kreisfreier Pfad zu einer Senke $y \in \max\{W,M\}$ ausgeht. Die Senke muss mit Theorem \ref{paarung_existiert_diff} das gleiche Geschlecht wie $x$ haben, weil alle Personen des anderen Geschlechts Partner in beiden Paarungen haben. $y$ bevorzugt offensichtlich $P'$.\\
   Mit Lemma \ref{strikte_ordnung} kann der Graph entlang des Pfandes traversiert werden. Da $x$ $P$ bevorzugt, muss der direkte Nachfolger $P'$ bevorzugen. Wenn dieses Lemma bis zur Senke angewendet wird, ergibt sich dort ein Widerspruch.
 \end{Beweis}
@@ -58,20 +58,20 @@ Hier wird den Personen erlaubt Präferenzlisten zu erstellen die nicht alle Indi
 
 \begin{Theorem}
 \label{partner_oder_nicht}
-  Für eine Instanz die unvollständige Präferenzlisten enthält gilt, dass sowohl die Männer, als auch die Frauen in jeweils in zwei Untermengen aufgeteilt werden können, eine mit jenen die in jeder stabilen Paarung einen Partner haben und die andere mit jenen die in keiner einen Partner haben.
+  Für eine Instanz die unvollständige Präferenzlisten enthält gilt, dass sowohl die Männer, als auch die Frauen in jeweils in zwei Untermengen aufgeteilt werden können, eine mit jenen Personen, die in jeder stabilen Paarung einen Partner haben und die andere mit jenen die in keiner einen Partner haben.
 \end{Theorem}
 
 \begin{Beweis}
 \label{partner_oder_nicht_bew}
   Hier werden zwei Paarungen $P$ und $P'$ als gerichteter bipartiter Graph mit $\{M,W\}$ als Bipartition dargestellt. Die Kante $\{m,w\}$ existiert, falls $m = p_{P}(w)$ und $\{w,m\}$ existiert, falls $w = p_{P'}(m)$. Jeder Knoten hat also höchstens den Eingangsgrad eins und den Ausgangsgrad eins.\\
-  Sie $m$ ein Mann der einen Partner in $P$ hat, aber nicht in $P'$, dadurch also $P$ bevorzugt. Somit ist $m$ eine Quelle, von der ein kreisfreier Pfad zu einer Senke ausgeht. Diese ist entweder eine Frau, die folglich $P$ bevorzugt, oder ein Mann, der analog $P'$ präferiert.\\
-  Mit Lemma \ref{strikte_ordnung} kann der Graph entlang des Pfandes traversiert werden. Da $m$ $P$ bevorzugt, muss der direkte Nachfolger $P'$ bevorzugen. Wenn dieses Lemma bis zur Senke angewendet wird, ergibt sich dort mit der obigen Beobachtung über sie ein Widerspruch.
+  Sie $m$ ein Mann der einen Partner in $P$ hat, aber nicht in $P'$, also $P$ bevorzugt. Somit ist $m$ eine Quelle, von der ein kreisfreier Pfad zu einer Senke ausgeht. Diese ist entweder eine Frau, die folglich $P$ bevorzugt, oder ein Mann, der analog $P'$ präferiert.\\
+  Mit Lemma \ref{strikte_ordnung} kann der Graph entlang des Pfandes traversiert werden. Da $m$ $P$ bevorzugt, muss der direkte Nachfolger $P'$ bevorzugen. Wird dieses Lemma bis zur Senke angewendet, ergibt sich dort mit der obigen Beobachtung über sie ein Widerspruch.
 \end{Beweis}
 
 
 \begin{Theorem}
 \label{element_enfuegen}
-  Wenn ein Mann $m$ in einer Instanz eine Frau $w$ an seine Präferenzliste anhängt, dann gilt weder in der man-optimal noch in der woman-optimal stabilen Paarung für die neue Instanz, dass irgendeine Frau die entsprechende Paarung für die ursprüngliche Instanz bevorzugt und irgendein Mann, bis auf $m$, die entsprechende Paarung für die neue Instanz bevorzugt.
+  Wenn ein Mann $m$ in einer Instanz eine Frau $w$ an seine Prä\-fe\-renz\-lis\-te anhängt, dann gilt weder in der man-optimal noch in der woman-optimal stabilen Paarung für die neue Instanz, dass irgendeine Frau die entsprechende Paarung für die ursprüngliche Instanz bevorzugt und irgendein Mann, bis auf $m$, die entsprechende Paarung für die neue Instanz bevorzugt.
 \end{Theorem}
 
 \begin{Beweis}
@@ -86,29 +86,29 @@ Auch diesem Fall, also dem Zulassen von Indifferenz zwischen zwei Männern für 
 
 \begin{Definition}
 \label{super-stabil}
-  Eine Paarung $P$ ist genau dann nicht super-stabil, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m \leq_{w} p_{P}(w), m \neq p_{P}(w)$ und $w \leq_{m} p_{P}(m), w \neq p_{P}(m)$.
+  Eine Paarung $P$ ist genau dann nicht \textit{super-stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m \leq_{w} p_{P}(w), m \neq p_{P}(w)$ und $w \leq_{m} p_{P}(m), w \neq p_{P}(m)$.
 \end{Definition}
 
 \begin{Proposition}
 \label{keine_super-stabil}
-  Für eine beliebige Instanz des SMP mit streng schwach geordnete Präferenzlisten, kann es auch keine super-stabile Paarung geben.
+  Für eine beliebige Instanz des SMP mit streng schwach geordnete Präferenzlisten, kann auch keine super-stabile Paarung existieren.
 \end{Proposition}
 
 \begin{Beweis}
 \label{keine_super-stabil_bew}
-  Für eine Instanz in der $\forall x y. x \leq_{y} x, x \in \textrm{Pr\"aferenzliste}(y)$ gilt, alle Personen auf allen Präferenzlisten also die gleiche Position haben, ist jedes beliebige Paar $(m \in M,w \in W)$ aus jeder Paarung für diese blockierend.
+  Für eine Instanz in der $\forall x y. x \leq_{y} x, x \in \textrm{Pr\"aferenzliste}(y)$ gilt, alle Personen auf allen Präferenzlisten also die gleiche Position haben, ist jedes beliebige Paar $(m \in M,w \in W)$ aus jeder möglichen Paarung für diese blockierend.
 \end{Beweis}
 
 \begin{Definition}
 \label{streng_stabil}
-  Eine Paarung $P$ ist genau dann nicht streng stabil, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m \leq_{w} m' = p_{P}(w), m \neq m'$, $w \leq_{m} w' = p_{P}(m), w \neq w'$ und entweder $m <_{w} m'$, oder $w <_{m} w'$ gilt.
+  Eine Paarung $P$ ist genau dann nicht \textit{streng stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m \leq_{w} m' = p_{P}(w), m \neq m'$, $w \leq_{m} w' = p_{P}(m), w \neq w'$ und entweder $m <_{w} m'$, oder $w <_{m} w'$ gilt.
 \end{Definition}
 
-Der Gale-Shapley Algorithmus jeweils so angepasst werden, dass um eine Paarung erzeugt wird die einer obigen Definitionen entspricht. Der eigentliche Ablauf ist in beiden Fällen ist gleich, nur werden verschiedene Taktiken angewendet, wenn keine Männer mehr frei sind, es aber noch Personen gibt, die mehrere Verlobte haben.
+Der Gale-Shapley Algorithmus jeweils so angepasst werden, damit eine Paarung erzeugt wird, die einer der obigen Definitionen entspricht. Der eigentliche Ablauf ist in beiden Fällen ist gleich, nur werden verschiedene Taktiken angewendet, wenn keine Männer mehr frei sind, es aber noch Personen gibt, die mehrere Verlobte haben.
 
 \input{tex/gsa_indiff}
 
 Für super-Stabilität besagt die Taktik, dass jene Frauen, die mehrere Verlobte haben, ihre Verlobungen lösen müssen und auch die anderen Männer gleicher Priorität der jeweiligen Frau keinen Antrag mehr machen dürfen. Wenn der modifizierte Algorithmus nur echte Paare zurück gibt, ist die Paarung super-stabil.\par
 Soll die Paarung streng stabil sein, fordert die Taktik, dass die Personen in einem ungerichteter bipartiten Graph die Knoten darstellen und die Verlobungsbeziehungen die Kanten. Lässt sich in diesem Graph ein perfektes Matching bestimmen, so ist dieses auch eine streng stabile Paarung und er Algorithmus terminiert. Im anderen Fall, $\exists \mathcal{M} \subseteq M. |\mathcal{M}| < |\mathcal{W} = \{w | \exists m, w.(m \in \mathcal{M} \land w \in W \land  w \textrm{ ist mit } m \textrm{ verlobt})\}|$, $\mathcal{M}$ wird so gewählt, dass es minimal ist, also keine Menge enthält, die die gleiche Bedingung erfüllt. Für jede Frau in $\mathcal{W}$ mit mehr als einem Verlobten, müssen die Partnerlisten geleert werden und alle gleichpriorisierten Männer dürfen der Frau keinen Heiratsantrag mehr machen.
 Wenn der modifizierte Algorithmus nur echte Paare zurück gibt, ist die Paarung streng stabil.\par
-Wenn die ursprüngliche Definition \ref{stabil} verlangt wird, können aus den streng schwach geordnete Präferenzlisten, durch beliebige Ordnung der gleichpriorisierten Personen, total geordnete hergestellt werden. Die Standardversion vom Algorithmus kann hier angewendet werden und die resultierende Paarung ist stabil. Sie ist aber nicht zwingend man-optimal bezüglich der Ursprungsinstanz.
+Wenn die ursprüngliche Definition \ref{stabil} verlangt wird, können aus den streng schwach geordnete Präferenzlisten, durch beliebige Ordnung der gleichpriorisierten Personen, total geordnete erstellt werden. Die Standardversion vom Algorithmus kann hier angewendet werden und die resultierende Paarung ist stabil. Sie ist aber nicht zwingend man-optimal bezüglich der Ursprungsinstanz.

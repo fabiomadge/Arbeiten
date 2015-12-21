@@ -1,6 +1,6 @@
-Die vorgestellten Algorithmen zum bestimmen von stabilen Paarungen und der Verifikation derer erfüllen zwar beweisbar ihren Zweck, es stellt sich aber die Frage ob sie durch Algorithmen ersetzt werden können, die für alle Eingaben echt schneller sind. Die Frage ist also, ob die Suche nach einem Algorithmus $\in o(n^2)$ für eines der Probleme erfolgversprechend ist. Dies ist nicht der Fall.\par
+Die vorgestellten Algorithmen zum bestimmen von stabilen Paarungen und der Verifikation derer erfüllen zwar beweisbar ihren Zweck, es stellt sich aber die Frage, ob sie durch Algorithmen ersetzt werden können, die für alle Eingaben echt schneller sind. Die Frage ist also, ob die Suche nach einem Algorithmus $\in o(n^2)$ für eines dieser Probleme erfolgversprechend ist. Wie sich herausstellt, ist nicht der Fall.\par
 
-Der Beweis wird über eine Adversary Argument geführt. Beweise dieser Art eignen sich um einen untere Schranke zu beweisen. Die Idee dieser Beweise ist, dem Algorithmus nicht die ganze Eingabe auf einmal zu geben, sondern stattdessen auf konkrete Anfragen zu reagieren. Während der Laufzeit ist die Aufgabe des Gegners, seine Antworten so zu geben, dass der Algorithmus möglichst lange nicht terminiert, aber natürlich nicht im Widerspruch zu den vorherigen Antworten ist. Die Aufgabe beim Beweisen ist also, eine Strategie für den Gegner zu finden. In diesem Kapitel werden Männer und Frauen durch die Menge $[n]$ beschrieben, dies erlaubt kürzere Beweise, schränkt die Generalität der Ergebnisse aber nicht ein.\par
+Der Beweis wird über ein \textit{adversary argument} geführt. Beweise dieser Art eignen sich um eine untere Schranke zu beweisen. Die Idee dieser Beweise ist, dem Algorithmus nicht die ganze Eingabe auf einmal zu geben, sondern stattdessen auf konkrete Anfragen zu reagieren. Während der Laufzeit ist die Aufgabe des Gegners, seine Antworten so zu geben, dass der Algorithmus möglichst lange nicht terminieren kann, aber natürlich nicht im Widerspruch zu den vorherigen Antworten steht. Die Aufgabe beim Beweisen ist also, eine Strategie für den Gegner zu finden. In diesem Kapitel werden Männer und Frauen durch die Menge $[n]$ beschrieben, dies erlaubt einen kürzeren Beweis, schränkt die Allgemeinheit der Ergebnisse aber nicht ein.\par
 
 \begin{Lemma}
 \label{eine_paarung}
@@ -14,12 +14,12 @@ Der Beweis wird über eine Adversary Argument geführt. Beweise dieser Art eigne
 
 \begin{Definition}
 \label{kanonische_listen}
-  In der kanonischen Frauenpräferenz haben alle Frauen die gleiche aufsteigend sortierte Präferenzliste.
+  In der \textit{kanonischen Frauenpräferenz} haben alle Frauen die gleiche aufsteigend sortierte Präferenzliste.
 \end{Definition}
 
 \begin{Lemma}
 \label{beste_frau}
-  In einer Instanz die eine kanonischen Frauenpräferenz hat und dadurch nur eine Paarung $P$, hat jeder Mann $i.i<|M|$ jene höchstpriorisierte Frau zur Partnerin, die keinen Mann $j.j<i$ als zum Partner hat.
+  In einer Instanz die eine kanonischen Frauenpräferenz hat und dadurch nur eine Paarung $P$, hat jeder Mann $i.i<n$ jene höchstpriorisierte Frau zur Partnerin, die keinen Mann $j.j<i$ zum Partner hat.
 \end{Lemma}
 
 \begin{Beweis}
@@ -27,16 +27,16 @@ Der Beweis wird über eine Adversary Argument geführt. Beweise dieser Art eigne
   Wenn $\exists k \in W.k <_{i}p_{P}(i)\land i < j$, dann würde das Paar $(i,k)$ $P$ blockieren.
 \end{Beweis}
 
-Für für diesen Beweis entscheidet die Strategie nur über die Präferenzen der Männer, während sie auf (Mann, Position in der Liste)-Paare mit einer Frau antwortet. Die Frauenpräferenzen sind durch die kanonischen Frauenpräferenz bestimmt, Zugriffe auf sie werden nicht gezählt.
+Für diesen Beweis entscheidet die Strategie nur über die Präferenzen der Männer, während sie auf (Mann, Position in der Liste)-Paare mit einer Frau antwortet. Die Frauenpräferenzen sind durch die kanonischen Frauenpräferenz bestimmt, Zugriffe auf sie werden nicht gezählt.
 
 \begin{Theorem}
 \label{keine_gute_loesung}
-  Im schlimmsten Fall muss ein Algorithmus, der Stabilität verifiziert, oder eine stabile Paarung herstellt, mindestens $n(n-1)/2$ mal auf die Präferenzlisten der Männer zugreifen.
+  Im schlimmsten Fall muss ein Algorithmus, der Stabilität verifiziert, oder eine stabile Paarung bestimmt, mindestens $n(n-1)/2$ mal auf die Präferenzlisten der Männer zugreifen.
 \end{Theorem}
 
 \begin{Beweis}
 \label{keine_gute_loesung_bew}
-  Sei $i$ die Bestimmende Zahl eines Mannes $m$ und $k$ die Anzahl der bereits bekannten Positionen auf der Präferenzliste von $m$. Solange $k \leq i-1$ gilt, antwortet die Strategie immer mit $k$ auf eine unbekannte Position. Sobald dies nicht mehr gilt, wird die unspezifizierte Position mit der höchsten Priorität auf die Frau $w$ mit der Nummer $i$ gesetzt. Die anderen Positionen können beliebig gesetzt werden. Dies hat zu Folge, dass alle Frauen mit höherer Priorität als der von $w$, eine kleinere Zahl als $w$ haben. Somit stellt Lemma \ref{beste_frau} sicher, dass ein nur eine Paarung geben kann und diese ausschließlich aus Identitäten besteht.\\
+  Sei $i$ die bestimmende Zahl eines Mannes $m$ und $k$ die Anzahl der bereits bekannten Positionen auf der Präferenzliste von $m$. Solange $k \leq i-1$ gilt, antwortet die Strategie immer mit $k$ auf eine unbekannte Position. Sobald dies nicht mehr gilt, wird die unspezifizierte Position mit der höchsten Priorität auf die Frau $w$ mit der Nummer $i$ gesetzt. Die anderen Positionen können beliebig gesetzt werden. Dies hat zur Folge, dass alle Frauen mit höherer Priorität als der von $w$, eine kleinere Zahl als $w$ haben. Somit stellt Lemma \ref{beste_frau} sicher, dass es nur eine Paarung geben kann und diese ausschließlich aus Identitäten besteht.\\
   Solange aber nicht für jeden Mann $i. i < n$ die Frau mit dieser Zahl positioniert wurde, kann der Gegner immer noch seine Strategie ändern und einer Frau mit einem größeren Index eine höhere Priorität in der Liste von Mann $i$ geben. Die Paarung dieser Instanz hat nun aber nach Lemma \ref{beste_frau} eine andere Gestalt. Erst wenn $n(n-1)/2$ Positionen bekannt sind, kann der Gegner seine Strategie nicht mehr ändern.
 
 \end{Beweis}
