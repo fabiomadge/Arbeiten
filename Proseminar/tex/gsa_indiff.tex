@@ -1,0 +1,25 @@
+\begin{algorithm}[H]
+  \SetKwData{KwM}{m}\SetKwData{KwM'}{m'}\SetKwData{KwW}{w}
+  setze alle Personen auf $frei$\;
+  \Solange{$\forall m \in M.\exists w \in W.$ $m$ darf $w$ einen Heiratsantrag machen}{
+    \Wenn{ein Mann \KwM keine Partnerin hat}{
+      \FuerAlle{Frauen \KwW, die für \KwM höchste Priorität haben und um deren Hand \KwM nicht anhalten hat}{
+        \eWenn{\KwW keinen Partner hat}{
+          füge \KwW und \KwM zu den jeweiligen Partnerlisten hinzu\;
+        }
+        {
+          \Wenn{\KwW \KwM ihren Verlobten vorzieht, oder indifferent ist}{
+            \Wenn{\KwW \KwM ihren Verlobten vorzieht}{
+              entferne \KwW aus allen Partnerlisten\;
+              leere die Partnerliste von \KwW\;
+            }
+            füge \KwW und \KwM zu den jeweiligen Partnerlisten hinzu\;
+          }
+          \lSonst{lehnt \KwW den Antrag ab}
+        }
+      }
+    }
+    \lSonst{wende Taktik an}
+  }
+  \caption{Angepasster Gale–Shapley Algorithmus}
+\end{algorithm}
