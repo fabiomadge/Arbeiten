@@ -1,0 +1,199 @@
+\subsection{Mengen unterschiedlicher Größe}
+\begin{frame}
+  \begin{Definition}
+  \label{stabil_diff}
+    Eine Paarung $P$ ist genau dann nicht \textit{stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $p_{P}(w) <_{w} m$ und $p_{P}(m) <_{m} w$. Liefert $p_{P}(x)$ keinen Partner, ist dieses Ergebnis kleiner als jedes Element der Präferenzliste von $x$.
+  \end{Definition}
+\end{frame}
+
+\begin{frame}
+  \begin{Theorem}
+  \label{paarung_existiert_diff}
+    Für jede Instanz des Stable Marriage Problems, in der $|W| \neq |M|$ gilt, existiert mindestens eine stabile Paarung mit $\min\{|W|,|M|\}$ Paaren. Der Gale–Shapley Algorithmus findet sie.
+  \end{Theorem}
+
+  \begin{Beweis}
+  \label{paarung_existiert_diff_bew}
+    Wie Lemma \ref{paarung_existiert} mit den lokalen Änderungen. Terminierung ist durch die neue Abbruchbedingung gegeben.
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Definition}
+  \label{vorziehen}
+    Seien P und P' Paarungen und eine Person $x$ \textit{bevorzugt} $P$ gegenüber $P'$, wenn gilt $p_{P'}(x) <_{x} p_{P}(x)$. Die Ordnung verhält sich wie in Definition \ref{stabil_diff} für nicht existente Partner. Hat $x$ in beiden Paarungen keinen Partner, ist $x$ indifferent.
+  \end{Definition}
+\end{frame}
+
+\begin{frame}
+  \begin{Lemma}
+  \label{strikte_ordnung}
+    Seien $P$ und $P'$ stabile Paarungen in denen $p_{P}(m) = w \land p_{P}(w) = m \land p_{P'}(m) \neq w$ gilt. Daraus folgt, dass entweder $m$ $P$ und $w$ $P'$ bevorzugt, oder umgekehrt.
+  \end{Lemma}
+
+  \begin{Beweis}
+  \label{strikte_ordnung_bew}
+    \begin{enumerate}[<+->]
+        \item Seien $\mathcal{X} \subseteq M$ und $\mathcal{Y} \subseteq W$ jene Personen die $P$ bevorzugen
+        \item Seien $\mathcal{X'} \subseteq M$ und $\mathcal{Y'} \subseteq W$ jene Personen die $P'$ bevorzugen
+        \item $\nexists m \in \mathcal{X},w \in \mathcal{Y}. (m,w) \textrm{ in } P$ (stabil)
+        \item $\nexists m \in \mathcal{X},w \in W - \mathcal{Y} - \mathcal{Y'}. (m,w) \textrm{ in } P$ (gleicher Partner)
+        \item 3 + 4 $\Longrightarrow$ Wenn m Partner in $P$ hat, dann aus $\mathcal{Y'}$
+        \item[$\Longrightarrow$] $|\mathcal{X}| \leq |\mathcal{Y'}|$
+        \item Analog: $|\mathcal{X'}| \leq |\mathcal{Y}|$
+        \item $|\mathcal{X}| + |\mathcal{X'}| = |\mathcal{Y}| + |\mathcal{Y'}|$ (Fakt, alle Partnerwechsler)
+        \item[$\Longrightarrow$] $|\mathcal{X}| = |\mathcal{Y'}|\land |\mathcal{X'}| = |\mathcal{Y}|$
+    \end{enumerate}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Theorem}
+  \label{partner_oder_nicht_diff}
+    Wenn $|W| \neq |M|$ gilt, dann $\max\{W,M\} = Q \cup Q' \land  Q \cap Q' = \emptyset$, wobei die Personen in $Q$ in allen stabilen Paarung einen Partner haben, die in $Q'$ in keiner.
+  \end{Theorem}
+
+  \begin{Beweis}
+  \label{partner_oder_nicht_diff_bew}
+    \begin{itemize}[<+->]
+      \item Seien $P$ und $P'$ stabile Paarungen
+      \item Darstellung in einem gerichteten bipartiten Graph $G$
+      \item Verlobungen in $P$ als Kanten $M \rightarrow W$, $P'$ dual.
+      \item $\forall p \in V. d^{+}_{G}(p) \leq 1 \land d^{-}_{G}(p) \leq 1$
+      \item Sei $x \in \max\{W,M\}$ eine Person die $P$ gegenüber $P'$ vorzieht.
+      \item Kreisfreier Pfad: $x,..,y \in \max\{W,M\}$, $d^{+}_{G}(x) = d^{-}_{G}(y) = 0$
+      \item Traviersieren des Pfad mit (Lemma \ref{strikte_ordnung}) $\Longrightarrow$ $y$ präferiert $P$
+      \item Widerspruch
+    \end{itemize}
+  \end{Beweis}
+\end{frame}
+
+\subsection{Unvollständige Präferenzlisten}
+\begin{frame}
+  \begin{Theorem}
+  \label{partner_oder_nicht}
+    Wenn es unvollständige Präferenzlisten gibt, dann $W \cup M = Q \cup Q' \land  Q \cap Q' = \emptyset$, wobei die Personen in $Q$ in allen stabilen Paarung einen Partner haben, die in $Q'$ in keiner.
+  \end{Theorem}
+
+  \begin{Beweis}
+  \label{partner_oder_nicht_bew}
+    \begin{itemize}[<+->]
+      \item Seien $P$ und $P'$ stabile Paarungen
+      \item Darstellung in einem gerichteten bipartiten Graph $G$
+      \item Verlobungen in $P$ als Kanten $M \rightarrow W$, $P'$ dual.
+      \item $\forall p \in V. d^{+}_{G}(p) \leq 1 \land d^{-}_{G}(p) \leq 1$
+      \item Sei $m \in M$ ein Mann der $P$ gegenüber $P'$ vorzieht.
+      \item Kreisfreier Pfad: $x,..,y \in W \cup M$, $d^{+}_{G}(x) = d^{-}_{G}(y) = 0$
+      \begin{itemize}
+        \item $y \in W \Longrightarrow$ $y$ bevorzugt $P$
+        \item $y \in M \Longrightarrow$ $y$ bevorzugt $P'$
+      \end{itemize}
+      \item Traviersieren des Pfad mit (Lemma \ref{strikte_ordnung})
+      \item Widerspruch
+    \end{itemize}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Theorem}
+  \label{element_enfuegen}
+    Wenn ein Mann $m$ in einer Instanz eine Frau $w$ an seine Prä\-fe\-renz\-lis\-te anhängt, dann gilt weder in der man-optimal noch in der woman-optimal stabilen Paarung für die neue Instanz, dass irgendeine Frau die entsprechende Paarung für die ursprüngliche Instanz bevorzugt und irgendein Mann, bis auf $m$, die entsprechende Paarung für die neue Instanz bevorzugt.
+  \end{Theorem}
+
+  % \begin{Beweis}
+  % \label{element_enfuegen_bew}
+    % Wenn $m$ bereits in der man-optimal Paarung für die ursprüngliche Instanz eine Partnerin hatte, ändert sich nichts, weil $m$ nicht die Gelegenheit bekommt ihr einen Heiratsantrag zu machen. Falls $m$ keine Partnerin hatte, können die Frauen nur profitieren, da sie nur Änderungen akzeptieren die zu einer Verbesserung führen, und die Männer können nur verlieren, indem eine Frau eine Verlobung wieder löst. $m$ bekommt aber die Chance um die Hand von $w$ anzuhalten.\\
+    % Wenn $w$ bereits in der woman-optimal Paarung für die ursprüngliche Instanz einen Partner hatte, ändert sich nichts, weil $m$ nicht die Gelegenheit bekommt ihr einen Heiratsantrag zu machen. Hatte $w$ keinen Partner, ergibt sich die Gelegenheit $m$ den Hof zu machen. Dies wird zwar angenommen, wenn $m$ noch keine Partnerin hat, kann aber keine andere Frau benachteiligen, weil jede potentielle Geschädigte weiter vorne in der Prioritätenliste von $m$ steht, und $w$ somit immer ersetzen würde.
+  %     \begin{itemize}%[<+->]
+  %       \item man-optimal:
+  %         \begin{itemize}
+  %           \item m hatte bereits eine Partnerin: Keine Veränderung
+  %           \item m hatte noch keine Partnerin:
+  %           \begin{itemize}
+  %             \item $W$: können sich nur verbessern (Def. Alg.)
+  %             \item $m$ kann einen zusätzlichen Antrag machen
+  %             \item $M \setminus \{m\}$: Gefahr durch Ersetzung mit $m$
+  %           \end{itemize}
+  %         \end{itemize}
+  %       \item woman-optimal:
+  %       \begin{itemize}
+  %         \item w hatte bereits einen Partner: Keine Veränderung
+  %         \item w hatte noch keinen Partner:
+  %         \begin{itemize}
+  %           \item $W$: können sich nur verbessern (Def. Alg.)
+  %           \item $m$ kann einen zusätzlichen Antrag machen
+  %           \item $M \setminus \{m\}$: Gefahr durch Ersetzung mit $m$
+  %         \end{itemize}
+  %       \end{itemize}
+  %     \end{itemize}
+  % \end{Beweis}
+\end{frame}
+
+\subsection{Streng schwach geordnete Präferenzlisten}
+\begin{frame}
+  \begin{Definition}
+  \label{super-stabil}
+    Eine Paarung $P$ ist genau dann nicht \textit{super-stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m \leq_{w} p_{P}(w), m \neq p_{P}(w)$ und $w \leq_{m} p_{P}(m), w \neq p_{P}(m)$.
+  \end{Definition}
+\end{frame}
+
+\begin{frame}
+  \begin{Proposition}
+  \label{keine_super-stabil}
+    Für eine beliebige Instanz des SMP mit streng schwach geordnete Präferenzlisten, kann auch keine super-stabile Paarung existieren.
+  \end{Proposition}
+
+  \begin{Beweis}
+  \label{keine_super-stabil_bew}
+  \begin{itemize} [<+->]
+      \item Gegenbeispiel: Instanz mit $\forall x y. x \leq_{y} x, x \in \textrm{Pr\"aferenzliste}(y)$
+      \item $\forall m \in M,w \in W. (m,w) \textrm{ blockiert jede Paarung}$
+   \end{itemize}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Definition}
+  \label{streng_stabil}
+    Eine Paarung $P$ ist genau dann nicht \textit{streng stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt für die gilt, dass $m \leq_{w} m' = p_{P}(w), m \neq m'$, $w \leq_{m} w' = p_{P}(m), w \neq w'$ und entweder $m <_{w} m'$, oder $w <_{m} w'$ gilt.
+  \end{Definition}
+\end{frame}
+
+\begin{frame}
+  \scalebox{.87}{
+    \begin{minipage}{1.149425287\textwidth}
+      \input{tex/gsa_indiff}
+    \end{minipage}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Taktik: super-stabil}
+  \begin{itemize}[<+->]
+    \item Alle Frauen mit mehreren Verlobten, lösen ihre Verlobungen.
+    \item Diese Frauen dürfen nur noch Verlobungen höherer Priorität annehmen.
+    \item Haben alle Personen nach Terminierung einen Partner, ist die Paarung super-stabil.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Taktik: streng stabil}
+  \begin{itemize}[<+->]
+    \item Darstellung aller Personen als Knoten in einem ungerichteter bipartiten Graph
+    \item Verlobungsbeziehungen als Kanten
+    \item Ein stabiles Matching in diesem Graph ist eine stabile Paarung $\longrightarrow$ der Algorithmus terminiert
+    \item Sonst, $\exists \mathcal{M} \subseteq M. |\mathcal{M}| < |\mathcal{W} = \{w | \exists m, w.(m \in \mathcal{M} \land w \in W \land  w \textrm{ ist mit } m \textrm{ verlobt})\}|$
+    \item Alle Frauen $\in \mathcal{W}$ mit mehreren Verlobten, lösen ihre Verlobungen.
+    \item Diese Frauen dürfen nur noch Verlobungen höherer Priorität annehmen.
+    \item Haben alle Personen nach Terminierung einen Partner, ist die Paarung streng stabil.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Ursprüngliche Definition}
+  \begin{itemize}[<+->]
+    \item Umwandlung der Präferenzliste zu einer totalen Ordnung
+    \item Standardversion vom GSA
+    \item Ergebnis ist abhängig von der Umwandlungsstrategie, nicht mehr zwingend man-optimal
+  \end{itemize}
+\end{frame}

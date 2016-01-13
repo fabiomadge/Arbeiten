@@ -1,0 +1,142 @@
+\subsection{Allgemein}
+\begin{frame}
+  \begin{itemize}[<+->]
+  	\item Matchingproblem im vollständigen bipartiten Graph $G = (V,E)$
+    \item $V = M \cup W$
+    \item $M \cap W = \emptyset$
+    \item $|M| = |W|$
+    \item Präferenzlisten - totale Ordnung der anderen Teilmenge
+    \item Ziel: \textit{stabile} Paarung $P \subseteq M \times W$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{Definition}
+  \label{stabil}
+    Eine Paarung $P$ ist genau dann nicht \textit{stabil}, wenn es zwei Knoten $m \in M$ und $w \in W$ gibt, für die gilt, dass $p_{P}(w) <_{w} m$ und $p_{P}(m) <_{m} w$.
+  \end{Definition}
+\end{frame}
+
+\subsection{Problembeschreibung}
+\begin{frame}
+  \begin{itemize}[<+->]
+  	\item Männer und Frauen einander gerecht zuteilen
+    \item Anzahl der Männer und Frauen gleich
+    \item Ordnung aller Personen des anderen Geschlechts, nach Zuneigung
+    \item Kein blockierendes Paar
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \input{tex/stabilityCheck}
+\end{frame}
+
+\subsection{Gale–Shapley Algorithmus}
+\begin{frame}
+  \input{tex/gsa}
+\end{frame}
+
+\begin{frame}
+  \begin{Lemma}
+  \label{gsa_terminiert}
+    Für jedes Instanz des Stable Marriage Problems terminiert der Gale–Shapley Algorithmus.
+  \end{Lemma}
+
+  \begin{Beweis}
+  \label{gsa_terminiert_bew}
+    \begin{enumerate}[<+->]
+      \item Algorithmus terminiert $\Longleftrightarrow$ alle Männer verlobt (Def. Alg.)
+      \item Eine Frau kann nur ablehnen, wenn sie verlobt ist. (Def. Alg.)
+      \item Ist eine Frau verlobt, wird sie nicht mehr frei. (Def. Alg.)
+      \item Annahme: $\exists m \in M. m$ wird von allen Frauen abgelehnt
+      \begin{itemize}
+          \item[$\Longrightarrow$] Alle Frauen sind verlobt (2)
+          \item[$\Longrightarrow$] $|W| < |M|$
+          \item Widerspruch (Def. Prob.)
+       \end{itemize}
+    \end{enumerate}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Theorem}
+  \label{paarung_existiert}
+    Für jede Instanz des Stable Marriage Problems existiert mindestens eine stabile Paarung. Sie wird vom Gale–Shapley Algorithmus gefunden.
+  \end{Theorem}
+
+  \begin{Beweis}
+  \label{paarung_existiert_bew}
+    \begin{enumerate} [<+->]
+        \item Nach Terminierung: vollständige Paarung $P$ (Def. Alg.)
+        \item Annahme: $P$ instabil
+        \begin{itemize}
+            \item[$\Longrightarrow$] $\exists m \in M,w \in W. (m,w) \textrm{ blockiert } P$ (Def. stabil)
+            \item[$\Longrightarrow$] $p_{P}(m) <_{m} w$ (Def. stabil)
+            \item[$\Longrightarrow$] $m$ hat $w$ einen Antrag gemacht (Def. Alg.), aber
+            \begin{itemize}
+                \item direkt abgewiesen, oder
+                \item später durch $m <_{w} m'$ ersetzt.
+            \end{itemize}
+            \item[$\Longrightarrow$] $m <_{w} m' \leq_{w} p_{P}(w)$
+            \item Widerspruch (Def. stabil)
+        \end{itemize}
+        \item (Lemma~\ref{gsa_terminiert}) + 1 + 2 $\Longrightarrow$ (Theorem~\ref{paarung_existiert})
+     \end{enumerate}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Definition}
+  \label{man_optimal}
+    Eine Paarung heißt genau dann \textit{man-optimal}, wenn jeder Mann jene Frau zur Partnerin hat, die vom ihm am höchsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
+  \end{Definition}
+
+  \begin{Definition}
+  \label{woman_pessimal}
+    Eine Paarung heißt genau dann \textit{woman-pessimal}, wenn jede Frau jenen Mann zum Partner hat, der vom ihr am niedrigsten priorisiert ist und in irgendeiner stabilen Paarung mit ihm verheiratet ist.
+  \end{Definition}
+\end{frame}
+
+\begin{frame}
+  \begin{Lemma}
+  \label{man_optimal_woman_pessimal}
+    Ist eine Paarung man-optimal, so muss sie gleichzeitig auch woman-pessimal sein.
+  \end{Lemma}
+
+  \begin{Beweis}
+  \label{man_optimal_woman_pessimal_bew}
+    \begin{itemize} [<+->]
+        \item Sei $P$ eine man-optimal Paarung.
+        \item Sei $P'$ eine stabile Paarung mit $\exists w \in W.m' = p_{P'}(w) <_{w} m = p_{P}(w)$.
+        \item $(m,w)$ blockieren $P'$
+        \begin{itemize}
+            \item $m' <_{w} m$ ($P'$)
+            \item $p_{P'}(m) <_{m} w$ (man-optimal)
+         \end{itemize}
+        \item Widerspruch (Assm.)
+     \end{itemize}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Theorem}
+  \label{mann_optimal}
+    Der Gale–Shapley Algorithmus ist deterministisch und vom ihm erzeugte Paarungen sind man-optimal und woman-pessimal.
+  \end{Theorem}
+
+  \begin{Beweis}
+  \label{mann_optimal_bew}
+    % Sie $P$ eine vom Algorithmus in beliebiger Ausführungsreihenfolge berechnete Paarung und $P'$ eine stabile Paarung in der $w = p_{P}(m) <_{m} w' = p_{P'}(m)$ gilt. Dies ist gleichbedeutend damit, dass $m$ während der Ausführung durch $m' \in M.m <_{w'} m'$, als Partner von $w'$ ersetzt wurde. Nun wird angenommen, dass dies das erste Vorkommen einer Abweisung eines stabilen Partners war. Dies schwächt den Beweis nicht ab, erlaubt aber die Feststellung, dass $P'$ durch $(m',w')$ blockiert wird, da $m <_{w'} m'$ ($m'$) und $p_{P'}(m') <_{m'} w'$ (erste Ablehnung). $P'$ kann also nicht stabil sein und somit ist der Algorithmus deterministisch. Da jeder Mann seine bestmögliche Partnerin hat($\nexists P'$), ist $P$ man-optimal und somit auch woman-pessimal (Lemma~\ref{man_optimal_woman_pessimal}).
+    \begin{itemize} [<+->]
+        \item Sei $P$ Ergebnis vom GSA in beliebiger Ausführungsreihenfolge
+        \item Sei $P'$ eine stabile Paarung mit $\exists m \in M.w = p_{P}(m) <_{m} w' = p_{P'}(m)$.
+        \item[$\Longrightarrow$] Antrag von $m$ an $w'$ durch $m' \in M$ gehindert (Def. Alg.)
+        \item Annahme (\OE): erste Abweisung eines stabilen Partners
+        \item[$\Longrightarrow$] $p_{P'}(m') <_{m'} w'$ und $m <_{w'} m'$ (hinderung)
+        \item[$\Longrightarrow$] $(m',w')$ blockiert $P'$
+        \item[$\Longrightarrow$] $P'$ existiert nicht
+        \item[$\Longrightarrow$] $P$ ist man-optimal und woman-pessimal (Lemma~\ref{man_optimal_woman_pessimal})
+        \item[$\Longrightarrow$] $P$ ist deterministisch
+     \end{itemize}
+  \end{Beweis}
+\end{frame}

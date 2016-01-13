@@ -10,10 +10,10 @@ match x = replicateM x (shuffle [1..x])
 
 main :: IO ()
 main = do
-  pm <- match 1000
-  pw <- match 1000
+  pm <- match 6
+  pw <- match 6
   let x = findStableMatching (pm, pw)
-  print (head x)
+  print x
 
 -- https://wiki.haskell.org/Random_shuffle
 -- | Randomly shuffle a list

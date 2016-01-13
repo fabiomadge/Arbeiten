@@ -1,0 +1,63 @@
+\documentclass[]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[german, vlined, ruled]{algorithm2e}
+\usepackage{graphics}
+\usepackage{etoolbox}
+\usetheme{Berlin}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{theorems}[ams style]
+\usecolortheme{dove}
+\usefonttheme{professionalfonts}
+\beamertemplatenavigationsymbolsempty
+
+\undef{\Theorem}
+\undef{\Lemma}
+\undef{\Definition}
+\newtheorem{Proposition}{Proposition}
+\newtheorem{Theorem}{Theorem}
+\newtheorem{Lemma}{Lemma}
+\newtheorem{Definition}{Definition}
+
+\begin{document}
+
+\title{Eine Lösung des Stable Marriage Problems und drei Erweiterungen}
+\author[F. Madge Pimentel]{Fabio Madge Pimentel}
+\institute{Technische Universität München}
+\date[13.01.16]{13. Januar 2016}
+\maketitle
+
+\begin{frame}
+\setcounter{tocdepth}{1}
+\tableofcontents[pausesections]
+\end{frame}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\setcounter{tocdepth}{2}
+\tableofcontents[currentsection,hideothersubsections]
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\setcounter{tocdepth}{2}
+\tableofcontents[currentsection,
+        currentsubsection,
+        subsectionstyle=show/shaded/hide]
+\end{frame}
+}
+
+\section{Grundlagen}
+\input{tex/foundations_slides}
+
+\section{Erweiterungen}
+\input{tex/extensions_slides}
+
+\section{Asymptotische Optimalität}
+\input{tex/asymptotic_optimality_slides}
+
+\end{document}

@@ -1,0 +1,84 @@
+\begin{frame}
+  \begin{center}
+    Existiert ein Algorithmus $\in o(n^2)$, der eine stabile Paarung findet, oder sie verifiziert?
+  \end{center}
+\end{frame}
+
+\subsection{Adversary Arguments}
+\begin{frame}
+\begin{figure}
+    \centering
+    \def\svgwidth{0.69\columnwidth}
+    \input{./graphics/Battleship_game_board.pdf_tex}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\begin{itemize}[<+->]
+	\item Beweistechnik für untere Schranken
+	\item Bestimmung der Eingabe zur Laufzeit
+	\item Ziel: Hinauszögern einer definitiven Entscheidung
+\end{itemize}
+\end{frame}
+
+\subsection{Kanonischen Frauenpräferenz}
+\begin{frame}
+  \begin{Lemma}
+  \label{eine_paarung}
+    Für eine Instanz in der alle Frauen die gleiche Präferenzliste haben, gibt es nur eine stabile Paarung.
+  \end{Lemma}
+
+  \begin{Beweis}
+  \label{eine_paarung_bew}
+    % $P$ sei die einzige stabile Paarung, somit auch die woman-pessimal, $P'$ eine beliebige andere. $\mathcal{W} \subseteq W$ enthält alle Frauen die unterschiedliche Partner in den Paarungen haben. $w \in \mathcal{W}$ wird so gewählt, dass $p_{P}(w)$ maximal in $<_{w}$ ist. Jetzt blockieren $(m = p_{P}(w),w)$ aber $P'$, weil $w$ einen schlechteren Partner bekommen hat und $m$ die höchste Priorität unter allen möglichen Partnern hat.
+    \begin{itemize}[<+->]
+    	\item Sei $P$ die einzige stabile Paarung (man-optimal)
+    	\item Sei $P'$ eine beliebige andere Paarung
+    	\item Seien $\mathcal{W} \subseteq W$ die Frauen mit unterschiedlichen Partnern
+      \item Sei $w \in \mathcal{W}. m = p_{P}(w)$ maximal in $<_{w}$
+        \begin{itemize}
+          \item[$\Longrightarrow$] $p_{P'}(w)$ $<_{w} m$ (schlechterer Partner)
+          \item[$\Longrightarrow$] $p_{P'}(m)$ $<_{m} w$ (man-optimal)
+        \end{itemize}
+      \item[$\Longrightarrow$] $(m,w)$ blockiert $P'$
+      \item[$\Longrightarrow$] $P'$ existiert nicht
+    \end{itemize}
+  \end{Beweis}
+\end{frame}
+
+\begin{frame}
+  \begin{Definition}
+  \label{kanonische_listen}
+    In der \textit{kanonischen Frauenpräferenz} haben alle Frauen die gleiche aufsteigend sortierte Präferenzliste.
+  \end{Definition}
+\end{frame}
+
+\begin{frame}
+  \begin{Lemma}
+  \label{beste_frau}
+    In einer Instanz die eine kanonischen Frauenpräferenz hat und dadurch nur eine Paarung $P$, hat jeder Mann $i.i<n$ jene höchstpriorisierte Frau zur Partnerin, die keinen Mann $j.j<i$ zum Partner hat.
+  \end{Lemma}
+
+  \begin{Beweis}
+  \label{beste_frau_bew}
+    \begin{itemize}[<+->]
+      \item Sei $x \in W.p_{P}(i) <_{i} x \land i < j$
+      \item[$\Longrightarrow$] $(i,x)$ blockiert $P$
+    \end{itemize}
+  \end{Beweis}
+\end{frame}
+
+\subsection{Laufzeit: quadratisch}
+\begin{frame}
+  \begin{Theorem}
+  \label{keine_gute_loesung}
+    Im schlimmsten Fall muss ein Algorithmus, der Stabilität verifiziert, oder eine stabile Paarung bestimmt, mindestens $n(n-1)/2$ mal auf die Präferenzlisten der Männer zugreifen.
+  \end{Theorem}
+
+  % \begin{Beweis}
+  % \label{keine_gute_loesung_bew}
+  %   Sei $i$ die bestimmende Zahl eines Mannes $m$ und $k$ die Anzahl der bereits bekannten Positionen auf der Präferenzliste von $m$. Solange $k \leq i-1$ gilt, antwortet die Strategie immer mit $k$ auf eine unbekannte Position. Sobald dies nicht mehr gilt, wird die unspezifizierte Position mit der höchsten Priorität auf die Frau $w$ mit der Nummer $i$ gesetzt. Die anderen Positionen können beliebig gesetzt werden. Dies hat zur Folge, dass alle Frauen mit höherer Priorität als der von $w$, eine kleinere Zahl als $w$ haben. Somit stellt Lemma \ref{beste_frau} sicher, dass es nur eine Paarung geben kann und diese ausschließlich aus Identitäten besteht.\\
+  %   Solange aber nicht für jeden Mann $i. i < n$ die Frau mit dieser Zahl positioniert wurde, kann der Gegner immer noch seine Strategie ändern und einer Frau mit einem größeren Index eine höhere Priorität in der Liste von Mann $i$ geben. Die Paarung dieser Instanz hat nun aber nach Lemma \ref{beste_frau} eine andere Gestalt. Erst wenn $n(n-1)/2$ Positionen bekannt sind, kann der Gegner seine Strategie nicht mehr ändern.
+  % \end{Beweis}
+\end{frame}

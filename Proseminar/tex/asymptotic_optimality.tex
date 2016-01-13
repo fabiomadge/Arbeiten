@@ -1,6 +1,8 @@
 Die vorgestellten Algorithmen zum bestimmen von stabilen Paarungen und der Verifikation derer erfüllen zwar beweisbar ihren Zweck, es stellt sich aber die Frage, ob sie durch Algorithmen ersetzt werden können, die für alle Eingaben echt schneller sind. Die Frage ist also, ob die Suche nach einem Algorithmus $\in o(n^2)$ für eines dieser Probleme erfolgversprechend ist. Wie sich herausstellt, ist nicht der Fall.\par
 
-Der Beweis wird über ein \textit{adversary argument} geführt. Beweise dieser Art eignen sich um eine untere Schranke zu beweisen. Die Idee dieser Beweise ist, dem Algorithmus nicht die ganze Eingabe auf einmal zu geben, sondern stattdessen auf konkrete Anfragen zu reagieren. Während der Laufzeit ist die Aufgabe des Gegners, seine Antworten so zu geben, dass der Algorithmus möglichst lange nicht terminieren kann, aber natürlich nicht im Widerspruch zu den vorherigen Antworten steht. Die Aufgabe beim Beweisen ist also, eine Strategie für den Gegner zu finden. In diesem Kapitel werden Männer und Frauen durch die Menge $[n]$ beschrieben, dies erlaubt einen kürzeren Beweis, schränkt die Allgemeinheit der Ergebnisse aber nicht ein.\par
+Der Beweis wird über ein \textit{adversary argument} geführt. Beweise dieser Art eignen sich um eine untere Schranke zu beweisen. Die Idee dieser Beweise ist, dem Algorithmus nicht die ganze Eingabe auf einmal zu geben, sondern stattdessen auf konkrete Anfragen zu reagieren. Während der Laufzeit ist die Aufgabe des Gegners, seine Antworten so zu geben, dass der Algorithmus möglichst lange nicht terminieren kann, aber natürlich nicht im Widerspruch zu den vorherigen Antworten steht. Die Aufgabe beim Beweisen ist also, eine Strategie für den Gegner zu finden.\par
+
+In diesem Kapitel werden Männer und Frauen durch die Menge $[n]$ beschrieben, dies erlaubt einen kürzeren Beweis, schränkt die Allgemeinheit der Ergebnisse aber nicht ein.\par
 
 \begin{Lemma}
 \label{eine_paarung}
@@ -38,5 +40,4 @@ Für diesen Beweis entscheidet die Strategie nur über die Präferenzen der Män
 \label{keine_gute_loesung_bew}
   Sei $i$ die bestimmende Zahl eines Mannes $m$ und $k$ die Anzahl der bereits bekannten Positionen auf der Präferenzliste von $m$. Solange $k \leq i-1$ gilt, antwortet die Strategie immer mit $k$ auf eine unbekannte Position. Sobald dies nicht mehr gilt, wird die unspezifizierte Position mit der höchsten Priorität auf die Frau $w$ mit der Nummer $i$ gesetzt. Die anderen Positionen können beliebig gesetzt werden. Dies hat zur Folge, dass alle Frauen mit höherer Priorität als der von $w$, eine kleinere Zahl als $w$ haben. Somit stellt Lemma \ref{beste_frau} sicher, dass es nur eine Paarung geben kann und diese ausschließlich aus Identitäten besteht.\\
   Solange aber nicht für jeden Mann $i. i < n$ die Frau mit dieser Zahl positioniert wurde, kann der Gegner immer noch seine Strategie ändern und einer Frau mit einem größeren Index eine höhere Priorität in der Liste von Mann $i$ geben. Die Paarung dieser Instanz hat nun aber nach Lemma \ref{beste_frau} eine andere Gestalt. Erst wenn $n(n-1)/2$ Positionen bekannt sind, kann der Gegner seine Strategie nicht mehr ändern.
-
 \end{Beweis}
