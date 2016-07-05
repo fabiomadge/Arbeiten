@@ -1,0 +1,83 @@
+% \begin{frame}
+%   \begin{center}
+%   \scalebox{.83}{
+%     \begin{minipage}{1.2048192771\textwidth}
+%     \begin{tikzpicture}[->,>=stealth',node distance=5cm,auto,semithick,bend angle=12]
+%       \node[initial,state]   (A) {$2$};
+%       \node[state]           (B) [below right of=A, xshift=-1cm, yshift=-.5cm] {$1$};
+%       \node[state,accepting]           (C) [right of=A] {$0$};
+%       \node[state] (D) [right of=B] {$-1$};
+%       \node[state] (E) [right of=C] {$-2$};
+%
+%       \path (A)
+%                 edge [loop above] node {$\vektorb{1}{0}{1}$} (A)
+%                 edge [bend left] node [pos=0.3] {$\vektorb{0}{0}{0},\vektorb{1}{1}{1}$} (B)
+%                 edge          node {$\vektorb{0}{1}{0}$} (C)
+%             (B) edge [bend left] node {$\vektorb{0}{0}{1}$} (A)
+%                 edge [loop below] node {$\vektorb{0}{1}{1}$} (B)
+%                 edge [bend left] node [pos=0.3] {$\vektorb{1}{0}{0}$} (C)
+%                 edge [bend left] node {$\vektorb{1}{1}{0}$} (D)
+%             (C) edge [bend left] node {$\vektorb{1}{0}{1}$} (B)
+%                 edge [loop above] node {$\vektorb{0}{0}{0},\vektorb{1}{1}{1}$} (C)
+%                 edge [bend left] node {$\vektorb{0}{1}{0}$} (D)
+%             (D) edge [bend left] node {$\vektorb{0}{0}{1}$} (B)
+%                 edge [bend left] node {$\vektorb{0}{1}{1}$} (C)
+%                 edge [loop below] node  {$\vektorb{1}{0}{0}$} (D)
+%                 edge [bend left] node {$\vektorb{1}{1}{0}$} (E)
+%             (E) edge             node [above] {$\vektorb{1}{0}{1}$} (C)
+%                 edge [bend left] node {$\vektorb{0}{0}{0},\vektorb{1}{1}{1}$} (D)
+%                 edge [loop above] node {$\vektorb{0}{1}{0}$} (E);
+%     \end{tikzpicture}
+%     \end{minipage}
+%   }
+%   $\varphi ::= x + 2y - 3z$
+%   \end{center}
+% \end{frame}
+
+\begin{frame}
+  \begin{center}
+  \scalebox{.83}{
+    \begin{minipage}{1.2048192771\textwidth}
+    \begin{tikzpicture}[->,>=stealth',node distance=5cm,auto,semithick,bend angle=12]
+      \only<1-3>{\node[initial,state,fill={rgb:red,1;green,2;blue,5}] (A) {$2$};}
+      \visible<1->{\path (A) edge [loop above] node {$\vektorb{1}{0}{1}$} (A);}
+      \only<2-3>{\node[state] (B) [below right of=A, xshift=-1cm, yshift=-.5cm] {$1$};}
+      \only<2->{\path (A) edge [bend left] node [pos=0.3] {$\vektorb{0}{0}{0},\vektorb{1}{1}{1}$} (B);}
+      \only<3-7>{\node[state,accepting] (C) [right of=A] {$0$};}
+      \only<3->{\path (A) edge node {$\vektorb{0}{1}{0}$} (C);}
+
+      \only<4->{\node[initial,state]   (A) {$2$};}
+      \only<4-7>{\node[state] (B) [below right of=A, xshift=-1cm, yshift=-.5cm,fill={rgb:red,1;green,2;blue,5}] {$1$};}
+      \only<4->{\path (B) edge [bend left] node {$\vektorb{0}{0}{1}$} (A);}
+      \only<5->{\path (B) edge [loop below] node {$\vektorb{0}{1}{1}$} (B);}
+      \only<6->{\path (B) edge [bend left] node [pos=0.3] {$\vektorb{1}{0}{0}$} (C);}
+      \only<7-10>{\node[state] (D) [right of=B] {$-1$};}
+      \only<7->{\path (B) edge [bend left] node {$\vektorb{1}{1}{0}$} (D);}
+
+      \only<8->{\node[state] (B) [below right of=A, xshift=-1cm, yshift=-.5cm] {$1$};}
+      \only<8-10>{\node[state,accepting] (C) [right of=A,fill={rgb:red,1;green,2;blue,5}] {$0$};}
+      \only<8->{\path (C) edge [bend left] node {$\vektorb{1}{0}{1}$} (B);}
+      \only<9->{\path (C) edge [loop above] node {$\vektorb{0}{0}{0},\vektorb{1}{1}{1}$} (C);}
+      \only<10->{\path (C) edge [bend left] node {$\vektorb{0}{1}{0}$} (D);}
+
+      \only<11->{\node[state,accepting] (C) [right of=A] {$0$};}
+      \only<11-14>{\node[state] (D) [right of=B,fill={rgb:red,1;green,2;blue,5}] {$-1$};}
+      \only<11->{\path (D) edge [bend left] node {$\vektorb{0}{0}{1}$} (B);}
+      \only<12->{\path (D) edge [bend left] node {$\vektorb{0}{1}{1}$} (C);}
+      \only<13->{\path (D) edge [loop below] node  {$\vektorb{1}{0}{0}$} (D);}
+      \only<14-14>{\node[state] (E) [right of=C] {$-2$};}
+      \only<14->{\path (D) edge [bend left] node {$\vektorb{1}{1}{0}$} (E);}
+
+      \only<15->{\node[state] (D) [right of=B] {$-1$};}
+      \only<15-17>{\node[state] (E) [right of=C,fill={rgb:red,1;green,2;blue,5}] {$-2$};}
+      \only<15->{\path (E) edge node [above] {$\vektorb{1}{0}{1}$} (C);}
+      \only<16->{\path (E) edge [bend left] node {$\vektorb{0}{0}{0},\vektorb{1}{1}{1}$} (D);}
+      \only<17->{\path (E) edge [loop above] node {$\vektorb{0}{1}{0}$} (E);}
+
+      \only<18>{\node[state] (E) [right of=C] {$-2$};}
+    \end{tikzpicture}
+    \end{minipage}
+  }
+  $\varphi ::= x + 2y - 3z = 2$
+  \end{center}
+\end{frame}

@@ -1,0 +1,78 @@
+\subsection{Kodierung}
+\begin{frame}
+    \begin{itemize}[<+->]
+      \item $\Sigma = \{0,1\}^{n}$, for free variables $x_1, \dotsc x_n$.
+      \item $L\left(\varphi\right) = \displaystyle\bigcup_{s \in Sol\left(\varphi\right)} \texttt{LSBF2}(s)$
+    \end{itemize}
+    \uncover<+->{\textbf{Example:}
+    $$
+      \texttt{LSBF2}(4, -3, -2) = \vektorb{0}{1}{0}\vektorb{0}{0}{1}\vektorb{1}{1}{1}\left(\vektorb{0}{1}{1}\right)^*
+      \quad \begin{array}{r} 2^2 = 4 \\ 2^0 + 2^2 -8 = -3 \\ 2^1 - 4 = -2 \end{array}
+    $$
+    }
+\end{frame}
+
+\subsection{Gleichungen}
+\begin{frame}
+\scalebox{.87}{
+\begin{minipage}{1.149425287\textwidth}
+\begin{algorithm}[H]
+  \SetKwFunction{EqZtoNFA}{EqZtoNFA}
+  \SetKwFunction{pick}{pick}
+  \EqZtoNFA{$\varphi$}\\
+  \KwData{Equation $\varphi ::= ax = b$}
+  \KwResult{DFA $A_\varphi = (Q,\Sigma,\delta,q_0,F)$ such that $L(A_\varphi) = L(\varphi)$}
+  $Q, \delta, F \leftarrow \emptyset$\;
+  $q_0 \leftarrow s_b$\;
+  $W \leftarrow \left\{s_b\right\}$\;
+  \While{$W \neq \emptyset$}{
+    $s_k \leftarrow$ \pick{$W$}\;
+    $Q \leftarrow Q \cup \left\{s_k\right\}$\;
+    \ForAll{$\zeta \in \{0,1\}^{n}$}{
+      \uIf{$k-a\zeta$ is even}{
+        \lIf{$ k+a\zeta = 0$}{$F \leftarrow F \cup \left\{s_k\right\}$}
+        $j \leftarrow \frac{1}{2}(k-a\zeta)$\;
+        \lIf{$s_j \notin Q$}{$W \leftarrow W \cup \left\{s_j\right\}$}
+        $\delta \leftarrow \delta \cup \left(s_k, \zeta, s_j\right)$\;
+        $j' \leftarrow k+a\zeta$\;
+        \uIf{$j' \geq 0$}{
+          $Q \leftarrow Q \cup \left\{q_f\right\}$\;
+          $F \leftarrow F \cup \left\{q_f\right\}$\;
+          $\delta \leftarrow \delta \cup \left(s_k, \zeta, q_f\right)$\;
+        }
+      }
+    }
+  }
+\end{algorithm}
+\end{minipage}
+}
+\end{frame}
+
+\subsection{Ungleichungen}
+\begin{frame}
+\begin{algorithm}[H]
+  \SetKwFunction{IqZtoNFA}{IqZtoNFA}
+  \SetKwFunction{pick}{pick}
+  \IqZtoNFA{$\varphi$}\\
+  \KwData{Inequation $\varphi ::= ax \leq b$}
+  \KwResult{DFA $A_\varphi = (Q,\Sigma,\delta,q_0,F)$ such that $L(A_\varphi) = L(\varphi)$}
+  $Q, \delta, F \leftarrow \emptyset$\;
+  $q_0 \leftarrow s_b$\;
+  $W \leftarrow \left\{s_b\right\}$\;
+  \While{$W \neq \emptyset$}{
+    $s_k \leftarrow$ \pick{$W$}\;
+    $Q \leftarrow Q \cup \left\{s_k\right\}$\;
+    \ForAll{$\zeta \in \{0,1\}^{n}$}{
+      $j \leftarrow \left\lfloor \frac{1}{2}(k-a\zeta) \right\rfloor$\;
+      \lIf{$s_j \notin Q$}{$W \leftarrow W \cup \left\{s_j\right\}$}
+      $\delta \leftarrow \delta \cup \left(s_k, \zeta, s_j\right)$\;
+      $j' \leftarrow k+a\zeta$\;
+      \uIf{$j' \geq 0$}{
+        $Q \leftarrow Q \cup \left\{q_f\right\}$\;
+        $F \leftarrow F \cup \left\{q_f\right\}$\;
+        $\delta \leftarrow \delta \cup \left(s_k, \zeta, q_f\right)$\;
+      }
+    }
+  }
+\end{algorithm}
+\end{frame}

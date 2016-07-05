@@ -1,0 +1,96 @@
+\documentclass[]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[german, vlined, ruled]{algorithm2e}
+\usepackage{graphics}
+\usepackage{etoolbox}
+\usepackage{syntax}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+\usepackage{amssymb}
+\usetheme{Berlin}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{theorems}[ams style]
+\usecolortheme{dove}
+\usefonttheme{professionalfonts}
+\beamertemplatenavigationsymbolsempty
+
+\undef{\Theorem}
+\undef{\Lemma}
+\undef{\Definition}
+\undef{\Korollar}
+\newtheorem{Proposition}{Proposition}
+\newtheorem{Theorem}{Theorem}
+\newtheorem{Lemma}{Lemma}
+\newtheorem{Definition}{Definition}
+\newtheorem{Korollar}{Korollar}
+
+\newcommand{\vektora}[3] {
+  \begin{bmatrix}
+    #1 \\
+    #2 \\
+    #3
+  \end{bmatrix}
+}
+
+\newcommand{\vektorb}[3] {
+  \left[\begin{smallmatrix}
+    #1 \\
+    #2 \\
+    #3
+  \end{smallmatrix}\right]
+}
+
+\newcommand{\vektorc}[4] {
+  \begin{bmatrix}
+    #1 \\
+    #2 \\
+    #3 \\
+    #4
+  \end{bmatrix}
+}
+
+\begin{document}
+
+\title{Ein Entscheidungsverfahren für Presburger-Arithmetik}
+\author[F. Madge Pimentel]{Fabio Madge Pimentel}
+\institute{Technische Universität München}
+\date[05.07.16]{05. Juli 2016}
+\maketitle
+
+\begin{frame}
+\setcounter{tocdepth}{1}
+\tableofcontents[pausesections]
+\end{frame}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\setcounter{tocdepth}{2}
+\tableofcontents[currentsection,hideothersubsections]
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\setcounter{tocdepth}{2}
+\tableofcontents[currentsection,
+        currentsubsection,
+        subsectionstyle=show/shaded/hide]
+\end{frame}
+}
+
+\section{Grundlagen}
+\input{tex/foundations}
+
+\section{Automatenkonstruktion}
+\input{tex/presburger}
+
+\section{Ganze Zahlen}
+\input{tex/integers}
+
+\end{document}

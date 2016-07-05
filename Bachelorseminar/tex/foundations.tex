@@ -1,0 +1,86 @@
+\subsection{Syntax}
+\begin{frame}[fragile]
+  \begin{grammar}
+    <formula> ::= \lit{$\neg$} <formula> \alt <formula> \lit{$\lor$} <formula> \alt \lit{$\exists$} <var> <formula> \alt <atomicformula>
+
+    <atomicformula> ::= <term> \lit{$=$} <term>
+
+    <term> ::= <term> \lit{$+$} <term> \alt <variable> \alt <constant>
+
+    <variable> ::= x | y | z | ...
+
+    <constant> ::= 0 | 1
+  \end{grammar}
+\end{frame}
+
+\begin{frame}
+  \begin{itemize}[<+->]
+  	\item $x \land y ::= \neg (\neg x \lor \neg y)$
+    \item $x \to y ::= \neg x \lor y$
+    \item $\forall x . P(x) ::= \neg\exists x. \neg P(x)$
+    \item $x \neq y ::= \neg (x = y)$
+    \item $x \leq y ::= \exists z .(x + z = y)$
+    \item $x \geq y ::= y \leq x$
+    \item $x < y ::= x \leq y \land x \neq y$
+    \item $x > y ::= y < x$
+    \item $n \iff \sum_{i=1}^{n} 1 ::= 1 + ... + 1$
+    \item $nx \iff \sum_{i=1}^{n} x ::= x + ... + x$
+  \end{itemize}
+\end{frame}
+
+\subsection{Beispiel}
+\begin{frame}
+  \begin{table}
+    \begin{tabular}{l | c | c }
+    & interner Bedarf & externer Bedarf \\
+    \hline \hline
+    Bolzen & $2G+3K$ & $5000$ \\
+    Gelenke & $2K$ & $2000$\\
+    Kurbelwellen & $0$ & $1000$\\
+    Lager & $4K$ & $2500$
+    \end{tabular}
+  \caption{Badarfsanalyse}
+  \end{table}
+  \uncover<2->{\begin{align*}
+      && 5000 + 2G + 3K &= B\\
+      &\land & 2000 + 2K &= G\\
+      &\land & 1000 &= K\\
+      &\land & 2500 + 4K &= L
+    \end{align*}}
+\end{frame}
+
+\subsection{Theorie}
+\begin{frame}
+  Axiomatisierung von \textit{Th}$(\mathbb{N}, +, =)$\textit{(Die freien Variablen sind implizit allquantifiziert)}:
+  \begin{itemize}[<+->]
+    \item $\neg{(x + 1 = 0)}$
+    \item $(x + 1 = y + 1 \to x = y)$
+    \item $x + 0 = x$
+    \item $(x + y) + 1 = x + (y + 1)$ \\
+    \item
+      $(P(0) \land \forall x . {P(x) \to P(x + 1)}) \to \forall x . P(x)$
+  \end{itemize}
+\end{frame}
+
+% $
+%     80 = Z_t \land 1560 = Z_k \land 144 = Z_b \land 2 * Z_t + 60 * Z_t + 8 * Z_b + 60 * Z_ö = P_m \land G = P_m * x_1
+% $
+
+% \begin{align}
+%     80 = Z_t
+%     \land 1560 = Z_k
+%     \land 144 = Z_b
+%     \land 700 = Z_o
+%     \land 16 & = Z_{kn} \\
+%     \land 180 = Z_{or}
+%     \land 144 = Z_s
+%     \land 112 = Z_{ka}
+%     \land 88 = Z_p
+%     \land 96 & = Z_{pe} \\
+%     \land 2 * Z_t + 60 * Z_k + 8 * Z_b + 10 * Z_o & = P_{m1} \\
+%     \land 2 * Z_t + 1 * Z_{kn} + 8 * Z_{or} + 10 * Z_o & = P_{m2} \\
+%     \land 2 * Z_t + 6 * Z_s + 6 * Z_{or} + 8 * Z_k + 10 * Z_o & = P_n \\
+%     \land 2 * Z_t + 40 * Z_k + 4 * Z_p + 8 * Z_{pe} + 10 * Z_o & = P_f \\
+%     \land 40 * Z_k + 4 * Z_p + 4 * Z_p + 6 * Z_s & = P_b \\
+%     \land P_{m1} * x_1 + P_{m2} * x_2 + P_n * x_3 + P_f * x_4 + P_b * x_5 & = G
+% \end{align}

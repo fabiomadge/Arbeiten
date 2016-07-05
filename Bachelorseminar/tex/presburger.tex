@@ -1,0 +1,171 @@
+\subsection{Kodierung}
+\begin{frame}
+    \begin{itemize}[<+->]
+      \item $\Sigma = \{0,1\}^{n}$, for free variables $x_1, \dotsc x_n$.
+      \item $L\left(\varphi\right) = \displaystyle\bigcup_{s \in Sol\left(\varphi\right)} \texttt{LSBF}(s)$
+    \end{itemize}
+    \uncover<+->{\textbf{Example:}
+    $$
+      \texttt{LSBF}(5, 10, 0) = \vektora{1}{0}{0}\vektora{0}{1}{0}\vektora{1}{0}{0}\vektora{0}{1}{0}\left(\vektora{0}{0}{0}\right)^*
+      \quad \begin{array}{r} 2^0 + 2^2 = 5 \\ 2^1 + 2^3 = 3 \\ 0 = 0 \end{array}
+    $$
+    }
+\end{frame}
+
+\subsection{Formel}
+\begin{frame}
+\begin{algorithm}[H]
+  \SetKwFunction{FtoNFA}{FtoNFA}
+  \SetKwFunction{EqtoDFA}{EqtoDFA}
+  \SetKwFunction{Free}{Free}
+  \SetKwFunction{Projection}{Projection}
+  \SetKwFunction{Union}{Union}
+  \SetKwFunction{CompNFA}{CompNFA}
+  \SetKwFunction{DFAtoNFA}{DFAtoNFA}
+  \SetKwProg{function}{Function}{}{}
+  \function{\FtoNFA{$\varphi$}}{
+    \Switch{$\varphi$}{
+      \Case{$\neg \varphi$}{
+        \Return \CompNFA{\FtoNFA{$\varphi$}}\;
+      }
+      \Case{$\varphi_1 \lor \varphi_2$}{
+        $I$ $\leftarrow$ \Free{$\varphi$} $\cup$ \Free{$\varphi$}\;
+        $s_1$ $\leftarrow$ \Projection{$I$,\FtoNFA{$\varphi_1$}}\;
+        $s_2$ $\leftarrow$ \Projection{$I$,\FtoNFA{$\varphi_2$}}\;
+        \Return \Union{$s_1, s_2$}\;
+      }
+      \Case{$\exists x. \varphi$}{
+        $I$ $\leftarrow$ \Free{$\varphi$} $-$ $x$\;
+        \Return \Projection{$I$,\FtoNFA{$\varphi$}}\;
+      }
+      \Other{
+        \Return \DFAtoNFA{\EqtoDFA{$\varphi$}}\;
+      }
+    }
+  }{}
+\end{algorithm}
+\end{frame}
+
+\subsection{Gleichungen}
+\begin{frame}
+  \uncover<+->{Betrachtung von Gleichungen der Form $a_1x_1 + \dotsc + a_nx_n = ax = b$
+  \\[2\baselineskip]
+  }
+  \uncover<+->{\textbf{Idee:}\\
+  Jeder Zustand $q \in \mathbb{Z}$ erkennt jene Wörter $c \in \mathbb{N}^n$, für die $ac = q$ gilt.
+  }
+\end{frame}
+
+\begin{frame}{$q \xrightarrow{\zeta} q'$?}
+  \begin{align*}
+    \uncover<+->{     & c' \in L(q')\\}
+    \uncover<+->{\iff & 2c' + \zeta \in L(q) &\text{(def LSBF)} \\}
+    \uncover<+->{\iff & a (2c' + \zeta) = q &\text{(Idee)} \\}
+    \uncover<+->{\iff & a c' = \frac{1}{2}(q-a\zeta)}
+  \end{align*}
+  \uncover<+->{
+    \[ \delta(q,\zeta) =
+    \begin{cases}
+      q_t                   & \quad \text{if } q = q_t \text{ or } q-a\zeta \text{ is odd}\\
+      \frac{1}{2}(q-a\zeta) & \quad \text{if } q-a\zeta \text{ is even}\\
+    \end{cases}
+    \]
+  }
+\end{frame}
+
+\begin{frame}
+\begin{algorithm}[H]
+  \SetKwFunction{EqtoDFA}{EqtoDFA}
+  \SetKwFunction{pick}{pick}
+  \EqtoDFA{$\varphi$}\\
+  \KwData{Equation $\varphi ::= ax = b$}
+  \KwResult{DFA $A_\varphi = (Q,\Sigma,\delta,q_0,F)$ such that $L(A_\varphi) = L(\varphi)$}
+  $Q, \delta, F \leftarrow \emptyset$\;
+  $q_0 \leftarrow s_b$\;
+  $W \leftarrow \left\{s_b\right\}$\;
+  \While{$W \neq \emptyset$}{
+    $s_k \leftarrow$ \pick{$W$}\;
+    $Q \leftarrow Q \cup \left\{s_k\right\}$\;
+    \lIf{$k = 0$}{$F \leftarrow F \cup \left\{s_k\right\}$}
+    \ForAll{$\zeta \in \{0,1\}^{n}$}{
+      \uIf{$k-a\zeta$ is even}{
+        $j \leftarrow \frac{1}{2}(k-a\zeta)$\;
+        \lIf{$s_j \notin Q$}{$W \leftarrow W \cup \left\{s_j\right\}$}
+        $\delta \leftarrow \delta \cup \left(s_k, \zeta, s_j\right)$\;
+      }
+    }
+  }
+\end{algorithm}
+\end{frame}
+
+\input{tex/example}
+
+\begin{frame}
+  \begin{Lemma}
+    Sei $\varphi ::= ax=b$ und $s := \sum^k_{i=1}|a_i|$ Für jeden durch \texttt{EqtoDFA}$(\varphi)$ erzeugten Zustand $j$ gilt, $-|b| - s \leq j \leq |b| + s$.
+  \end{Lemma}
+  \begin{Beweis}
+    Induktion über die Anzahl der erzeugten Zustände.\\
+    Basisfall: Ist für $s_b$ erfüllt.\\
+    Schritt: Der neue Zustand $s_j$ wird durch $s_k$ erreicht.
+    $$
+    -|b| - s \leq \frac{-|b| - s -a\zeta}{2} \leq j \leq \frac{|b| + s -a\zeta}{2} \leq \frac{|b| + 2s}{2} \leq |b| + s
+    $$
+  \end{Beweis}
+  \begin{Korollar}
+    \texttt{EqtoDFA}$(\varphi)$ terminert für jedes $\varphi$.
+  \end{Korollar}
+\end{frame}
+
+\begin{frame}
+  \begin{Lemma}
+    Sei $\varphi ::= ax=b$ und $A_\varphi$ der von \texttt{EqtoDFA}$(\varphi)$ erzeugte Automat.\\
+    $\forall q \in Q. \forall w \in \left(\left\{0,1\right\}^n\right)^*.\left(w \in L(q) \iff a\texttt{LSBF}^{-1}(w) = q\right)$
+  \end{Lemma}
+  \begin{Beweis}
+    Induktion über die Anzahl der erzeugten Zustände.\\
+    Basisfall: Defintion der Endzustände.\\
+    Schritt: IH + Konstruktionseigenschaft.
+  \end{Beweis}
+  \begin{Korollar}
+    \texttt{EqtoDFA}$(\varphi)$ ist total korrekt.
+  \end{Korollar}
+\end{frame}
+
+\subsection{Ungleichungen}
+\begin{frame}[fragile]
+  \begin{grammar}
+    <formula> ::= \lit{$\neg$} <formula> \alt <formula> \lit{$\lor$} <formula> \alt \lit{$\exists$} <var> <formula> \alt <atomicformula>
+
+    <atomicformula> ::= <term> \lit{$=$} <term> \alt <term> \lit{$\leq$} <term>
+
+    <term> ::= <term> \lit{$+$} <term> \alt <variable> \alt <constant>
+
+    <variable> ::= x | y | z | ...
+
+    <constant> ::= 0 | 1
+  \end{grammar}
+\end{frame}
+
+\begin{frame}
+\begin{algorithm}[H]
+  \SetKwFunction{IqtoDFA}{IqtoDFA}
+  \SetKwFunction{pick}{pick}
+  \IqtoDFA{$\varphi$}\\
+  \KwData{Inequation $\varphi ::= ax \leq b$}
+  \KwResult{DFA $A_\varphi = (Q,\Sigma,\delta,q_0,F)$ such that $L(A_\varphi) = L(\varphi)$}
+  $Q, \delta, F \leftarrow \emptyset$\;
+  $q_0 \leftarrow s_b$\;
+  $W \leftarrow \left\{s_b\right\}$\;
+  \While{$W \neq \emptyset$}{
+    $s_k \leftarrow$ \pick{$W$}\;
+    $Q \leftarrow Q \cup \left\{s_k\right\}$\;
+    \lIf{$k \geq 0$}{$F \leftarrow F \cup \left\{s_k\right\}$}
+    \ForAll{$\zeta \in \{0,1\}^{n}$}{
+      $j \leftarrow \left\lfloor \frac{1}{2}(k-a\zeta) \right\rfloor$\;
+      \lIf{$s_j \notin Q$}{$W \leftarrow W \cup \left\{s_j\right\}$}
+      $\delta \leftarrow \delta \cup \left(s_k, \zeta, s_j\right)$\;
+    }
+  }
+\end{algorithm}
+\end{frame}

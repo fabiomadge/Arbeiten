@@ -1,0 +1,65 @@
+\usepackage{ifthen}
+\usepackage{geometry}
+\geometry{dvips,a4paper,scale=0.9,noheadfoot}
+
+\usepackage{eurosym}
+\usepackage{amsmath}
+
+\newcommand{\printlsg}{true}
+
+\newcommand{\Vorlesung}{Algorithms for the Undecided}
+\newcommand{\Semester}{Summer term 2016}
+\newcommand{\Prof}{John Doe}
+
+%---------------------------- Voreinstellungen ------------------------------
+
+\renewcommand{\labelenumi}{(\alph{enumi})}   % Teilaufgabe
+\renewcommand{\labelenumii}{\roman{enumii})} % Teilunteraufgabe
+
+%--------------------------Macros---------------------------------------------
+\newlength{\abslength}\setlength{\abslength}{3mm plus 1mm minus 1mm}
+\newcommand{\absatz}{\par\vspace{\abslength}}
+\newlength{\ABSlength}\setlength{\ABSlength}{8mm plus 3mm minus 3mm}
+\newcommand{\ABSATZ}{\par\vspace{\ABSlength}}
+
+\newcommand{\unterstrichen}[1]{\(\underline{\mbox{#1}}\)}
+
+\newcounter{Aufgabennr}
+\newcounter{Blattnr}
+
+\newcommand{\Uebungsblatt}[3]
+{%
+   \pagestyle{empty}%
+   \setcounter{Blattnr}{#1}
+   {\bf\small%
+   Technische Universit\"at M\"unchen (I21)         \hfill \Semester\\
+   \Prof{}                  \hfill #2\\
+   \ABSATZ
+   }%
+   \begin{center}
+   \ifthenelse{\equal{\printlsg}{true}}{{\Huge\bf Solution\\[1cm]}}{}
+   {\Large\bf\unterstrichen{\Vorlesung\ -- Homework #1}}
+   \end{center}
+   \absatz
+   \begin{center}
+   Discussed on #3.
+   \end{center}
+   \absatz
+}%
+
+%==============================================================
+
+\newenvironment{exercise}[1]
+{\refstepcounter{Aufgabennr}
+ \pagebreak[3]
+ \relax
+ \subsubsection*{\underline{Exercise \ifthenelse{\equal{\arabic{Blattnr}}{0}}{}{\arabic{Blattnr}.}\arabic{Aufgabennr}}\qquad #1}%
+}
+
+\newcommand{\LSG}[1]{\ifthenelse{\equal{\printlsg}{true}}{\paragraph{Solution:} #1}{}}
+
+\newenvironment{solution}{%
+\ifthenelse{\equal{\printlsg}{true}}{\paragraph{Solution:} \iftrue }{\iffalse}
+}{%
+\fi
+}

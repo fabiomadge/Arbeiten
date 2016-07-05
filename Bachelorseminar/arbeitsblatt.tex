@@ -1,0 +1,199 @@
+\documentclass[a4paper]{article}
+
+\usepackage{exmacros}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+\usepackage{amssymb}
+
+\renewcommand{\printlsg}{false}
+
+\renewcommand{\Prof}{Fabio Madge Pimentel}
+
+\newcommand{\vektor}[2] {
+  \begin{bmatrix}
+    #1 \\
+    #2
+  \end{bmatrix}
+}
+
+\newcommand\floor[1]{\left\lfloor#1\right\rfloor}
+
+\begin{document}
+
+% Sheet number / Date / Discussed on "..."
+\Uebungsblatt{4}{\today}{Tuesday, ${5}^{\text{th}}$ July, 2016}
+
+%\emph{For questions regarding the exercises, please send an email to immler@in.tum.de or just drop by at room 00.09.061}
+
+\begin{exercise}{Story}
+Pizza baker Donald is in a pickle. His oven has caught fire and all the beautiful ingredients in his kitchen will be destroyed in the ensuing fire. His plan is to use the additional heat to abbreviate the cooking time. To do so, he gets 3 of his employees to join him. They got a deal, that promises each of them 10 pizzas of all the ones made.
+
+\begin{center}
+  \begin{tabular}{ c | c | c | c | c | c | c | c | c | c }
+    Tomatoes & Cheese & Basil & Oil & Garlic & Oregano & Anchovies & Capers & Mushrooms & Parsley\\
+    \hline\hline
+    120 & 1960 & 144 & 700 & 16 & 180 & 144 & 112 & 88 & 96
+  \end{tabular}
+\end{center}
+\begin{center}
+  \begin{tabular}{ r | l }
+    Pizza & Toppings \\
+    \hline\hline
+    Margherita & 2 Tomatoes, 60 Cheese, 8 Basil, 10 Oil \\
+    Marinara & 2 Tomatoes, 1 Garlic, 6 Oregano, 10 Oil \\
+    Napoletana & 2 Tomatoes, 6 Anchovies, 6 Oregano, 8 Capers, 10 Oil \\
+    Fungi & 2 Tomatoes, 40 Cheese, 4 Mushrooms, 8 Parsley, 10 Oil \\
+    Boscaiola & 40 Cheese, 4 Mushrooms, 6 Anchovies, 10 Oil \\
+  \end{tabular}
+\end{center}
+
+Donald just wants to risk the four lives, if he can use up all of the ingredients and he can keep more pizzas to himself, then he has to give away. Give a formula in Presburger arithmetic that encodes this problem.
+\end{exercise}
+
+\LSG{
+\begin{align*}
+    && 2a + 2b + 2c + 2d &= 120\\
+    &\land & 60a + 40d + 40e &= 1960\\
+    &\land & 8a &= 144\\
+    &\land & 10a + 10b + 10c + 10d + 10e &= 700\\
+    &\land & b &= 16\\
+    &\land & 6b + 6c &= 180\\
+    &\land & 6c + 6e &= 144\\
+    &\land & 8c &= 112\\
+    &\land & 4d + 4e &= 88\\
+    &\land & 8d &= 96\\
+    &\land & a + b + c + d + e &> 60
+  \end{align*}
+}
+
+\begin{exercise}{Deconstruct}
+Find a Presburger formula $\varphi$ that is represented by the DFA $A_\varphi = (Q,\Sigma,\delta,q_0,F)$ and provide a satisfying assignment for the free variables in decimal notation.
+
+\begin{center}
+\begin{tikzpicture}[->,>=stealth',node distance=5cm,auto,semithick,bend angle=18]
+  \node[state]           (C)  {$-1$};
+  \node[initial,state]   (A) [above left of=C] {$-3$};
+  \node[state]           (B) [below left of=C] {$-2$};
+  \node[state,accepting] (D) [right of=C] {$0$};
+
+  \path (A) edge [loop right] node {$\vektor{0}{1}$} (A)
+            edge              node [left] {$\vektor{0}{0}, \vektor{1}{1}$} (B)
+            edge              node {$\vektor{1}{0}$} (C)
+        (B) edge [loop left]  node {$\vektor{0}{1}, \vektor{1}{1}$} (B)
+            edge [bend left]  node [pos=0.7] {$\vektor{0}{0}, \vektor{1}{0}$} (C)
+        (C) edge [bend left]  node {$\vektor{0}{1}$} (B)
+            edge [loop above] node {$\vektor{0}{0}, \vektor{1}{1}$} (C)
+            edge [bend left]  node {$\vektor{1}{0}$} (D)
+        (D) edge [bend left]  node {$\vektor{0}{1}, \vektor{1}{1}$} (C)
+            edge [loop right] node {$\vektor{0}{0}, \vektor{1}{0}$} (D);
+
+\end{tikzpicture}
+\end{center}
+\end{exercise}
+
+\LSG{
+Because of the nature of the labels(just naturals, no tuples), we assume that the automaton was constructed from a formula that solely consisted of one atomic formula. We notice $q_t \notin \delta(Q,\Sigma)$, thus we can't assume an equation, instead we have to aim for an inequation.
+
+We try to find upper and lower bounds to the coefficients by reversing the computation performed to find the transition function.
+
+\begin{align*}
+    j &= \floor{\frac{1}{2}(k-a\zeta)}\\
+    \frac{1}{2}\left(k-a\zeta\right) &\in {[{j},{j+1}]}\\
+    k-a\zeta &\in {\left[{2j},{2\left(j+1\right)}\right[}\\
+    -a\zeta &\in {\left[{2j-k},{2\left(j+1\right)-k}\right[}\\
+    a\zeta &\in {\left]{k-2\left(j+1\right)},{k-2j}\right]}\\
+    a\zeta &\in {\left[{k-2\left(j+1\right)+1},{k-2j}\right]}\\
+    a\zeta &\in {\left[{k-2j-1},{k-2j}\right]}
+\end{align*}
+
+Using these bounds we can now define a Presburger formula that specifies a.
+
+$$
+\bigwedge_{\substack{
+   \zeta \in \{0,1\}^{n} \\
+   q \in Q
+  }}
+ q-2\delta(q, \zeta)-1 \leq a\zeta \land a\zeta \leq q-2\delta(q, \zeta)
+$$
+
+For this example we yield:
+
+\begin{align*}
+&& -2 \leq a_1 &\land a_1 \leq -1& &\land& -1 \leq a_1 \land& a_1 \leq 0\\
+&\land& 1 \leq a_2 &\land a_2 \leq 2& &\land& 2 \leq a_2 \land& a_2 \leq 3\\
+&\land& 0 \leq a_1 + a_2 &\land a_1 + a_2 \leq 1& &\land& 1 \leq a_1 + a_2 \land& a_1 + a_2 \leq 2
+\end{align*}
+
+Simplification gets us the following:
+
+$$ a_1 = -1 \land a_2 = 2 $$
+
+From $q_0$ we get b and can finally piece $\phi$ together:
+$$
+\varphi = -1x_1 + 2x_2 \leq -3
+$$
+
+$\left\{(x_1, 3),(x_2, 0)\right\}$ is one possible satisfying assignment.
+}
+
+\begin{exercise}{Construct}
+Construct automata for the formulas and provide a satisfying assignment for the free variables in decimal notation. The last one is a bonus task and will not be graded, there won't be a solution either.
+
+$$
+\varphi_1 := x_1 - 2x_2 \leq 3,\varphi_2 := -2x_1 - x_2 \leq -4,\varphi := \varphi_1 \lor \varphi_2
+$$
+\end{exercise}
+
+\LSG{
+\begin{center}
+\begin{tikzpicture}[->,>=stealth',node distance=5cm,auto,semithick,bend angle=18]
+  \node[initial,state,accepting]   (A)  {$3$};
+  \node[state,accepting]           (B) [above right of=A] {$2$};
+  \node[state,accepting]           (C) [below right of=A] {$1$};
+  \node[state,accepting] (D) [below right of=B] {$0$};
+  \node[state] (E) [right of=D] {$-1$};
+
+  \path (A) edge              node {$\vektor{0}{1}, \vektor{1}{1}$} (B)
+            edge              node [left,xshift=-.5cm,pos=0.7] {$\vektor{0}{0}, \vektor{1}{0}$} (C)
+        (B) edge [loop above] node {$\vektor{0}{1}$} (B)
+            edge              node [left] {$\vektor{0}{0}, \vektor{1}{1}$} (C)
+            edge              node {$\vektor{1}{0}$} (D)
+        (C) edge [loop below] node {$\vektor{0}{1}, \vektor{1}{1}$} (C)
+            edge [bend left]  node [pos=0.7] {$\vektor{0}{0}, \vektor{1}{0}$} (D)
+        (D) edge [bend left]  node {$\vektor{0}{1}$} (C)
+            edge [loop above] node {$\vektor{0}{0}, \vektor{1}{1}$} (D)
+            edge [bend left]  node {$\vektor{1}{0}$} (E)
+        (E) edge [bend left]  node {$\vektor{0}{1}, \vektor{1}{1}$} (D)
+            edge [loop right] node {$\vektor{0}{0}, \vektor{1}{0}$} (E);
+
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tikzpicture}[->,>=stealth',node distance=5cm,auto,semithick,bend angle=18]
+  \node[initial,state]   (A) {$-4$};
+  \node[state]           (B) [above right of=A] {$-2$};
+  \node[state]           (C) [below right of=A] {$-1$};
+  \node[state,accepting] (D) [right of=B] {$0$};
+  \node[state,accepting] (E) [right of=C] {$1$};
+  \node[state,accepting] (F) [right of=E] {$2$};
+
+  \path (A) edge              node {$\vektor{0}{0}, \vektor{0}{1}$} (B)
+            edge              node [left,xshift=-.5cm,pos=0.7] {$\vektor{1}{0}, \vektor{1}{1}$} (C)
+        (B) edge              node [left] {$\vektor{0}{0}, \vektor{0}{1}$} (C)
+            edge              node {$\vektor{1}{0}, \vektor{1}{1}$} (D)
+        (C) edge [loop below] node {$\vektor{0}{0}$} (C)
+            edge              node {$\vektor{0}{1}, \vektor{1}{0}$} (D)
+            edge              node {$\vektor{1}{1}$} (E)
+        (D) edge [loop above] node {$\vektor{0}{0}, \vektor{0}{1}$} (D)
+            edge [bend left]  node {$\vektor{1}{0}, \vektor{1}{1}$} (E)
+        (E) edge [bend left]  node {$\vektor{0}{0}$} (D)
+            edge [loop below] node {$\vektor{0}{1}, \vektor{1}{0}$} (E)
+            edge [bend left]  node {$\vektor{1}{1}$} (F)
+        (F) edge [bend left]  node {$\vektor{0}{0}, \vektor{0}{1}$} (E)
+            edge [loop right] node {$\vektor{1}{0}, \vektor{1}{1}$} (F);
+
+\end{tikzpicture}
+\end{center}
+}
+
+\end{document}
