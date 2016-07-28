@@ -1,1 +1,1 @@
-Term paper that explores extensions to the Gale-Shapley Algorithm as presented in *The Stable Marriage Problem: Structure and Algorithms*. The advisor was Prof. Tobias Nipkow of the Chair for Logic and Verification at TUM.
+With these slides I presented a decision procedure for Presburger arithmetic described in *Automata Theory: An Algorithmic Approach* by *Javier Esparza*. The advisor was Julian Brunner of the Chair for Logic and Verification at TUM.
