@@ -3,17 +3,29 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-\section{Section}
-Citation test~\parencite{isabelle94}.
+% \section{Section}
+The interactive theorem prover Isabelle~\parencite{Paulson1986} has been under active development for over 30 years. Over these years the project has grown considerably. The project is not only restricted to the distribution, but also includes the Archive of Formal Proofs, where many of the known Isabelle proofs can be found. This can be problematic, when trying to change something at the core of the system, because all peculiar characteristics of a functionality need to be emulated to offer a drop-in replacement. And yet the goal of this thesis is exactly that, with the aim to increase flexibility and dependability.
 
-\subsection{Subsection}
+\section{Isabelle}
+Isabelle is not only interactive, which means that proofs are authored within the program, while ideally getting immediate feedback, but also generic. It is generic with respect to the object logic. Other LCF descendants, like Nuprl, HOL or Coq, offer one single logic that can be used to formulate proofs in. Isabelle on the other hand, defines one basic logic, Pure, which is meant to host more involved logical systems, including FOL, ZF and HOL. Because of this it can be thought of as more of a framework, than a system for proofs by itself.
 
-% See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
+\subsection{Pure}
+The following overview is rather shallow and might be supplemented by reading the relevant chapters in the Implementation Manual~\parencite{implementation}. Terms in Pure are represented by terms in the lambda calculus. The four important connectives are: \textit{universal quantification} ($\bigvee$), \textit{implication}($\Longrightarrow$), \textit{equality}($\equiv$) and \textit{conjunction}($\&\&\&$).
+A theorem is a structure that contains, among other things, a proposition. This proposition is a term that is assumed correct, under a list of meta hypotheses. On top of that, there is a background theory, that contains previously proofed lemmas. A theorem can be constructed using some primitive natural deduction inference rules and a few derived rules that operate on the internal of the theorems for performance reasons.
+The part of the Isabelle system that works on the internals of these theorems directly, or are depended on by these functions are considered the kernel. While these operations need to be checked very carefully for soundness, the soundness of the system as a whole, is merely a corollary of their soundness. Because of that, the rest of the system does not have to be put under such scrutiny.
+\subsection{Resolution}
+The rule almost exclusively used by the user-facing parts of the system, is the resolution rule. It facilitates using previously proofed theorems directly, without having to do the actual proof again. This is done by replacing one the premises of a theorem by all the premises of a second theorem.
 
-\[
-  \begin{prooftree}
-    \Hypo{ \vdash A }
-    \Hypo{ \vdash B } \Infer1{ \vdash B, C }
-    \Infer2{ \vdash A\wedge B, C }
-  \end{prooftree}
-\]
+\begin{displaymath}
+    \prftree[r]{RS}
+    {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
+    {\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C}
+    {B\sigma \equiv B_i\sigma}
+    {\left( \left\llbracket B_x\,\middle|\, x \in \left[ i - 1 \right] \right\rrbracket
+    + \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket
+    + \left\llbracket B_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right) \right\rrbracket
+    \Longrightarrow C \right) \sigma
+    }
+\end{displaymath}
+
+For this replacement to be correct, the conclusion of the second theorem needs to be equivalent to the replaced premises of the first one. As this is not true in general, this equality is interpreted as a unification problem. Only if a unifier can be found, is the proposition obtained by applying this unifier, part of a new theorem. Unification of first-order terms is well understood and has nice properties, like a most general unifier. Pure, on the other hand, is not restricted to first-order terms, which is unfortunate from a implementation standpoint. Higher-order unification in general is not even decidable, but Huet~\parencite{Huet1975} has given a semi-decision procedure. It was more recently described by Dowek~\parencite{Dowek20011009} and is still the algorithm universally used.
