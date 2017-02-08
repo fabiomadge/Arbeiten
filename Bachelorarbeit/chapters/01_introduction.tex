@@ -16,7 +16,8 @@ The part of the Isabelle system that works on the internals of these theorems di
 \subsection{Resolution}
 The rule almost exclusively used by the user-facing parts of the system, is the resolution rule. It facilitates using previously proofed theorems directly, without having to do the actual proof again. This is done by replacing one the premises of a theorem by all the premises of a second theorem.
 
-\begin{displaymath}\label{res}
+\begin{figure}[ht]
+\begin{displaymath}
     \prftree[r]{RS}
     {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
     {\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C}
@@ -27,6 +28,9 @@ The rule almost exclusively used by the user-facing parts of the system, is the 
     \Longrightarrow C \right) \sigma
     }
 \end{displaymath}
+\caption{Resolution}
+\label{fig:res}
+\end{figure}
 
 For this replacement to be valid, the conclusion of the second theorem needs to be equivalent to the replaced premises of the first one. As this is not true in general, this equality is interpreted as a unification problem. Only if a unifier can be found, is the proposition obtained by applying this unifier, part of a new theorem. Unification of first-order terms is well understood and has nice properties, like a most general unifier. Pure, on the other hand, is not restricted to first-order terms, which is unfortunate from a implementation standpoint. Higher-order unification in general is not even decidable, but Huet~\parencite{Huet1975} has given a semi-decision procedure. It was more recently described by Dowek~\parencite{Dowek20011009} and is still the algorithm universally used.
 

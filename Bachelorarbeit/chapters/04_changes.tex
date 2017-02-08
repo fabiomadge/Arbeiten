@@ -1,1 +1,151 @@
 \chapter{Approach}\label{chapter:approach}
+
+The goal of this work, was not only to replace bicompose\_aux by a safer version, but also to simplify it. While the general plan for the refactoring was fairly clear at the beginning, it seamed hard to figure out what features to cut, just based on looking at the code.
+
+\section{Remove flatten}
+
+To get a better understanding of how bicompose\_aux is used, we decided to add some statistics to Isabelle. This way we found out how often each session called bicompose\_aux and what combination of flags each call had.
+
+\begin{table}[ht]
+\caption{Aggregated flag stats of Isabelle \texttt{3cc892b} and AFP \texttt{c0e959f}}
+\begin{tabular}{*{5}{c} r}
+flatten & match & incremented & lifted & eres\_flg & Quantity\\ \hline
+False & True & False & False & False & 0.01\%\\
+True & False & False & False & True & 0.03\%\\
+False & False & False & False & False & 0.07\%\\
+True & False & True & True & True & 1.43\%\\
+True & False & False & False & False & 1.60\%\\
+True & True & True & True & False & 1.83\%\\
+True & True & True & True & True & 4.52\%\\
+False & False & True & False & False & 9.51\%\\
+True & False & True & False & False & 19.33\%\\
+True & False & True & True & False & 61.66\%\\
+\end{tabular}
+\label{tab:agg_baseline}
+\centering
+\end{table}
+
+Because we wanted to get a full picture, we built the whole Isabelle distribution and all of the Archive of formal proof. For better comparability with later results, two session have been excluded, HOL-Proofs and HOL-Word-SMT\_Examples.\\
+Even though the amount of different combinations might be overwhelming at first, things aren't as bad as they could be. Of the 25 possible configurations, only ten are used in practice. Additionally, the top three combinations are used in 90\% of all cases. It may also seam apparent, that many of the more obscure configurations effectively not used. But it should not be forgotten, that at 8077146288 invocations, one basis point still accounts for a meaningful amount of calls to bicompose\_aux.
+
+\begin{table}[ht]
+\caption{Frequency of flags set over all invocations in Isabelle \texttt{3cc892b} and AFP \texttt{c0e959f}}
+\begin{tabular}{l r}
+flatten & 90.4\%\\
+match & 6.4\%\\
+incremented & 98.3\%\\
+lifted & 69.4\%\\
+eres\_flg & 6.0\%
+\end{tabular}
+\label{tab:flag_freq}
+\centering
+\end{table}
+
+When aggregating by the flags, it can be observed, that all but the lifted flag have a clear tendency with regard to being on or off in general. These should be easier to remove, because even a costly alternative might not be prohibitively expensive.\\
+While match would fit that bill, instead of doing this check on the unifier, it could be performed on the resulting theorem, it is not practical. Because a new version of bicompose\_aux would not require this to be a feature within the kernel, pulling it further out, would only decrease the versatility of the new bicompose\_aux, while impeding performance with the costlier check.\\
+Incremented does not influence trusted code, but for the optimization to have actual benefits, needs to be know when the unifiers are generated, this is only possible within bicompose\_aux. Because it is not possible to increment all theorem for compatibility reasons, it would have to be disable. This would decrease speed in 98.3\% of all invocations.\\
+When performing beta normalization at the end, lifting needs to be considered to stay compatible. Thus the lifting flag needs to retain its current form.\\
+It is conceivable to do elim-resolution outside of bicompose\_aux but there is some performance to be lost, because the elim part conceptually part of the resolution. While the two could be separated, the resulting code duplication is undesirable.\\
+Flatten is the one interesting case, because there is only a handful of points in the code base, where it is not enabled. Tree have to do with adding or removing protect markers and the one outlier is \texttt{distinct\_tac}. It seams to be used for deleting duplicate subgoals, but evidently doesn't depend on getting unflattend theorems. No functionality depending on it seams to suffer from the change either.\\
+All functions dealing with protection markers in some way use the definition of the marker $\#(\text{PROP}~?A) \equiv \text{PROP}~?A$ to resolve with. As are only used on premises, the conclusion or tailing premises and the conclusion, this can be simulated using existing primitives. By using to combination rule to skip the static premises, and instantiating the definition with the protectee. An example for removing the marker by using Goal.conclude can be found in figure~\ref{fig:conclude}. The size of the proof depends on the number of skipped subgoals and is hidden by the meta rule combination*.
+
+\begin{figure}[ht]
+% \begin{displaymath}
+% \scalebox{.8}{
+%     \prfinterspace = 1em
+%     \prftree[r]{$\equiv$-elim}
+%     {
+%         \prftree[r]{$\beta$-norm}
+%         {
+%             \prftree[summary]
+%             {\texttt{GOAL}}
+%         }
+%         {\texttt{GOAL} \equiv \beta\left(\texttt{GOAL}\right)}
+%     }
+%     {
+%         \prftree[r]{$\equiv$-elim}
+%         {
+%             \prftree[r]{combination*}
+%             {
+%                 \prftree[r]{reflexivity}
+%                 {\texttt{PRE} \equiv \texttt{PRE}}
+%             }
+%             {
+%                 \prftree[r]{instantiation}
+%                 {\prfbyaxiom{prop\_def}{\#(\text{PROP}~?A) \equiv \text{PROP}~?A}}
+%                 {\#\left(\texttt{SAFE}\right) \equiv \texttt{SAFE}}
+%             }
+%             {\texttt{IN} \equiv \texttt{GOAL}}
+%         }
+%         {\texttt{IN}}
+%         {\texttt{GOAL}}
+%     }
+%     {\beta\left(\texttt{GOAL}\right)}
+% }
+% \end{displaymath}
+\centering
+\newcommand\GOAL{\mathit{GOAL}}
+\newcommand\PRE{\mathit{PARE}}
+\newcommand\SAFE{\mathit{SAFE}}
+\newcommand\IN{\mathit{IN}}
+\scalebox{.75}{
+\begin{prooftree}
+%   \Infer0[reflexivity]{\texttt{PRE} \equiv \texttt{PRE}}
+%   \Infer0[prop\_def]{\#(\text{PROP}~?A) \equiv \text{PROP}~?A}
+%   \Infer1[instantiation]{\#\left(\texttt{SAFE}\right) \equiv \texttt{SAFE}}
+%   \Infer2[combination*]{\texttt{IN} \equiv \texttt{GOAL}}
+  \Hypo{$\vdots$}
+  \Infer1[$\equiv$-elim]{\GOAL}
+  \Infer1[$\beta$-norm]{\GOAL \equiv \beta\left(\GOAL\right)}
+
+  \Infer0[reflexively]{\PRE \equiv \PRE}
+  \Infer0[prop\_def]{\#(\text{PROP}~?A) \equiv \text{PROP}~?A}
+  \Infer1[instantiation]{\#\left(\SAFE\right) \equiv \SAFE}
+  \Infer2[combination*]{\IN \equiv \GOAL}
+  \Hypo{\IN}
+  \Infer2[$\equiv$-elim]{\GOAL}
+  \Infer2[$\equiv$-elim]{\beta\left(\GOAL\right)}
+\end{prooftree}
+}
+\begin{align*}
+  \text{where}~\GOAL &::= \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow C \\
+  \PRE &::= \left\llbracket A_x\,\middle|\, x \in \left[ i \right] \right\rrbracket \Longrightarrow \\
+  \SAFE &::= \left\llbracket A_x\,\middle|\, x \in \left( \left[ m \right] \setminus \left[ i \right] \right)\right\rrbracket \Longrightarrow C \\
+  \IN &::= \PRE~\left(\#\SAFE\right)
+\end{align*}
+\caption{Goal.conclude}
+\label{fig:conclude}
+\end{figure}
+
+% \begin{displaymath}
+% \scalebox{.2}{
+%     \prftree%[r]{$\equiv$-elim}
+%     {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
+%     {
+%         \prftree%[r]{$\equiv$-elim}
+%         {
+%             \prftree%[r]{combination*}
+%             {
+%                 \prftree%[r]{reflexivity}
+%                 {
+%                     \left\llbracket A_x\,\middle|\, x \in \left[ i \right] \right\rrbracket \Longrightarrow
+%                         \equiv \left\llbracket A_x\,\middle|\, x \in \left[ i \right] \right\rrbracket \Longrightarrow}
+%                 \prftree%[r]{instantiation}
+%                 {
+%                     \#\left( \left\llbracket A_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right)\right\rrbracket \Longrightarrow C \right)
+%                     \equiv \left\llbracket A_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right)\right\rrbracket \Longrightarrow C
+%                 }
+%             }
+%             {\left\llbracket A_x\,\middle|\, x \in \left[ i \right] \right\rrbracket \Longrightarrow \#\left( \left\llbracket A_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right)\right\rrbracket \Longrightarrow C \right)
+%             \equiv \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow C}
+%         }
+%         {\left\llbracket A_x\,\middle|\, x \in \left[ i \right] \right\rrbracket \Longrightarrow \#\left( \left\llbracket A_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right)\right\rrbracket \Longrightarrow C \right)}
+%         {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow C}
+%     }
+%     {\beta\left( \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow C \right)}
+% }
+% \end{displaymath}
+
+\section{New bicompose\_aux}
+
+Which primitives to use and add. How should they fit together?~\parencite{Wimmer2016}
