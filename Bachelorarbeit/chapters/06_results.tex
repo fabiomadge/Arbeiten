@@ -1,5 +1,57 @@
 \chapter{Results}\label{chapter:results}
 
-res is really slow ... for some sessions.
+To get a first idea of how much more computing time we have to spend to get the same results, we timed the run times for three different stages of development on a per session basis (cf. figure \ref{tab:runtimes}). Because our test machine had to 10-core processors and we wanted to make use of them, we ran up to seven sessions in parallel, each with ten threads. On top of that the access to the to the server wasn't exclusive. To mitigate the symptoms caused by this, we ran three repetitions for each version.
 
-res\_force is better.
+\begin{table}[ht]
+\caption{Selection of run times at tree different milestones}
+\begin{tabular}{l *{5}{c}}
+Session & Baseline & Unify & Final & U/B & F/U\\ \hline
+AODV & 13:11:43 & 15:28:15 & 72:22:04 & 1,17 & 4,68\\
+Allen\_Calculus & 0:09:07 & 0:09:25 & 0:14:11 & 1,03 & 1,51\\
+ConcurrentGC & 6:58:07 & 7:01:10 & 31:12:53 & 1,01 & 4,45\\
+Flyspeck-Tame & 9:37:18 & 9:34:17 & 11:19:37 & 0,99 & 1,18\\
+Formula\_Derivatives-Examples & 0:03:33 & 0:03:25 & 0:03:22 & 0,96 & 0,99\\
+Gauss\_Jordan & 0:07:14 & 0:08:06 & 0:08:29 & 1,12 & 1,05\\
+Iptables\_Semantics\_Examples & 16:00:15 & 16:19:47 & 19:10:00 & 1,02 & 1,17\\
+SDS\_Impossibility & 0:02:16 & 0:02:26 & 0:29:03 & 1,07 & 11,97\\
+Well\_Quasi\_Orders & 0:01:39 & 0:01:33 & 0:02:34 & 0,94 & 1,65\\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
+\hline\hline
+All & 79:52:09 & 83:45:33 & 200:57:06 & 1,03 & 1,55\\
+\end{tabular}
+\label{tab:runtimes}
+\centering
+\end{table}
+
+The baseline is the same combination of distribution(\texttt{3cc892b}) and AFP(\texttt{c0e959f}) used for the flag counts. Unify takes that baseline, but adds the smashing of unifiers to the distribution(\texttt{3cc892b}) and adapts some proofs, in both the distribution and the AFP(\texttt{4e98b1d}), to make everything work counts. All the changes to the distribution that are proposed in this thesis, including the stronger resolution, can be found in \texttt{0cfc1db}.\\
+
+The difference between the baseline and unify can largely be ignored, but the more than 2 hour slowdown of AODV might be worth investigating. While some session receive an insignificant speedup, the overall trend is a three percent increase of run time.\\
+With the exception of very very few outliers, most sessions are slower with the reimplementation of bicompose. Averaging all time increases over unify yields an acceptable 1,55, but this hides the fact, that not all sessions need the same time. The actual run time increases by a disappointing factor of 2,40. This is due to very significant slowdown of two sessions, AODV and ConcurrentGC. Their share of the overall time doubles from 25\% to 50\%, because both of their respective run times quadruple. The horrific twelvefold increase in run time of SDS\_Impossibility is not significant in the big picture, because of the relatively small base time, but is still an interesting subject of further study.
+
+\section{Stronger Equality Check}
+
+The case for resolution\_force is hard to make. While the overall run time decreased by 4h(204:57:28 vs. 200:57:06), this improvement is not uniformly distributed among the 442 session considered for this benchmark. It's not even remotely true, that all sessions improve at all. While 279 sessions get an actual improvement, the other 163 session are slower with this optimization. The reason for this is possibly, that these session need a lot of normalization, which is surround by up to three aconv calls. This unpredictability comes on top of the fact, that this check would be unidiomatic.
+
+\section{Correlation of calling frequency and slowdown}
+
+\begin{figure}[ht]
+\centering
+    \begin{tikzpicture}
+    \begin{loglogaxis}[
+        % enlargelimits=false,
+        ylabel=Calls per Hour,
+        xlabel=Slowdown,
+        width=10cm
+    ]
+    \addplot+[
+        only marks,
+        scatter,
+        mark=x,
+        mark size=2pt]
+    table[]{slowdown_intensity.dat};
+    % \legend{Men,Women}
+    \end{loglogaxis}
+    \end{tikzpicture}
+\caption{Correlation between call count and slowdown}
+\label{fig:correlation}
+\end{figure}
