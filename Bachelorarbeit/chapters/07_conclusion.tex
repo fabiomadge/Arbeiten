@@ -1,7 +1,9 @@
 \chapter{Conclusion}\label{chapter:conclusion}
 
-Is feasible but need optimizations.
+The aim has been to show a way towards a more trustworthy kernel. To achieve that, we give an alternative implementation of bicompose\_aux outside of the kernel which can be used as a drop-in replacement. While it is mostly feature complete, it should be thought of as a proof of concept rather than a polished solution.\\
+When evaluating performance, we found that certain sessions suffer from a disproportionate slowdown, for which we postulate different explanations. They should all be evaluated and used for optimizations that will probably result in a more acceptable slowdown.\\
+In regard to the features currently in place, there are some aspects that need changes for this effort to conclude. First elim-resolution needs to be handles within bicompose\_aux and not default to the legacy implementation. The same is true for possible flex-flex pairs. They need to be handled within the normal workflow not require a completely separate pipeline. The new primitive for renaming variables after lifting, should be taken apart and replaced by calls to existing primitives. The fact that proof terms are currently broken, is not acceptable in the long run.
+Looking even further, this new leaner kernel is not only an achievement in and of itself, but can act as a stepping stone for further improvements. Adding an alternative unification algorithm and tweaking the existing one, is a significantly less dangerous endeavour, as their results are now verified. A first order unifier can be interesting on a lemma or session level, but also for provers and tactics that exclusively work on first order terms. The notorious example of such a prover is blast~\parencite{Paulson1999}. It should be possible to make it return proofs that solely rely on first order unification, which should be one way to recoup performance.\\
+The new kernel is fairly modular and the remaining primitives aren't too complex. This could open the door for verifying that Isabelle/Pure is actually a faithful implementation of Isabelle's meta-logic $\mathcal{M}$~\parencite{Paulson1989}. Thus making it even easier to trust the kernel.
 
-Add missing features: Eres, More atomic handling of renaming, Better fallback for flex-flex pairs
-
-Going forward: Profile to find performance bottleneck. Add a first order unifier and make blast use it. Proof the kernels soundness.
+% Going forward: Profile to find performance bottleneck. Add a first order unifier and make blast use it. Proof the kernels soundness.
