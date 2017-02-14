@@ -23,7 +23,7 @@ All & 79:52:09 & 83:45:33 & 200:57:06 & 1,03 & 1,55\\
 \centering
 \end{table}
 
-The baseline is the same combination of distribution(\texttt{3cc892b}) and AFP(\texttt{c0e959f}) used for the flag counts. Unify takes that baseline, but adds the smashing of unifiers to the distribution(\texttt{3cc892b}) and adapts some proofs, in both the distribution and the AFP(\texttt{4e98b1d}), to make everything work counts. All the changes to the distribution that are proposed in this thesis, including the stronger resolution, can be found in \texttt{0cfc1db}.\\
+The baseline is the same combination of distribution(\texttt{3cc892b}) and AFP(\texttt{c0e959f}) used for the flag counts. Unify takes that baseline, but adds the smashing of unifiers to the distribution(\texttt{782a358}) and adapts some proofs, in both the distribution and the AFP(\texttt{4e98b1d}), to make everything work counts. All the changes to the distribution that are proposed in this thesis, including the stronger resolution, can be found in \texttt{0cfc1db}.\\
 
 The difference between the baseline and unify can largely be ignored, but the more than 2 hour slowdown of AODV might be worth investigating. While some session receive an insignificant speedup, the overall trend is a three percent increase of run time.\\
 With the exception of very very few outliers, most sessions are slower with the reimplementation of bicompose. Averaging all time increases over unify yields an acceptable 1,55, but this hides the fact, that not all sessions need the same time. The actual run time increases by a disappointing factor of 2,40. This is due to very significant slowdown of two sessions, AODV and ConcurrentGC. Their share of the overall time doubles from 25\% to 50\%, because both of their respective run times quadruple. The horrific twelvefold increase in run time of SDS\_Impossibility is not significant in the big picture, because of the relatively small base time, but is still an interesting subject of further study.
@@ -33,6 +33,9 @@ With the exception of very very few outliers, most sessions are slower with the 
 The case for resolution\_force is hard to make. While the overall run time decreased by 4h(204:57:28 vs. 200:57:06), this improvement is not uniformly distributed among the 442 session considered for this benchmark. It's not even remotely true, that all sessions improve at all. While 279 sessions get an actual improvement, the other 163 session are slower with this optimization. The reason for this is possibly, that these session need a lot of normalization, which is surround by up to three aconv calls. This unpredictability comes on top of the fact, that this check would be unidiomatic.
 
 \section{Correlation of calling frequency and slowdown}
+
+As the relative slowdown varies greatly between sessions, it would be very interesting to find out, what makes the especially slow sessions loose so much performance.\\
+The most simplistic theory to explained this heterogeneity, is that the amount of calls to bicompose\_aux per hour is not evenly distributed among the sessions. Thus, under the assumption of a universal slowdown for all calls, the sessions that call bicompose\_aux more often, should suffer from the most severe performance degradation.
 
 \begin{figure}[ht]
 \centering
@@ -55,3 +58,12 @@ The case for resolution\_force is hard to make. While the overall run time decre
 \caption{Correlation between call count and slowdown}
 \label{fig:correlation}
 \end{figure}
+
+In figure \ref{fig:correlation} there is no correlation to be seen, if anything, with some good will, one could see a negative correlation. This makes way for an array of theories, that try to explain, why certain calls suffer from a especially bad slowdown. One possible explanation is, that because chasing is slow, calls, that require environments with many substations, are hit the hardest. There could also be a problem related to the number of premises of the input theorem, as a lot of steps requires to break the propositions apart on every premise. Finally it could simply be due to generally bigger term, for which may of the operations performed are obviously slower. All of these theories should and probably will be tested, but it didn't make it into this thesis.
+
+\section{Varying call count between versions}
+
+The amount of calls to bicompose\_aux has decreased among all sessions between the baseline and the final version.\\
+Only 32 session change at all between unify and final, and they are all withing a margin of 1\%. All of these cases are still interesting, as it was assumed that the theorems returned don't change between unify and final.\\
+Upon closer inspection, all the actual gains can be traced back to the changes made between the baseline and unify. Unfortunately this step blends different changes, most notably the obviation of the flatten flag with the associated changes and the different unifiers returned after smashing. To untangle this, a data point can be added. We take the baseline and add the changes to eliminate the flatten flag. While the baseline AFP is sufficient for that, the distribution that reflects that can't be found in the repository for lack of actual use beyond benchmarking.
+    !!! ADD ANALYSIS !!!

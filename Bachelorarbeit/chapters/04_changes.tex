@@ -25,7 +25,7 @@ True & False & True & True & False & 61.66\%\\
 \centering
 \end{table}
 
-Because we wanted to get a full picture, we built the whole Isabelle distribution and all of the Archive of formal proof. For better comparability with later results, two session have been excluded, HOL-Proofs and HOL-Word-SMT\_Examples.\\
+Because we wanted to get a full picture, we built the whole Isabelle distribution\footnote{\url{https://bitbucket.org/gnedl/isabelle-smashed}} and all of the Archive of formal proof\footnote{\url{https://bitbucket.org/gnedl/afp-smashed}}. For better comparability with later results, two session have been excluded, HOL-Proofs and HOL-Word-SMT\_Examples.\\
 Even though the amount of different combinations might be overwhelming at first, things aren't as bad as they could be. Of the 25 possible configurations, only ten are used in practice. Additionally, the top three combinations are used in 90\% of all cases. It may also seam apparent, that many of the more obscure configurations effectively not used. But it should not be forgotten, that at 8077146288 invocations, one basis point still accounts for a meaningful amount of calls to bicompose\_aux.
 
 \begin{table}[ht]
@@ -269,7 +269,7 @@ The first issue is, that the substitution in the environment is in triangular fo
 
 For the remaining tasks the correct approach is clear, either because they exist already or don't have the appropriate generality.
 
-\subsubsection{Rename} There are primitives for both renaming bound and schematic variables. renamed\_prop allows the user to exchange the proposition of a theorem with one that is $\equiv_\alpha$ and instantiate can be used to rename schematic variables. This means current logic needs to be separated by variable kind. The part that deals with bound variables can remain unchanged and it's result can be used as input for renamed\_prop. For the other case, the substitutions need to be generated from the existing lists.
+\subsubsection{Rename} There are primitives for both renaming bound and schematic variables. renamed\_prop allows the user to exchange the proposition of a theorem with one that is $\equiv_\alpha$ and instantiate can be used to rename schematic variables. This means current logic needs to be separated by variable kind. The part that deals with bound variables can remain unchanged and it's result can be used as input for renamed\_prop. For the other kind, the substitutions need to be generated from the existing lists.
 \subsubsection{Flatten} Flattening is not used outside of bicompose\_aux and there seams to be little need for it. Therefore are primitive that performs flattening exactly as needed by bicompose\_aux is reasonable.
 \subsubsection{Unify} Prepares the environment for the unification algorithm and retrieves the unifier. There is not trusted code here, as the unifier is later checked.
 \subsubsection{Instantiate} Is just a call to the existing primitive.
