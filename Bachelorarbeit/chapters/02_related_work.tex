@@ -1,7 +1,6 @@
 \chapter{Related Work}\label{chapter:related}
 
-Coq, not much. Lots of trusted code
-
-HOL light, HOL zero. Small kernel, thus easier to comprehend and trust.
-
-Where should I be?
+% Coq, not much. Lots of trusted code
+\textit{Coq} is the only system comparable in size and adoption. It is however different in that it uses a different logic, called calculus of inductive constructions. While \textit{Coq}, as a \textit{LCF} descendant, has a section of its code explicitly marked as the kernel, it appears to be even bigger in size and more frequently changed than \textit{Isabelle's}. We couldn't find explicitly published efforts to reduce the size of the kernel, but alternate efforts using the same logic with the explicit goal of a small kernel exist~\parencite{Asperti2009}.\\
+In the space of higher-order logic specific theorem provers there are some attempts at a smaller kernel. The contender with the longest history is \textit{HOL4}. There are two notable alternatives, \textit{HOL Light} and \textit{HOL Zero}. As their names suggest these newer implementations have a smaller kernel in their mission statement.\\
+Despite some searching we couldn't find a theorem prover that depends on higher-order unification and has successfully reduced its kernel size, by verifying the substitution from their unifiers.

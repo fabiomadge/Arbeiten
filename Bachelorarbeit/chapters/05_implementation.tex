@@ -1,6 +1,6 @@
 \chapter{Implementation}\label{chapter:implementation}
 
-This implementation only implements a subset of the functionality offered by the current bicompose\_aux. Just as Chapter \ref{chapter:approach} doesn't offer a way to do elim-resolution, there is currently a fallback to the current version. The functionality can be added as a post-processing step and performance isn't too critical, as only 6\% of calls require it.\\
+This implementation only implements a subset of the functionality offered by the current \texttt{bicompose\_aux}. Just as Chapter \ref{chapter:approach} doesn't offer a way to do elim-resolution, the implementation can't do it either. To work around this, there is currently a fallback to the current version. The functionality can be added as a post-processing step and performance of this isn't critical, as only 6\% of calls require it.\\
 Also absent is currently a way to handle possible flex-flex pairs, that can arise from locally disabling smashing. Instances of this can be found in the distribution, but also the AFP. This has been used as a quick way to fix broken proofs, but most of them should be expressible without this workaround. In the future this can be handled by an equality check that also takes flex-flex pairs into account. While the existence of such an algorithm hasn't been shown to our knowledge, we are reasonably hopeful, that it can be found.\\
 We follow the concept shown in figure \ref{fig:flow}. The central data structure is the Sequence of Environments returned be the Unifier. It is filtered and mapped over. 
 
@@ -13,7 +13,7 @@ We follow the concept shown in figure \ref{fig:flow}. The central data structure
     |> flatten_prems nsubgoal
 \end{lstlisting}
 
-There are to preprocessing steps for the rule that can be necessary depending on the flags. Renaming the bound variables is only necessary when the rule was lifted. Because of time constraints this is essentially a wrapper around the existing trusted code, the proposed improved version, still needs to be implemented. Because theorems are now always flattened, the new primitive tasked with that is unconditionally applied.
+There are to preprocessing steps for the rule that can be necessary depending on the flags. Renaming the bound variables is only necessary when the rule was lifted. Because of time constraints this is essentially a wrapper around the existing trusted code, the proposed version, still needs to be implemented. Because theorems are now always flattened, the new primitive tasked with that is unconditionally applied.
 
 \section{Environment preparation}
 
@@ -22,7 +22,7 @@ val certify : Envir.env -> ((indexname * sort) * ctyp) list * ((indexname * typ)
 \end{lstlisting}
 
 To get the Sequence of environments, the disagreement pair is taken from the rule and the state and together with the prepopulated environment to the higher order unification algorithm.\\
-The first step taken, is to honor the match flag by filtering offending environments out. Following this a bunch of functions are mapped over the Sequence, starting with certify. It takes the two tables for type and term variables, collapses them into list, and chases the type variables by folding over them. Here the idea is to minimize work by adding finish pairs as early as possible to the accumulator and using them when possible. The term substitution are then instantiated with the chased type variables and subsequently chased themselves. Then the substitution are nearly ready for direct instantiation and are finished by certifying the right sides of both of them.
+The first step taken, is to honor the match flag by filtering offending environments out. Following this, a bunch of functions are mapped over the Sequence, starting with certify. It takes the two tables for type and term variables, collapses them into list, and chases the type variables by folding over them. Here the idea is to minimize work by adding finish pairs as early as possible to the accumulator and using them when possible. The term substitution are then instantiated with the chased type variables and subsequently chased themselves. Then the substitution are nearly ready for direct instantiation and are finished by certifying the right sides of both of them.
 
 \section{Instantiation and Resolution}
 
@@ -32,7 +32,7 @@ val instantiate : ((indexname * sort) * ctyp) list * ((indexname * typ) * cterm)
 val resolve : thm -> thm * int -> int -> thm
 \end{lstlisting}
 
-build\_th is a wrapper around instantiate and resolve. To make $B$ and $B_i$ equal and thus ready for resolving, both theorems are instantiated. Even though the type of this primitive suggests that it can instantiate type and term variables simultaneously, it can't. The type of resolve is possibly surprising in it's complexity, but also allows the number of new subgoals to be supplied.
+\texttt{build\_th} is a wrapper around \texttt{instantiate} and \texttt{resolve}. To make $B$ and $B_i$ equal and thus ready for resolving, both theorems are instantiated. Even though the type of this primitive suggests that it can instantiate type and term variables simultaneously, it can't. The type of resolve is possibly surprising in it's complexity, but also allows the number of new subgoals to be supplied.
 
 \section{Normalization}
 
@@ -41,4 +41,4 @@ val beta_norm : (int * int) option -> thm -> thm
 \end{lstlisting}
 
 To do the $\beta$ normalization a new derived rule is used. It is only used when normalization is actually required and also allows to specify a contiguous sequence of premises to which the normalization is restricted. The resulting theorem is the same, apart from the fact, that the proposition has been partly normalized.\\
-For compatibility reasons the maxidx associated with the theorem is reset. This number is guaranteed to equal or bigger than the maximum number in any indexname in the proposition of a theorem, thus having infinitely many possible valid values.
+For compatibility reasons the maxidx associated with the theorem is reset. This number is guaranteed to equal or bigger than the maximum number in any indexname in the proposition of a theorem, thus having infinitely many possible values.

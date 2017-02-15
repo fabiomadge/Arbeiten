@@ -1,6 +1,6 @@
 \chapter{Current State}\label{chapter:current}
 
-For an Isabelle programmer there are currently two functions that offer resolution to choose from. One is \texttt{bicompose}, and the other is \texttt{biresolution}. Both of them use the same generalized function, \texttt{bicompose\_aux}, to do their job, but use different configurations of it and add some functionality.
+For an \textit{Isabelle} programmer there are currently two functions that offer resolution to choose from. One is \texttt{bicompose}, and the other is \texttt{biresolution}. Both of them use the same generalized function, \texttt{bicompose\_aux}, to do their job, but use different configurations of it and add some functionality.
 
 \section{bicompose\_aux}
 
@@ -11,8 +11,7 @@ val bicompose_aux: Proof.context option -> {flatten: bool, incremented: bool, ma
 \subsection{Arguments}
 
 \subsubsection{opt\_ctxt}
-Supplying this optional context, allows the user to transfer both input theorems into another theory context. 
-Because the resulting theorem always has the joined version of both contexts, the resulting theorem will also be in the supplied context. This can obviously only work, if the joined theory is a subtheory of the one in the specified context.\newline
+Supplying this optional context, allows the user to transfer both input theorems into another theory context. First the theories of the input theorem are join, only if this new theory is a subtheory of supplied theory the transfer works. Thus if a theory is supplied and \texttt{bicompose\_aux} return a theorem, it is in the given one.\\
 The current release version of Isabelle handles this transfer incorrectly. While the resolution is carried out in the supplied context, the resulting theorem just carries the join as its background theory. This is obviously inconsistent and can be abused to proof false within Isabelle. This issue has been fixed and the patch will be part of the next release.\newline
 This problem is due to the trusted nature of the kernel, and been discovered while typing this subsection. Interestingly the implementation that will be discussed later, can't be exploited in this way, even though we weren't aware of this issue during the implementation process. The reason for this can be found in the additional checks performed by the primitives used.\newline
 
@@ -20,18 +19,18 @@ This problem is due to the trusted nature of the kernel, and been discovered whi
 \paragraph{flatten}
 In general formul\ae {} in Isabelle are in the class of hereditary Harrop formul\ae~\parencite{implementation}. It represents a generalization of Horn Clauses. When this flag is enabled, during preprocessing, all premises of the rule, that will be in the premises of the resulting theorem, will have their universal quantifiers ($\bigvee$) pulled to the front. This helps to approximate a hereditary Harrop formula equal to the proposition of the resulting theorem.
 \paragraph{incremented}
-When combing two theorems there is always the chance of name clashes. This means there is a minimal amount of clean up required. Before the unifier can start it's work, the environment passed to it needs to be prepopulated. This environment will later contain a unifier. Name clashes in the schematic variables need to be resolved by unifying their types.\\
-To obviate this step, the two input theorems can be renamed apart in a way that makes a name clash impossible. This is very easy due to how schematic variables are represented in the machine. They are identified by a construct called index name, it is a tuple of a string and an integer. For the renaming to happen, the maximum number in any schematic variable in one theorem, is added to the ones of the second one. To indicate that this step has been taken, or any other measure to prevent is situation, the flag can be set.
+When combing two theorems, there is always the chance of name clashes. This means there is a minimal amount of clean up required. Before the unifier can start it's work, the environment passed to it needs to be prepopulated. This environment will contain a unifier when the unifier is done. Name clashes in the schematic variables need to be resolved by unifying their types. These substitutions are used as the starting point.\\
+To obviate this step, the two input theorems can be renamed apart in a way that makes a name clash impossible for the schematic variables. This is very easy due to how these variables are represented in the machine. They are identified by a construct called index name, a tuple of a string and an integer. For the renaming to happen, the maximum number in any schematic variable in one theorem, is added to the ones of the second one. To indicate that this step has been taken, or any other measure to prevent is situation, the flag can be set.
 \paragraph{match}
-When this flag is set, unifiers that instantiate variables in the state, one of the input theorems, will be rejected. One example for using this is as an over approximating heuristic to prevent turning two first-order theorems into one of a higher order.
+When this flag is set, unifiers that instantiate variables in the state, which is one of the input theorems, will be rejected. One example for using this is as an over approximating heuristic to prevent turning two first-order theorems into one of a higher order.
 
 \subsubsection{State}
 \paragraph{state}
-One of the input theorems. In the inference rule found in \ref{fig:res} it has the following form. $\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C$. With the resolution the premise $B_i$ will be replaced by some of the premises of the rule.
+One of the input theorems. In the inference rule found in \ref{fig:res} it has the following form. $\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C$. During resolution the premise $B_i$ will be replaced by some of the premises of the rule.
 \paragraph{destructed state}
-Presumably because this form is already required for biresolution and would have to be computed in this function at the latest, the premise that should be replaced in this indirect form. It is four tuple of the flex-flex pairs associated with the state a term list and two other terms. The last parts make up proposition of the state. The list contains the premises up until $B_i$, the first term is $B_i$ and the last everything that comes after it. 
+Presumably because this form is already required for \texttt{biresolution} and would have to be computed in this function at the latest, the information which premise to replace is encoded in this indirect form. It is four tuple of the flex-flex pairs associated with the state a term list and two other terms. The last three elements together make up the proposition of the state. The list contains the premises up until $B_i$, the first term is $B_i$ and the last everything that comes after it. 
 \paragraph{lifted}
-Lifting the rule as explained in ~\parencite{Paulson1994} can be a necessary step help $B$ match up with $B_i$. To achieve this, the assumptions($\Longrightarrow$) and parameters($\bigvee$) of $B_i$ are added to all premises and the conclusion of the rule. If the rule has been lifted, it should be indicated by this flag, as it makes way for some optimizations, but also invokes the renaming of the parameters and some schematic variables. It also affects how the resulting theorem is normalized.
+Lifting the rule as explained in ~\parencite{Paulson1994} can be a necessary step to help $B$ match up with $B_i$. During this process, the assumptions($\Longrightarrow$) and parameters($\bigvee$) of $B_i$ are added to all premises and the conclusion of the rule. If the rule has been lifted, it should be indicated by this flag, as it facilitates some optimizations, but also invokes the renaming of the parameters and some schematic variables. It also affects how the resulting theorem is normalized.
 
 \subsubsection{Rule}
 \paragraph{eres\_flg}
@@ -43,14 +42,14 @@ This number carries information about the number of new subgoals. In most cases 
 
 
 \subsection{Output}
-The sequence of possible new theorems generally corresponds to the sequence of unifiers returned by the unification algorithm, but might be shorter in the match case. In elim-resolution not only $B$ and $B_i$, but also withing the first new subgoal all combinations of an assumption and the conclusion. Because of this the sequence should generally be longer. Sequences in Isabelle/ML are a way to simulate lazy lists, as such the following computation are only performed if requested, by pulling a theorem out.
+The sequence of possible new theorems generally corresponds to the sequence of unifiers returned by the unification algorithm, but might be shorter in the match case. In elim-resolution not only $B$ and $B_i$, but also withing the first new subgoal all combinations of an assumption and the conclusion. Because of this the sequence should generally be longer. Sequences in \textit{Isabelle/ML} are a way to simulate lazy lists. As such the following computation are only performed if requested, by pulling a theorem out.
 
 \subsubsection{Modify As}
 At first, the new subgoals are modified. To undo some unnecessary renaming made during lifting, some bound variables are renamed. On top of this some schematic variables are renamed as well. Next, the parameters of the subgoals are pushed to the front, provided flattening is enabled. At the same time, one assumption will be deleted, in the case of elim-resolution.
 
 \subsubsection{Normalization}
 Before the final theorem can is assembled, the variables are instantiated using the unifier. Resolution partly beta normalizes the resulting theorem, but can not be depended upon, as it is only a side effect of the instantiation. This is problematic, because of various opimimisations that permit only instantiating part of the theorem.\\
-If the unifier is empty, the terms will remain untouched. Next, if it is certain, that only variables in the rule will be instantiated, the state won't change either. Otherwise, everything will be touched. When only the new subgoals are instantiated, there is a distinction, between the lifted case and the ordinary case. In the latter case the whole term is instantiated for all subgoals, in the former the assumptions that were added during lifting, are skipped.
+If the unifier is empty, the terms will remain untouched by the normalizer. Next, if it is certain, that only variables in the rule will be instantiated, the state won't change either. Otherwise, everything will be normalized. When only the new subgoals are instantiated, there is a distinction, between the lifted case and the ordinary case. In the latter case the whole term is instantiated for all subgoals, in the former the assumptions that were added during lifting, are skipped.
 
 \section{bicompose}
 
@@ -58,7 +57,7 @@ If the unifier is empty, the terms will remain untouched. Next, if it is certain
 val bicompose: Proof.context option -> {flatten: bool, match: bool, incremented: bool} -> bool * thm * int -> int -> thm -> thm Seq.seq
 \end{lstlisting}
 
-This is just a very thin layer on top of bicompose\_aux, that doesn't allow lifting. The first two arguments are identical to it's underlying function, but next the position of state and rule is switched. Whereas the rule triple is passed unchanged, the $i$ and the state are used to generate the destructed state.\\
+This is just a very thin layer on top of \texttt{bicompose\_aux}, that doesn't allow lifting. The first two arguments are identical to it's underlying function, but next the position of state and rule is switched. Whereas the rule triple is passed unchanged, the $i$ and the state are used to generate the destructed state.\\
 
 \section{biresolution}
 
@@ -66,5 +65,5 @@ This is just a very thin layer on top of bicompose\_aux, that doesn't allow lift
 val biresolution: Proof.context option -> bool -> (bool * thm) list -> int -> thm -> thm Seq.seq
 \end{lstlisting}
 
-Biresolution generalizes bicompose\_aux by allowing to resolve with multiple rules at once. It works by resolving the state with every rule and concatenating to resulting theorem sequences.\\
-The first argument should be well known by now. The match flag that needs to be passed next is applied to all rules. Next is the list of rules. They are all complemented with a flag that indicates elim-resolution. As in bicompose, the $i$ and the state are used to generate the destructed state.
+\texttt{biresolution} generalizes \texttt{bicompose\_aux} by allowing to resolve with multiple rules at once. It works by resolving the state with every rule and concatenating to resulting theorem sequences.\\
+The first argument should be well known by now. The match flag that needs to be passed next and has global consequences. Next is the list of rules. They are all complemented with a flag that indicates elim-resolution. As in \texttt{bicompose}, the $i$ and the state are used to generate the destructed state.
