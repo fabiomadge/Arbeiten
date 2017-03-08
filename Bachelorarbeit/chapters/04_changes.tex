@@ -1,6 +1,6 @@
 \chapter{Approach}\label{chapter:approach}
 
-The goal of this work, was not only to replace \texttt{bicompose\_aux} by a safer version, but also to simplify it. While the general plan for the refactoring was fairly clear at the beginning, it seamed hard to figure out what features to cut, just based on looking at the code.
+The goal of this work, was not only to replace \texttt{bicompose\_aux} by a safer version, but also to simplify it. While the general plan for the refactoring was fairly clear at the beginning, it seemed hard to figure out what features to cut, just based on looking at the code.
 
 \section{Remove flatten}
 
@@ -26,7 +26,7 @@ True & False & True & True & False & 61.66\%\\
 \end{table}
 
 Because we wanted to get a full picture, we built the whole \textit{Isabelle} distribution\footnote{\url{https://bitbucket.org/gnedl/isabelle-smashed}} and all of the sessions in the \textit{Archive of formal proof}\footnote{\url{https://bitbucket.org/gnedl/afp-smashed}}. For better comparability with later results, two session have been excluded, HOL-Proofs and HOL-Word-SMT\_Examples.\\
-Even though the amount of different combinations might be overwhelming at first, things aren't as bad as they could be. Of the 25 possible configurations, only ten are used in practice. To make matters even easier, the top three combinations are used in 90\% of all cases. While It may also seam apparent, that many of the more obscure configurations effectively not used, it should not be forgotten, that at 8077146288 invocations, one basis point still accounts for a meaningful amount of calls to \texttt{bicompose\_aux}.
+Even though the amount of different combinations might be overwhelming at first, things aren't as bad as they could be. Of the 25 possible configurations, only ten are used in practice. To make matters even easier, the top three combinations are used in 90\% of all cases. While It may also seem apparent, that many of the more obscure configurations effectively not used, it should not be forgotten, that at 8077146288 invocations, one basis point still accounts for a meaningful amount of calls to \texttt{bicompose\_aux}.
 
 \begin{table}[ht]
 \caption{Frequency of flags set over all invocations in Isabelle \texttt{3cc892b} and AFP \texttt{c0e959f}}
@@ -46,7 +46,7 @@ While match would fit that bill, instead of doing this check on the unifier, it 
 Incremented does not influence trusted code, but for the optimization to have actual benefits, needs to be know when the unifiers are generated, this is only possible within \texttt{bicompose\_aux}. Because it is not possible to increment all theorem for compatibility reasons, it would have to be disable. This would decrease speed in 98.3\% of all invocations.\\
 When performing beta normalization at the end, lifting needs to be considered to stay compatible. Thus the lifting flag needs to retain its current form.\\
 It is conceivable to do elim-resolution outside of \texttt{bicompose\_aux} but there is some performance to be lost, because the elim part is conceptually part of the resolution. While the two could be separated, the resulting code duplication is undesirable.\\
-Flatten is the one interesting case, because there is only a handful of points in the code base, where it is not enabled. Tree have to do with adding or removing protect markers and the one outlier is \texttt{distinct\_tac}. It seams to be used for deleting duplicate subgoals, but evidently doesn't depend on getting unflattend theorems. No functionality depending on it seams to suffer from the change either.\\
+Flatten is the one interesting case, because there is only a handful of points in the code base, where it is not enabled. Tree have to do with adding or removing protect markers and the one outlier is \texttt{distinct\_tac}. It seems to be used for deleting duplicate subgoals, but evidently doesn't depend on getting unflattend theorems. No functionality depending on it seems to suffer from the change either.\\
 All functions dealing with protection markers in any way, use the definition of the marker $\#(\text{PROP}~?A) \equiv \text{PROP}~?A$ to resolve with. As the definition is only used on premises, the conclusion or tailing premises and the conclusion, this can be simulated using existing primitives. By using to \texttt{combination} rule to skip the static premises, and using \texttt{instantiate} on the definition with the protectee as the substitution. An example for such a proof is removing a marker as done by \texttt{Goal.conclude}, which can be found in figure~\ref{fig:conclude}. The size of the proof depends on the number of skipped subgoals and is hidden by the derived rule combination*.
 
 \begin{figure}[ht]
@@ -269,8 +269,8 @@ The first issue is, that the substitution in the environment is in triangular fo
 
 For the remaining tasks the correct approach is clear, either because they exist already or don't have the appropriate generality.
 
-\subsubsection{Rename} There are primitives for both renaming bound and schematic variables. \texttt{renamed\_prop} allows the user to exchange the proposition of a theorem with one that is $\equiv_\alpha$ and instantiate can be used to rename schematic variables. This means current logic needs to be separated by variable kind. The part that deals with bound variables can remain unchanged and it's result can be used as input for \texttt{renamed\_prop}. For the other kind, the substitutions need to be generated from the existing lists.
-\subsubsection{Flatten} Flattening is not used outside of \texttt{bicompose\_aux} and there seams to be little need for it. Therefore are primitive that performs flattening exactly as needed by \texttt{bicompose\_aux} is reasonable.
+\subsubsection{Rename} There are primitives for both renaming bound and schematic variables. \texttt{renamed\_prop} allows the user to exchange the proposition of a theorem with one that is $\equiv_\alpha$ and instantiate can be used to rename schematic variables. This means current logic needs to be separated by variable kind. The part that deals with bound variables can remain unchanged and its result can be used as input for \texttt{renamed\_prop}. For the other kind, the substitutions need to be generated from the existing lists.
+\subsubsection{Flatten} Flattening is not used outside of \texttt{bicompose\_aux} and there seems to be little need for it. Therefore are primitive that performs flattening exactly as needed by \texttt{bicompose\_aux} is reasonable.
 \subsubsection{Unify} Prepares the environment for the unification algorithm and retrieves the unifier. There is not trusted code here, as the unifier is later checked.
 \subsubsection{Instantiate} Is just a call to the existing primitive.
 \subsubsection{Normalize} The existing \texttt{beta\_conversion} can be used for reducing the complete proposition of a theorem, but previous optimizations require more control over the affected subgoals. This can be accommodated by proof similar to ones in the goal protection family.

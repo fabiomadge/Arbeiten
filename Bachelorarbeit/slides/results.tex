@@ -1,0 +1,39 @@
+\begin{frame}
+\scriptsize
+\begin{center}
+\begin{tabular}{l *{5}{c}}
+Session & Baseline & Unify & Final & U/B & F/U\\ \hline
+AODV & 13:11:43 & 15:28:15 & 72:22:04 & 1,17 & 4,68\\
+Allen\_Calculus & 0:09:07 & 0:09:25 & 0:14:11 & 1,03 & 1,51\\
+ConcurrentGC & 6:58:07 & 7:01:10 & 31:12:53 & 1,01 & 4,45\\
+Flyspeck-Tame & 9:37:18 & 9:34:17 & 11:19:37 & 0,99 & 1,18\\
+Formula\_Derivatives-Examples & 0:03:33 & 0:03:25 & 0:03:22 & 0,96 & 0,99\\
+Gauss\_Jordan & 0:07:14 & 0:08:06 & 0:08:29 & 1,12 & 1,05\\
+Iptables\_Semantics\_Examples & 16:00:15 & 16:19:47 & 19:10:00 & 1,02 & 1,17\\
+SDS\_Impossibility & 0:02:16 & 0:02:26 & 0:29:03 & 1,07 & 11,97\\
+Well\_Quasi\_Orders & 0:01:39 & 0:01:33 & 0:02:34 & 0,94 & 1,65\\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
+\hline\hline
+All & 79:52:09 & 83:45:33 & 200:57:06 & 1,03 & 1,55\\
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+    \begin{tikzpicture}
+    \begin{loglogaxis}[
+        % enlargelimits=false,
+        ylabel=Calls per Hour,
+        xlabel=Slowdown,
+        width=10cm
+    ]
+    \addplot+[
+        only marks,
+        scatter,
+        mark=x,
+        mark size=2pt]
+    table[]{slowdown.dat};
+    % \legend{Men,Women}
+    \end{loglogaxis}
+    \end{tikzpicture}
+\end{frame}

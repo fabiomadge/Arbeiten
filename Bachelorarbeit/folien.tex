@@ -1,0 +1,86 @@
+\documentclass[]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{graphics}
+\usepackage{etoolbox}
+\usepackage{syntax}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{ebproof}
+\usepackage{prftree}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{booktabs}
+
+\usetikzlibrary{positioning,arrows, decorations.markings}
+\usetheme{Berlin}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{theorems}[ams style]
+\usecolortheme{dove}
+\usefonttheme{professionalfonts}
+\beamertemplatenavigationsymbolsempty
+
+\undef{\Theorem}
+\undef{\Lemma}
+\undef{\Definition}
+\undef{\Korollar}
+\newtheorem{Proposition}{Proposition}
+\newtheorem{Theorem}{Theorem}
+\newtheorem{Lemma}{Lemma}
+\newtheorem{Definition}{Definition}
+\newtheorem{Korollar}{Korollar}
+
+
+\begin{document}
+
+\title{\texttt{bicompose_aux'}}
+\author[F. Madge Pimentel]{Fabio Madge Pimentel}
+\institute{Technische Universität München}
+\date[08.03.17]{08. März 2017}
+\maketitle
+
+\begin{frame}
+\setcounter{tocdepth}{1}
+\tableofcontents[pausesections]
+\end{frame}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\setcounter{tocdepth}{2}
+\tableofcontents[currentsection,hideothersubsections]
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\setcounter{tocdepth}{2}
+\tableofcontents[currentsection,
+        currentsubsection,
+        subsectionstyle=show/shaded/hide]
+\end{frame}
+}
+
+\section{Introduction}
+\input{slides/intro}
+
+\section{\texttt{bicompose\_aux}}
+\input{slides/current}
+
+\section{Approach}
+\input{slides/approach}
+
+\section{Results}
+\input{slides/results}
+
+\section{Conclusion}
+\input{slides/conclusion}
+
+\end{document}

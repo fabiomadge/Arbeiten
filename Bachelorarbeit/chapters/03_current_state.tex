@@ -19,7 +19,7 @@ This problem is due to the trusted nature of the kernel, and been discovered whi
 \paragraph{flatten}
 In general formul\ae {} in Isabelle are in the class of hereditary Harrop formul\ae~\parencite{implementation}. It represents a generalization of Horn Clauses. When this flag is enabled, during preprocessing, all premises of the rule, that will be in the premises of the resulting theorem, will have their universal quantifiers ($\bigvee$) pulled to the front. This helps to approximate a hereditary Harrop formula equal to the proposition of the resulting theorem.
 \paragraph{incremented}
-When combing two theorems, there is always the chance of name clashes. This means there is a minimal amount of clean up required. Before the unifier can start it's work, the environment passed to it needs to be prepopulated. This environment will contain a unifier when the unifier is done. Name clashes in the schematic variables need to be resolved by unifying their types. These substitutions are used as the starting point.\\
+When combing two theorems, there is always the chance of name clashes. This means there is a minimal amount of clean up required. Before the unifier can start its work, the environment passed to it needs to be prepopulated. This environment will contain a unifier when the unifier is done. Name clashes in the schematic variables need to be resolved by unifying their types. These substitutions are used as the starting point.\\
 To obviate this step, the two input theorems can be renamed apart in a way that makes a name clash impossible for the schematic variables. This is very easy due to how these variables are represented in the machine. They are identified by a construct called index name, a tuple of a string and an integer. For the renaming to happen, the maximum number in any schematic variable in one theorem, is added to the ones of the second one. To indicate that this step has been taken, or any other measure to prevent is situation, the flag can be set.
 \paragraph{match}
 When this flag is set, unifiers that instantiate variables in the state, which is one of the input theorems, will be rejected. One example for using this is as an over approximating heuristic to prevent turning two first-order theorems into one of a higher order.
@@ -57,7 +57,7 @@ If the unifier is empty, the terms will remain untouched by the normalizer. Next
 val bicompose: Proof.context option -> {flatten: bool, match: bool, incremented: bool} -> bool * thm * int -> int -> thm -> thm Seq.seq
 \end{lstlisting}
 
-This is just a very thin layer on top of \texttt{bicompose\_aux}, that doesn't allow lifting. The first two arguments are identical to it's underlying function, but next the position of state and rule is switched. Whereas the rule triple is passed unchanged, the $i$ and the state are used to generate the destructed state.\\
+This is just a very thin layer on top of \texttt{bicompose\_aux}, that doesn't allow lifting. The first two arguments are identical to its underlying function, but next the position of state and rule is switched. Whereas the rule triple is passed unchanged, the $i$ and the state are used to generate the destructed state.\\
 
 \section{biresolution}
 

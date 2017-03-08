@@ -1,0 +1,157 @@
+\subsection{Remove flatten}
+\begin{frame}
+\begin{center}
+\begin{tabular}{*{5}{c} r}
+flatten & match & incremented & lifted & eres\_flg & Quantity\\ \hline
+False & True & False & False & False & 0.01\%\\
+True & False & False & False & True & 0.03\%\\
+False & False & False & False & False & 0.07\%\\
+True & False & True & True & True & 1.43\%\\
+True & False & False & False & False & 1.60\%\\
+True & True & True & True & False & 1.83\%\\
+True & True & True & True & True & 4.52\%\\
+False & False & True & False & False & 9.51\%\\
+True & False & True & False & False & 19.33\%\\
+True & False & True & True & False & 61.66\%\\
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\begin{tabular}{l r}
+flatten & 90.4\%\\
+match & 6.4\%\\
+incremented & 98.3\%\\
+lifted & 69.4\%\\
+eres\_flg & 6.0\%
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{\texttt{Goal.conclude}}
+\newcommand\GOAL{\mathit{GOAL}}
+\newcommand\PRE{\mathit{PRE}}
+\newcommand\SAFE{\mathit{SAFE}}
+\newcommand\IN{\mathit{IN}}
+\begin{center}
+\scalebox{.55}{
+\begin{prooftree}
+%   \Infer0[reflexivity]{\texttt{PRE} \equiv \texttt{PRE}}
+%   \Infer0[prop\_def]{\#(\text{PROP}~?A) \equiv \text{PROP}~?A}
+%   \Infer1[instantiation]{\#\left(\texttt{SAFE}\right) \equiv \texttt{SAFE}}
+%   \Infer2[combination*]{\texttt{IN} \equiv \texttt{GOAL}}
+  % \Hypo{$\vdots$}
+  % \Infer1[$\equiv$-elim]{\GOAL}
+  \Infer0[$\beta$-norm]{\GOAL \equiv \beta\left(\GOAL\right)}
+
+  \Infer0[reflexively]{\PRE \equiv \PRE}
+  \Infer0[prop\_def]{\#(\text{PROP}~?A) \equiv \text{PROP}~?A}
+  \Infer1[instantiation]{\#\left(\SAFE\right) \equiv \SAFE}
+  \Infer2[combination*]{\IN \equiv \GOAL}
+  \Hypo{\IN}
+  \Infer2[$\equiv$-elim]{\GOAL}
+  \Infer2[$\equiv$-elim]{\beta\left(\GOAL\right)}
+\end{prooftree}
+}
+\end{center}
+\begin{align*}
+  \text{where}~\GOAL &::= \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow C \\
+  \PRE &::= \left\llbracket A_x\,\middle|\, x \in \left[ i \right] \right\rrbracket \Longrightarrow \\
+  \SAFE &::= \left\llbracket A_x\,\middle|\, x \in \left( \left[ m \right] \setminus \left[ i \right] \right)\right\rrbracket \Longrightarrow C \\
+  \IN &::= \PRE~\left(\#\SAFE\right)
+\end{align*}
+\end{frame}
+
+\subsection{bicompose\_aux'}
+% \begin{frame}
+% \usetikzlibrary{arrows, decorations.markings}
+% \tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+%    1 with {\arrow[semithick]{open triangle 60}}},
+%    double distance=1.4pt, shorten >= 5.5pt,
+%    preaction = {decorate},
+%    postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
+% \tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]
+% \usetikzlibrary{positioning}
+% \begin{tikzpicture}[thick]
+%   \node[draw,rectangle] (rule) {Rule};
+%   \node[inner sep=0,minimum size=0,left=0.5cm of rule] (pr) {}; % invisible node
+%   \node[inner sep=0,minimum size=0,above of=rule] (k) {}; % invisible node
+%   \node[draw,rectangle,above of=k] (state) {State};
+%   \node[inner sep=0,minimum size=0,left=0.5cm of state] (ps) {}; % invisible node
+%   \node[draw,rectangle,right=of rule] (rename) {Rename};
+%   \node[draw,rectangle,right=0.8cm of k] (unify) {Unify};
+%   \node[draw,rectangle,right=of rename] (flatten) {Flatten};
+%   \node[draw,rectangle,right=0.8cm of unify] (certify) {Certify};
+%   \node[draw,rectangle,right=0.8cm of certify] (inst) {Instantiate};
+%   \node[draw,rectangle,right=0.8cm of inst] (res) {Resolve};
+%   \node[draw,rectangle,below of=res] (norm) {Normalize};
+%   \node[inner sep=0,minimum size=0,below of=norm] (pn) {}; % invisible node
+
+
+%   % 1st pass: draw arrows
+%   \draw[vecArrow] (pr) to (rule);
+%   \draw[vecArrow] (ps) to (state);
+%   \draw[vecArrow] (state) |- (unify);
+%   \draw[vecArrow] (rule) |- (unify);
+%   \draw[vecArrow] (rule) to (rename);
+%   \draw[vecArrow] (rename) to (flatten);
+%   \draw[vecArrow] (state) -| (inst);
+%   \draw[vecArrow] (flatten) -| (inst);
+%   \draw[vecArrow] (unify) to (certify);
+%   \draw[vecArrow] (certify) to (inst);
+%   \draw[vecArrow] (inst) to (res);
+%   \draw[vecArrow] (res) to (norm);
+%   \draw[vecArrow] (norm) to (pn);
+
+%   % 2nd pass: copy all from 1st pass, and replace vecArrow with innerWhite
+%   \draw[innerWhite] (state) to (rule);
+
+%   % Note: If you have no branches, the 2nd pass is not needed
+% \end{tikzpicture}
+% \end{frame}
+\begin{frame}
+\begin{center}
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+   1 with {\arrow[semithick]{open triangle 60}}},
+   double distance=1.4pt, shorten >= 5.5pt,
+   preaction = {decorate},
+   postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
+\tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]
+\begin{tikzpicture}[thick]
+  \node[draw,rectangle] (rule) {Rule};
+  \node[inner sep=0,minimum size=0,left=0.5cm of rule] (pr) {}; % invisible node
+  \node[inner sep=0,minimum size=0,above of=rule] (k) {}; % invisible node
+  \node[draw,rectangle,above of=k] (state) {State};
+  \node[inner sep=0,minimum size=0,left=0.5cm of state] (ps) {}; % invisible node
+  \node[draw,rectangle,right=of rule] (rename) {Rename};
+  \node[draw,rectangle,right=0.8cm of k] (unify) {Unify};
+  \node[draw,rectangle,right=of rename] (flatten) {Flatten};
+  \node[draw,rectangle,right=0.8cm of unify] (certify) {Certify};
+  \node[draw,rectangle,right=0.8cm of certify] (inst) {Instantiate};
+  \node[draw,rectangle,right=0.8cm of inst] (res) {Resolve};
+  \node[draw,rectangle,below of=res] (norm) {Normalize};
+  \node[inner sep=0,minimum size=0,below of=norm] (pn) {}; % invisible node
+
+  % 1st pass: draw arrows
+  \draw[vecArrow] (pr) to (rule);
+  \draw[vecArrow] (ps) to (state);
+  \draw[vecArrow] (state) |- (unify);
+  \draw[vecArrow] (rule) |- (unify);
+  \draw[vecArrow] (rule) to (rename);
+  \draw[vecArrow] (rename) to (flatten);
+  \draw[vecArrow] (state) -| (inst);
+  \draw[vecArrow] (flatten) -| (inst);
+  \draw[vecArrow] (unify) to (certify);
+  \draw[vecArrow] (certify) to (inst);
+  \draw[vecArrow] (inst) to (res);
+  \draw[vecArrow] (res) to (norm);
+  \draw[vecArrow] (norm) to (pn);
+
+  % 2nd pass: copy all from 1st pass, and replace vecArrow with innerWhite
+  \draw[innerWhite] (state) to (rule);
+
+  % Note: If you have no branches, the 2nd pass is not needed
+\end{tikzpicture}
+\end{center}
+\end{frame}

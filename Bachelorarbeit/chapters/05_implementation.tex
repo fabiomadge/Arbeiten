@@ -32,7 +32,7 @@ val instantiate : ((indexname * sort) * ctyp) list * ((indexname * typ) * cterm)
 val resolve : thm -> thm * int -> int -> thm
 \end{lstlisting}
 
-\texttt{build\_th} is a wrapper around \texttt{instantiate} and \texttt{resolve}. To make $B$ and $B_i$ equal and thus ready for resolving, both theorems are instantiated. Even though the type of this primitive suggests that it can instantiate type and term variables simultaneously, it can't. The type of resolve is possibly surprising in it's complexity, but also allows the number of new subgoals to be supplied.\\
+\texttt{build\_th} is a wrapper around \texttt{instantiate} and \texttt{resolve}. To make $B$ and $B_i$ equal and thus ready for resolving, both theorems are instantiated. Even though the type of this primitive suggests that it can instantiate type and term variables simultaneously, it can't. The type of resolve is possibly surprising in its complexity, but also allows the number of new subgoals to be supplied.\\
 
 \section{Normalization}
 

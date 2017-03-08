@@ -1,0 +1,33 @@
+\subsection{Input}
+\begin{frame}[fragile]
+\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{blue},language=ML,breaklines=true]
+val bicompose_aux: Proof.context option -> {flatten: bool, match: bool, incremented: bool} -> thm * ((term * term) list * term list * term * term) * bool -> bool * thm * int -> thm Seq.seq
+\end{lstlisting}
+\end{frame}
+
+\subsection{Functionality}
+\begin{frame}
+  \begin{itemize}[<+->]
+  	\item Lazy lists simulated by sequences
+    \item Generate sequence of unifiers for $B$ and $B_i$
+    \item For compute a new theorem for each unifier
+        \begin{itemize}[<+->]
+            \item Modify As (rename, HHF)
+            \item Normalize (instantiate + beta normalization)
+        \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\subsection{Interfaces}
+\begin{frame}[fragile]
+\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{blue},language=ML,breaklines=true]
+val bicompose_aux: Proof.context option -> {flatten: bool, match: bool, incremented: bool} -> thm * ((term * term) list * term list * term * term) * bool -> bool * thm * int -> thm Seq.seq
+val bicompose: Proof.context option -> {flatten: bool, match: bool, incremented: bool} -> bool * thm * int -> int -> thm -> thm Seq.seq
+\end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{blue},language=ML,breaklines=true]
+val bicompose_aux: Proof.context option -> {flatten: bool, match: bool, incremented: bool} -> thm * ((term * term) list * term list * term * term) * bool -> bool * thm * int -> thm Seq.seq
+val biresolution: Proof.context option -> bool -> (bool * thm) list -> int -> thm -> thm Seq.seq
+\end{lstlisting}
+\end{frame}

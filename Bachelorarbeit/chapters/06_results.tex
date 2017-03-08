@@ -51,7 +51,7 @@ The most simplistic theory to explained this heterogeneity, is that the amount o
         scatter,
         mark=x,
         mark size=2pt]
-    table[]{slowdown_intensity.dat};
+    table[]{slowdown.dat};
     % \legend{Men,Women}
     \end{loglogaxis}
     \end{tikzpicture}
@@ -65,4 +65,4 @@ In figure \ref{fig:correlation} there is no correlation to be seen, if anything,
 
 The amount of calls to \texttt{bicompose\_aux} has decreased among all sessions between the baseline and the final version.\\
 Only 32 session change at all between unify and final, and they are all withing a margin of 1\%. All of these cases are still interesting, as it was assumed that the theorems returned don't change between unify and final.\\
-Upon closer inspection, all the actual gains can be traced back to the changes made between the baseline and unify. Unfortunately this step blends different changes, most notably the obviation of the flatten flag with the associated changes and the different unifiers returned after smashing. To untangle this, a data point can be added. We take the baseline and add the changes to eliminate the flatten flag. While the baseline \textit{AFP} is sufficient for that, the distribution that reflects that can't be found in the repository for lack of actual use beyond benchmarking. With it's help it can be seen, that the reduction in calls is almost exclusively due to the changes made in this between-step and that if anything, makes more calls necessary. On average the amount of calls increases by four per mille. The one run suggests that the substitutes for the \texttt{bicompose\_aux} calls are actually slower and add 40 minutes to the overall run time.
+Upon closer inspection, all the actual gains can be traced back to the changes made between the baseline and unify. Unfortunately this step blends different changes, most notably the obviation of the flatten flag with the associated changes and the different unifiers returned after smashing. To untangle this, a data point can be added. We take the baseline and add the changes to eliminate the flatten flag. While the baseline \textit{AFP} is sufficient for that, the distribution that reflects that can't be found in the repository for lack of actual use beyond benchmarking. With its help it can be seen, that the reduction in calls is almost exclusively due to the changes made in this between-step and that if anything, makes more calls necessary. On average the amount of calls increases by four per mille. The one run suggests that the substitutes for the \texttt{bicompose\_aux} calls are actually slower and add 40 minutes to the overall run time.

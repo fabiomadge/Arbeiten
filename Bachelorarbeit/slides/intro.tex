@@ -1,0 +1,37 @@
+\subsection{Isabelle}
+\begin{frame}
+  \begin{itemize}[<+->]
+  	\item Generic proof assistant (meta-logic $\mathcal{M}$ + object logic)
+    \item Pure: $\bigvee$, $\Longrightarrow$ and $\equiv$
+    \item \texttt{thm}: Datatype encoding a theorem
+    \item New theorems from axioms using natural deduction
+    \item Kernel: Collection of functions modifying internals of a theorem
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\scalebox{.94}{
+% \begin{displaymath}
+    \prftree[r]{RS}
+    {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
+    {\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C}
+    {B\sigma \equiv B_i\sigma}
+    {\left( \left\llbracket B_x\,\middle|\, x \in \left[ i - 1 \right] \right\rrbracket
+    + \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket
+    + \left\llbracket B_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right) \right\rrbracket
+    \Longrightarrow C \right) \sigma
+    }
+% \end{displaymath}
+}
+\end{center}
+\end{frame}
+
+\subsection{Goal}
+\begin{frame}
+  \begin{itemize}[<+->]
+  	\item Remove resolution from the kernel
+    \item Check Unifier
+    \item Multiple independent modules
+  \end{itemize}
+\end{frame}
