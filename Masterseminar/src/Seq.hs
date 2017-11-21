@@ -52,3 +52,9 @@ insertAt i x s = l |> x >< r
 deleteAt :: Integer -> Seq a -> Seq a
 deleteAt i (Seq xs) = Seq (l F.>< r)
     where Split l x r = splitTree (Size i <) mempty xs
+
+fromList :: [a] -> Seq a
+fromList = foldl (flip (<|)) empty
+
+toList :: Seq a -> [a]
+toList (Seq s) = foldl (\l (Elem a) -> a : l) [] s
