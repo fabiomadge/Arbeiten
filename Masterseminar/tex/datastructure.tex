@@ -1,4 +1,4 @@
-The after refining the original binary numbers into dequeues, the final step gets us to finger trees. Here we extend the digit to a fourth constructor and replace the rigid tuple structure with the previously discussed 2-3 trees.
+After refining the original binary numbers into dequeues, the final step gets us to finger trees. Here we extend the digit to a fourth constructor and replace the rigid tuple structure with the previously discussed 2-3 trees.
 
 \begin{minted}{Haskell}
     data Digit a = One a | Two a a | Three a a a | Four a a a a
@@ -20,9 +20,12 @@ The finger tree itself can be cumbersome to use and is more abstract than needed
 
 \subsection{Elementary Operations}
 
-Because they are important when defining these functions, but also for its intrinsic value, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which don't need to be exported.
+Not only for defining these functions, but also for immediate usefulness, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which don't need to be exported.
 
 \begin{minted}{Haskell}
+    (.+|) :: Measured a v => v -> a -> v
+    i .+| s = i <> μ s
+
     node3 :: Measured a v => a -> a -> a -> Node v a
     node3 a b c = Node3 (μ a .+| b .+| c) a b c
 
@@ -34,7 +37,7 @@ Because they are important when defining these functions, but also for its intri
         a <| Deep _ pr m sf = deep (a <| pr) m sf
 \end{minted}
 
-The extension of a finger tree uses smart constructors to make the definitions more concise. In this case, the implicitly calculate the cached measurement. Because we are enlarging the structure, \mintinline{Haskell}{Four} is the dangerous digit for this operation.
+The extension of a finger tree uses smart constructors to make the definitions more concise. In this case, they implicitly calculate the cached measurement. Because we are enlarging the structure, \mintinline{Haskell}{Four} is the dangerous digit for this operation.
 
 \begin{minted}{Haskell}
     instance Measured a v => Viewable a (FingerTree v) where
@@ -47,7 +50,7 @@ The extension of a finger tree uses smart constructors to make the definitions m
             Cons a pr -> Cons a (deep pr m sf)
 \end{minted}
 
-When deconstructing a finger tree \mintinline{Haskell}{One} is problematic, so we first check of that. The nonstandard use of the \mintinline{Haskell}{View} is due to the fact that there is no empty \mintinline{Haskell}{Digit}. To get a new digit, we remove the first element from the subsequent finger tree. But because this is actually a \mintinline{Haskell}{Node} of the desired type, we convert it into a \mintinline{Haskell}{Digit}, the mapping is obvious and luckily doesn't carry any problems. Using a potential function that counts the number of safe digits, one can show that all three basic operation run in \(\Theta(1)\) on both ends of the tree.\par
+When deconstructing a finger tree \mintinline{Haskell}{One} is problematic, so we first check that. The nonstandard use of the \mintinline{Haskell}{View} is due to the fact that there is no empty \mintinline{Haskell}{Digit}. To get a new digit, we remove the first element from the subsequent finger tree. But because this is actually a \mintinline{Haskell}{Node} of the desired type, we convert it into a \mintinline{Haskell}{Digit}, the mapping is obvious and luckily doesn't carry any problems. Using a potential function that counts the number of safe digits, one can show that all three basic operation run in \(\Theta(1)\) on both ends of the tree.\par
 
 \subsection{Concatenate}
 
@@ -82,7 +85,7 @@ When starting out with an empty list, the length of the argument to \mintinline{
 
 \subsection{Split}
 
-Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work nonempty trees. Because our digits don't lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turing these lists has it's subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
+Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we define the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work nonempty trees. Because our digits don't lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turing these lists has it's subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
 
 \begin{minted}{Haskell}
     data Split f a = Split (f a) a (f a)

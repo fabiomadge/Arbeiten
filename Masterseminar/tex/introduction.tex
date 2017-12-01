@@ -3,7 +3,7 @@ The finger tree data structure can be viewed as a succession of refinements, the
 \subsection{Implicit Recursive Slowdown}
 
 Okasaki positions his implicit recursive slowdown framework as a response to Kaplan's and Tarjan's recursive slowdown design principle~\cite{Kaplan:1995:PLC:225058.225090}. His refinement has looser restrictions on the structure of the data structure which results in simpler function, but his runtime bounds only match the originals after amortization.\par
-The book~\cite{okasaki1999purely} motivates the  implicit recursive slowdown framework with natural number representations using lists, starting with a \mintinline{Haskell}{List} of bits, with the head being the LSB\@. This is the standard encoding, where to convert these lists to the ordinary decimal representation all digits are after using them as a weight to two to the power of their position.
+The book~\cite{okasaki1999purely} motivates the  implicit recursive slowdown framework with natural number representations using lists, starting with a \mintinline{Haskell}{List} of bits, with the head being the LSB\@. This is the standard encoding, where to convert these lists to the ordinary decimal representation all digits are, after using them as a weight to two to the power of their position, added together.
 \begin{minted}{Haskell}
     data Digit = Zero | One
     type Nat = [Digit]
@@ -12,7 +12,7 @@ The book~\cite{okasaki1999purely} motivates the  implicit recursive slowdown fra
     toInteger xs = sum $
         map (\(f,n) -> f * 2 ^ n) (zip (map fromEnum xs) [0..])
 \end{minted}
-Both \mintinline{Haskell}{inc} and \mintinline{Haskell}{dec} are implemented the obvious way. It is well known that the amortized complexity of both is \(\Theta(1)\). That can be proofed using the banker's method with the potential function \mintinline{Haskell}{Φ = length . elemIndices d}, with \texttt{d} being either \mintinline{Haskell}{One}, or \mintinline{Haskell}{Zero}. This is already indicative of the problem with this first iteration. While the desired bounds can be proofed for the isolated operations, the proofs are incompatible when supporting both operations at the same time, as they require different potential function. To correct this deficiency we allow our Digits to have three different values.
+The implementations of \mintinline{Haskell}{inc} and \mintinline{Haskell}{dec} are are trivial. It is well known that the amortized complexity of both is \(\Theta(1)\). That can be proofed using the banker's method with the potential function \mintinline{Haskell}{Φ = length . elemIndices d}, with \texttt{d} being either \mintinline{Haskell}{One}, or \mintinline{Haskell}{Zero}. This is already indicative of the problem with this first iteration. While the desired bounds can be proofed for the isolated operations, the proofs are incompatible when supporting both operations at the same time, as they require different potential function. To correct this deficiency we allow our Digits to have three different values.
 \begin{minted}{Haskell}
     data Digit = Zero | One | Two
 \end{minted}
@@ -23,8 +23,8 @@ To turn this into a useful data structure, we have to add data to the digits and
     data RList a = Single (Digit a) 
         | Deep (Digit a) (RList (a, a))
 \end{minted}
-Instead of having the ability to representing a number be the primary function of this data structure, it merely indicates the number of elements stored. Before the value of a digit was determined by its position in the list. Now by handing down a tuple of the original element type, a tree-like structure is formed at the digits. This doubles the potential capacity of a digit with every level when descending into the structure.\par
-For this new data structure implementations of \mintinline{Haskell}{cons}, \mintinline{Haskell}{head} and \mintinline{Haskell}{tail} can be found that all have an amortized complexity of \(\Theta(1)\). This is not particularly impressive, when considering, that \mintinline{Haskell}{List} has the same bounds, but doesn't require amortization. The advantage lies in accessing data deep into the data structure, while this problem can only be solved in linear time for lists, for an \mintinline{Haskell}{RList}, it can be done in \(\Theta(\log (n))\). To enable fast access to the end of the data structure, each \mintinline{Haskell}{Deep} node gets a second finger.
+Instead of having the ability to represent a number be the primary application of this data structure, the persisting number merely indicates the number of elements stored. Before the value of a digit was determined by its position in the list. Now by handing down a tuple of the original element type, a tree-like structure is formed at the digits. This doubles the potential capacity of a digit with every level when descending into the structure.\par
+For this new data structure implementations of \mintinline{Haskell}{cons}, \mintinline{Haskell}{head} and \mintinline{Haskell}{tail} can be found that all have an amortized complexity of \(\Theta(1)\). This is not particularly impressive, when considering, that \mintinline{Haskell}{List} has the same bounds, but doesn't require amortization. The advantage lies in accessing data deep into the data structure, while this problem can only be solved in linear time for lists, for an \mintinline{Haskell}{RList}, it can be done in \(\Theta(\log (n))\). To enable fast access to the end of the data structure, each \mintinline{Haskell}{Deep} node gets a second finger. Now every \mintinline{Haskell}{Deep} node not only contains the first few elements of the sequence it represents, but also the last ones.
 \begin{minted}{Haskell}
     data Digit a = One a | Two a a | Three a a a
     data RList a =
@@ -35,7 +35,8 @@ The proof that all three operations have an amortized complexity of \(\Theta(1)\
 
 \subsection{Type classes}
 
-The implementation language for examples in this paper is Haskell. Two properties of it make it especially suited. In evaluation is generally lazy, without the need for dedicated commands and required for finger trees. The rich type system, especially its type classes, makes the code presentable in this context.\\
+The implementation language for the examples in this paper is Haskell. Two properties of it make it especially suited. Finger trees require lazy evaluation, this is a given in Haskell. It doesn't even require a dedicated command, as the evaluation is generally lazy.
+The rich type system, especially its type classes, makes the code presentable in this context.\\
 While the \mintinline{Haskell}{Monoid} and \mintinline{Haskell}{Foldable} classes were used, three additional ones were employed. For this paper, only the instructive instantiations of type classes will be presented.
 
 \begin{minted}{Haskell}
@@ -61,7 +62,7 @@ A polymorphic type \mintinline{Haskell}{t} that implements \mintinline{Haskell}{
         μ :: a -> v
 \end{minted}
 
-An instantiation of the \mintinline{Haskell}{Measured a v} is meant to provide a way  the summarize a collection of type \mintinline{Haskell}{a}. This is done in a two-step process. Every value of type \mintinline{Haskell}{a} is first measured and assigned a value of type \mintinline{Haskell}{v}, which is required to of the instance of the \mintinline{Haskell}{Monoid} class. This way there is a guaranteed way to combine them into one final value of type \mintinline{Haskell}{v}.
+An instantiation of the \mintinline{Haskell}{Measured a v} is meant to provide a way to summarize a collection of type \mintinline{Haskell}{a}. This is done in a two-step process. Every value of type \mintinline{Haskell}{a} is first measured and assigned a value of type \mintinline{Haskell}{v}, which is required for an instance of the \mintinline{Haskell}{Monoid} class. This way there is a guaranteed way to combine them into one final value of type \mintinline{Haskell}{v}.
 
 \subsection{2-3 Trees}
 
@@ -72,5 +73,6 @@ An instantiation of the \mintinline{Haskell}{Measured a v} is meant to provide a
 For these trees, the internal nodes don't hold any actual data. There is, however, a secondary value, used for caching measurements. The height invariant is enforced by the type, much like nested tuples used in Okasaki's \mintinline{Haskell}{RList}.
 
 \begin{minted}{Haskell}
-    Node2 (Node3 1 2 3) (Node2 4 5) :: Num a => Node (Node a)
+    Node2 False (Node3 False 1 2 3) (Node2 False 4 5) 
+        :: Num a => Node Bool (Node Bool a)
 \end{minted}
