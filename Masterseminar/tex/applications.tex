@@ -1,4 +1,133 @@
-\inputminted{Haskell}{src/Seq.hs}
-\inputminted{Haskell}{src/PQueue.hs}
-\inputminted{Haskell}{src/OrdSeq.hs}
-\inputminted{Haskell}{src/IntervalTree.hs}
+Having our general purpose data structure ready now, we want to use it offer the functionality of same common abstract datatype. Our results are at competitive with single purpose data structures.
+
+\subsection{Sequence}
+For this example, the goal is to provide indexed access. 
+\begin{minted}{Haskell}
+    newtype Size = Size { getSize :: Integer }
+
+    instance Monoid Size where
+        mempty = Size 0
+        Size a `mappend` Size b = Size (a + b)
+\end{minted}
+
+The rationale for this type is to circumvent the \mintinline{Haskell}{Monoid} instances of \mintinline{Haskell}{Integer}, but could be reused in the specific case.
+
+\begin{minted}{Haskell}
+    newtype Elem a = Elem { getElem :: a }
+    newtype Seq a = Seq (FingerTree Size (Elem a))
+    
+    instance Measured (Elem a) Size where
+        μ _ = Size 1
+\end{minted}
+
+Since every element should have \mintinline{Haskell}{Size} 1, all elements are wrapped in the \mintinline{Haskell}{Elem} type, to obviate the need to supply an instance to the Measured class for every possible element type.
+
+\begin{minted}{Haskell}
+    length :: Seq a -> Integer
+    length (Seq xs) = getSize (μ xs)
+
+    (!) :: Seq a -> Integer -> a
+    Seq xs ! i = (getElem . snd)
+        (lookupTree (Size i <) mempty xs)
+\end{minted}
+
+Thanks to the caches the length can be determined in constant time. Since we know that the \mintinline{Haskell}{Size} strictly increasing by one when traversing the structure, we can safely ignore the \mintinline{Haskell}{i} returned by \mintinline{Haskell}{lookupTree}.
+
+\begin{minted}{Haskell}
+    splitAt :: Integer -> Seq a -> (Seq a, Seq a)
+    splitAt i (Seq xs) = (Seq l, Seq r)
+        where (l, r) = split (Size i <) xs
+
+    deleteAt :: Integer -> Seq a -> Seq a
+    deleteAt i (Seq xs) = Seq (l >< r)
+        where Split l x r = splitTree (Size i <) mempty xs
+\end{minted}
+
+To delete at a specific position, we split there, throw away the splitter and put the pieces back together.
+
+\subsection{Priority Queue}
+
+In this scenario, we want easy access to the element with the highest priority.
+
+\begin{minted}{Haskell}
+    data Prio a = MInfty | Prio a
+
+    instance (Ord a) => Monoid (Prio a) where
+        mempty = MInfty
+        MInfty `mappend` p = p
+        p `mappend` MInfty = p
+        Prio m `mappend` Prio n = Prio (max m n)
+\end{minted}
+
+Because we want a neutral element for \mintinline{Haskell}{max}, we define \mintinline{Haskell}{Prio} to have an explicit minus infinity.
+
+\begin{minted}{Haskell}
+    newtype PQueue a = PQueue (FingerTree (Prio a) (Elem a))
+
+    instance (Ord a) => Measured (Elem a) (Prio a) where
+        μ (Elem x) = Prio x
+\end{minted}
+
+All elements have their value as their priority.
+
+\begin{minted}{Haskell}
+    extractMax :: Ord a => PQueue a -> Maybe (a, PQueue a)
+    extractMax (PQueue Empty) = Nothing
+    extractMax (PQueue q) = Just (x, PQueue (l >< r))
+        where Split l (Elem x) r = splitTree (μ q <=) mempty q
+\end{minted}
+
+We split at the first occurrence of an element that has the highest priority, which we can do as the caches always hold the maximum priority subordinate to them.
+
+\subsection{Ordered Sequence}
+
+Now actually want to explicitly maintain an order in the structure.
+
+\begin{minted}{Haskell}
+    data Key a = NoKey | Key a
+
+    instance Monoid (Key a) where
+        mempty = NoKey
+        k `mappend` NoKey = k
+        _ `mappend` k = k
+\end{minted}
+
+In this \mintinline{Haskell}{Monoid} we always prefer the second argument, but still, try to get rid of \mintinline{Haskell}{NoKey}.
+
+\begin{minted}{Haskell}
+    newtype OrdSeq a = OrdSeq (FingerTree (Key a) (Elem a))
+
+    instance Measured (Elem a) (Key a) where
+        μ (Elem x) = Key x
+        
+    partition :: Ord a => a -> OrdSeq a -> (OrdSeq a, OrdSeq a)
+    partition k (OrdSeq xs) = (OrdSeq l, OrdSeq r)
+        where (l, r) = split (>= Key k) xs
+
+    insert :: Ord a => a -> OrdSeq a -> OrdSeq a
+    insert x (OrdSeq xs) = OrdSeq (l >< Elem x <| r)
+        where (l, r) = split (>= Key x) xs
+\end{minted}
+
+Because the invariant is that the structure is ordered, \mintinline{Haskell}{partition} is just a split. To preserve this invariant, insert is more expensive.
+
+\begin{minted}{Haskell}
+    deleteAll :: Ord a => a -> OrdSeq a -> OrdSeq a
+    deleteAll x (OrdSeq xs) = OrdSeq (l >< r')
+        where
+            (l, r) = split (>= Key x) xs
+            (_, r') = split (< Key x) r
+\end{minted}
+
+By splitting twice we can remove an arbitrary interval, but here just multiple occurrences.
+
+\begin{minted}{Haskell}
+    merge :: Ord a => OrdSeq a -> OrdSeq a -> OrdSeq a
+    merge (OrdSeq xs) (OrdSeq ys) = OrdSeq (merge' xs ys)
+        where merge' as bs = case viewL bs of
+                Nil -> as
+                Cons a bs -> l >< a <| merge' bs r
+                    where (l, r) = split (> μ a) as
+\end{minted}
+
+Because both trees are ordered we can perform insertion sort.

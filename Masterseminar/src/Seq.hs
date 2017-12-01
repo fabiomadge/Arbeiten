@@ -38,12 +38,12 @@ Seq xs >< Seq ys = Seq (xs F.>< ys)
 length :: Seq a -> Integer
 length (Seq xs) = getSize (μ xs)
 
+(!) :: Seq a -> Integer -> a
+Seq xs ! i = (getElem . snd) (lookupTree (Size i <) mempty xs)
+
 splitAt :: Integer -> Seq a -> (Seq a, Seq a)
 splitAt i (Seq xs) = (Seq l, Seq r)
     where (l, r) = split (Size i <) xs
-
-(!) :: Seq a -> Integer -> a
-Seq xs ! i = (getElem . snd) (lookupTree (Size i <) mempty xs)
 
 insertAt :: Integer -> a -> Seq a -> Seq a
 insertAt i x s = l |> x >< r

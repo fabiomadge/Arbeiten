@@ -1,1 +1,150 @@
-\inputminted{Haskell}{src/FingerTree.hs}
+The after refining the original binary numbers into dequeues, the final step gets us to finger trees. Here we extend the digit to a fourth constructor and replace the rigid tuple structure with the previously discussed 2-3 trees.
+
+\begin{minted}{Haskell}
+    data Digit a = One a | Two a a | Three a a a | Four a a a a
+    data FingerTree v a =
+          Empty
+        | Single a
+        | Deep v (Digit a) (FingerTree v (Node v a)) (Digit a)
+\end{minted}
+
+To make the \mintinline{Haskell}{FingerTree} an instance of \mintinline{Haskell}{Measured} with minimal cost, we cache in the \mintinline{Haskell}{FingerTree} as well.\par
+The finger tree itself can be cumbersome to use and is more abstract than needed in most cases. The minimal interface for data types using finger trees is the following.
+
+\begin{minted}{Haskell}
+    (><) :: Measured a v => FingerTree v a -> FingerTree v a
+        -> FingerTree v a
+    split :: Measured a v => (v -> Bool) -> FingerTree v a
+        -> (FingerTree v a, FingerTree v a)
+\end{minted}
+
+\subsection{Elementary Operations}
+
+Because they are important when defining these functions, but also for its intrinsic value, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which don't need to be exported.
+
+\begin{minted}{Haskell}
+    node3 :: Measured a v => a -> a -> a -> Node v a
+    node3 a b c = Node3 (μ a .+| b .+| c) a b c
+
+    instance Measured a v => Extendable a (FingerTree v) where
+        a <| Empty = Single a
+        a <| Single b = deep (One a) Empty (One b)
+        a <| Deep _ (Four b c d e) m sf =
+            deep (Two a b) (node3 c d e <| m) sf
+        a <| Deep _ pr m sf = deep (a <| pr) m sf
+\end{minted}
+
+The extension of a finger tree uses smart constructors to make the definitions more concise. In this case, the implicitly calculate the cached measurement. Because we are enlarging the structure, \mintinline{Haskell}{Four} is the dangerous digit for this operation.
+
+\begin{minted}{Haskell}
+    instance Measured a v => Viewable a (FingerTree v) where
+        viewL Empty = Nil
+        viewL (Single x) = Cons x Empty
+        viewL (Deep _ pr m sf) = case viewL pr of
+            Nil -> let One a = pr in Cons a (case viewL m of
+                Nil -> toTree sf
+                Cons b m -> deep (nodeTodigit b) m sf)
+            Cons a pr -> Cons a (deep pr m sf)
+\end{minted}
+
+When deconstructing a finger tree \mintinline{Haskell}{One} is problematic, so we first check of that. The nonstandard use of the \mintinline{Haskell}{View} is due to the fact that there is no empty \mintinline{Haskell}{Digit}. To get a new digit, we remove the first element from the subsequent finger tree. But because this is actually a \mintinline{Haskell}{Node} of the desired type, we convert it into a \mintinline{Haskell}{Digit}, the mapping is obvious and luckily doesn't carry any problems. Using a potential function that counts the number of safe digits, one can show that all three basic operation run in \(\Theta(1)\) on both ends of the tree.\par
+
+\subsection{Concatenate}
+
+Instead of building \mintinline{Haskell}{(><)} directly, we generalize it to work with a list of elements in between. For the recursive call, we also need a function to put the list of elements into nodes. When designing this function, one should consider which elementary operations will be performed on the structure at a later point in time.
+
+\begin{minted}{Haskell}
+    nodes :: Measured a v => [a] -> [Node v a]
+    nodes [a,b] = [node2 a b]
+    nodes [a,b,c] = [node3 a b c]
+    nodes [a,b,c,d] = [node2 a b, node2 c d]
+    nodes (a:b:c:xs) = node3 a b c : nodes xs
+
+    app3 :: Measured a v => FingerTree v a -> [a]
+        -> FingerTree v a -> FingerTree v a
+    app3 Empty ts xs = ts <|| xs
+    app3 xs ts Empty = xs ||> ts
+    app3 (Single x) ts xs = x <| (ts <|| xs)
+    app3 xs ts (Single x) = (xs ||> ts) |> x
+    app3 (Deep _ pr1 m1 sf1) ts (Deep _ pr2 m2 sf2) =
+        deep pr1 (app3 m1 (nodes (sf1 <|| (ts ||> pr2))) m2) sf2
+\end{minted}
+
+\mintinline{Haskell}{app3} makes extensive use of \mintinline{Haskell}{(<||)} and \mintinline{Haskell}{(||>)}, which are the lifted versions of the graphically similar operations.
+
+\begin{minted}{Haskell}
+    (><) :: Measured a v => FingerTree v a -> FingerTree v a
+        -> FingerTree v a
+    xs >< ys = app3 xs [] ys
+\end{minted}
+
+When starting out with an empty list, the length of the argument to \mintinline{Haskell}{nodes} is at most 4 and thus constant. Knowing that all that has to be considered is the use of the elementary operations. The evaluation ends once to end of the shallower tree is reached. \(\Theta(\log(\min\{n_1,n_2\}))\) is consequently the bound of the function, where \(n_1\) and \(n_2\) are the sizes of the input trees. The function is still compatible with our previously defined potential function.\par
+
+\subsection{Split}
+
+Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work nonempty trees. Because our digits don't lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turing these lists has it's subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
+
+\begin{minted}{Haskell}
+    data Split f a = Split (f a) a (f a)
+
+    deepL :: Measured a v => [a] -> FingerTree v (Node v a)
+        -> Digit a -> FingerTree v a
+    deepL [] m sf = case viewL m of
+            Nil -> toTree sf
+            Cons a m -> deep (nodeTodigit a) m sf
+    deepL (p:pr) m sf = deep (One p ||> pr) m sf
+\end{minted}
+
+The critical input is \mintinline{Haskell}{[]}, as there is no matching digit. To meet this problem
+    an element it stolen from the enclosed tree again, which, just as \mintinline{Haskell}{viewL}, necessitates the \mintinline{Haskell}{nodeTodigit} conversion.
+
+\begin{minted}{Haskell}
+    splitTree :: Measured a v => (v -> Bool) -> v ->
+        FingerTree v a -> Split (FingerTree v) a
+    splitTree _ _ (Single x) = Split Empty x Empty
+    splitTree p i (Deep _ pr m sf)
+        | p vpr = let Split l x r = splitDigit p i pr 
+            in Split (toTree l) x (deepL r m sf)
+        | p vm = let
+                Split ml xs mr = splitTree p vpr m
+                Split l x r = splitDigit p (vpr .+| ml)
+                    (nodeTodigit xs)
+            in
+                Split (deepR pr ml l) x (deepL r mr sf)
+        | otherwise = let Split l x r = splitDigit p vm sf
+            in Split (deepR pr m l) x (toTree r)
+        where
+            vpr = i .+| pr
+            vm = vpr .+| m
+\end{minted}
+
+The caches always hold the summarized measurement up to the last element of the structure, therefore we determine where to decent, by combining the handed down initial value with the summaries of the direct descendants. Once identified, it is split and the remaining descendants have to be put into this split. The node returned by the recursive call is split again to get the desired value.\par
+This is unfortunately only part of the truth. There is another special case that needs to be considered. It occurs if the predicate never becomes true.
+The cost in \mintinline{Haskell}{mappend} depends on the position of the splitter in the tree,  more precisely how deep it is. Because this precisely encoded in the size of the returned trees, we use it for our estimation, \(\Theta(\log(\min\{n_l,n_r\}))\).
+
+\begin{minted}{Haskell}
+    split :: Measured a v => (v -> Bool) -> FingerTree v a
+        -> (FingerTree v a, FingerTree v a)
+    split _ Empty = (Empty, Empty)
+    split p xs
+        | p (μ xs) = let Split l x r = splitTree p mempty xs
+            in (l, x <| r)
+        | otherwise = (xs, Empty)
+\end{minted}
+
+\mintinline{Haskell}{split} is just a thin layer, that handles the aforementioned special cases.\par
+While a lookup function could also be declared using a split, a direct approach alleviates the need for any manipulation of the tree. \mintinline{Haskell}{lookupDigit} and \mintinline{Haskell}{lookupNode} can be defined analogously.
+
+\begin{minted}{Haskell}
+    lookupTree :: Measured a v => (v -> Bool) -> v ->
+        FingerTree v a -> (v, a)
+    lookupTree _ i (Single x) = (i, x)
+    lookupTree p i (Deep _ pr m sf)
+        | p vpr = lookupDigit p i pr
+        | p vm = let (i', t) = lookupTree p vpr m
+            in lookupNode p i' t
+        | otherwise = lookupDigit p vm sf
+        where
+            vpr = i .+| pr
+            vm = vpr .+| m
+\end{minted}
