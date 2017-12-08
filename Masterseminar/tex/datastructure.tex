@@ -20,7 +20,7 @@ The finger tree itself can be cumbersome to use and is more abstract than needed
 
 \subsection{Elementary Operations}
 
-Not only for defining these functions, but also for immediate usefulness, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which don't need to be exported.
+Not only for defining these functions, but also for immediate usefulness, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which don not need to be exported.
 
 \begin{minted}{Haskell}
     (.+|) :: Measured a v => v -> a -> v
@@ -50,7 +50,7 @@ The extension of a finger tree uses smart constructors to make the definitions m
             Cons a pr -> Cons a (deep pr m sf)
 \end{minted}
 
-When deconstructing a finger tree \mintinline{Haskell}{One} is problematic, so we first check that. The nonstandard use of the \mintinline{Haskell}{View} is due to the fact that there is no empty \mintinline{Haskell}{Digit}. To get a new digit, we remove the first element from the subsequent finger tree. But because this is actually a \mintinline{Haskell}{Node} of the desired type, we convert it into a \mintinline{Haskell}{Digit}, the mapping is obvious and luckily doesn't carry any problems. Using a potential function that counts the number of safe digits, one can show that all three basic operation run in \(\Theta(1)\) on both ends of the tree.\par
+When deconstructing a finger tree \mintinline{Haskell}{One} is problematic, so we first check that. The non-standard use of the \mintinline{Haskell}{View} is due to the fact that there is no empty \mintinline{Haskell}{Digit}. To get a new digit, we remove the first element from the subsequent finger tree. But because this is actually a \mintinline{Haskell}{Node} of the desired type, we convert it into a \mintinline{Haskell}{Digit}, the mapping is obvious and luckily does not cause any problems. Using a potential function that counts the number of safe digits, one can show that all three basic operations run in \(\Theta(1)\) on both ends of the tree.\par
 
 \subsection{Concatenate}
 
@@ -81,11 +81,11 @@ Instead of building \mintinline{Haskell}{(><)} directly, we generalize it to wor
     xs >< ys = app3 xs [] ys
 \end{minted}
 
-When starting out with an empty list, the length of the argument to \mintinline{Haskell}{nodes} is at most 4 and thus constant. Knowing that all that has to be considered is the use of the elementary operations. The evaluation ends once to end of the shallower tree is reached. \(\Theta(\log(\min\{n_1,n_2\}))\) is consequently the bound of the function, where \(n_1\) and \(n_2\) are the sizes of the input trees. The function is still compatible with our previously defined potential function.\par
+When starting out with an empty list, the length of the argument to \mintinline{Haskell}{nodes} is at most 4 and thus constant. This just leaves the use of the elementary operations to be considered. The evaluation ends once the end of the shallower tree is reached. \(\Theta(\log(\min\{n_1,n_2\}))\) is consequently the bound of the function, where \(n_1\) and \(n_2\) are the sizes of the input trees. The function is still compatible with our previously defined potential function.\par
 
 \subsection{Split}
 
-Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we define the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work nonempty trees. Because our digits don't lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turing these lists has it's subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
+Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we define the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work non-empty trees. Because our digits don not lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turning these lists into Digits again has its subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
 
 \begin{minted}{Haskell}
     data Split f a = Split (f a) a (f a)
@@ -99,7 +99,7 @@ Finally, we will define the \mintinline{Haskell}{split} function. In order to do
 \end{minted}
 
 The critical input is \mintinline{Haskell}{[]}, as there is no matching digit. To meet this problem
-    an element it stolen from the enclosed tree again, which, just as \mintinline{Haskell}{viewL}, necessitates the \mintinline{Haskell}{nodeTodigit} conversion.
+    an element is stolen from the enclosed tree again, which, just as \mintinline{Haskell}{viewL}, necessitates the \mintinline{Haskell}{nodeTodigit} conversion.
 
 \begin{minted}{Haskell}
     splitTree :: Measured a v => (v -> Bool) -> v ->
@@ -123,7 +123,7 @@ The critical input is \mintinline{Haskell}{[]}, as there is no matching digit. T
 
 The caches always hold the summarized measurement up to the last element of the structure, therefore we determine where to decent, by combining the handed down initial value with the summaries of the direct descendants. Once identified, it is split and the remaining descendants have to be put into this split. The node returned by the recursive call is split again to get the desired value.\par
 This is unfortunately only part of the truth. There is another special case that needs to be considered. It occurs if the predicate never becomes true.
-The cost in \mintinline{Haskell}{mappend} depends on the position of the splitter in the tree,  more precisely how deep it is. Because this precisely encoded in the size of the returned trees, we use it for our estimation, \(\Theta(\log(\min\{n_l,n_r\}))\).
+The cost in \mintinline{Haskell}{mappend} depends on the position of the splitter in the tree,  more precisely how deep it is. Because this is encoded in the size of the returned trees, we use it for our estimation, \(\Theta(\log(\min\{n_l,n_r\}))\).
 
 \begin{minted}{Haskell}
     split :: Measured a v => (v -> Bool) -> FingerTree v a
