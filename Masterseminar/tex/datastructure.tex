@@ -20,7 +20,7 @@ The finger tree itself can be cumbersome to use and is more abstract than needed
 
 \subsection{Elementary Operations}
 
-Not only for defining these functions, but also for immediate usefulness, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which don not need to be exported.
+Not only for defining these functions, but also for immediate usefulness, we make \mintinline{Haskell}{FingerTree} an instance of the \mintinline{Haskell}{Extendable} and \mintinline{Haskell}{Viewable} classes. To keep the actual definitions clean, we also define some auxiliary functions, which do not need to be exported.
 
 \begin{minted}{Haskell}
     (.+|) :: Measured a v => v -> a -> v
@@ -57,6 +57,9 @@ When deconstructing a finger tree \mintinline{Haskell}{One} is problematic, so w
 Instead of building \mintinline{Haskell}{(><)} directly, we generalize it to work with a list of elements in between. For the recursive call, we also need a function to put the list of elements into nodes. When designing this function, one should consider which elementary operations will be performed on the structure at a later point in time.
 
 \begin{minted}{Haskell}
+    (||>) :: (Foldable f, Extendable a g) => g a -> f a -> g a
+    (||>) = foldl (|>)
+
     nodes :: Measured a v => [a] -> [Node v a]
     nodes [a,b] = [node2 a b]
     nodes [a,b,c] = [node3 a b c]
@@ -73,7 +76,7 @@ Instead of building \mintinline{Haskell}{(><)} directly, we generalize it to wor
         deep pr1 (app3 m1 (nodes (sf1 <|| (ts ||> pr2))) m2) sf2
 \end{minted}
 
-\mintinline{Haskell}{app3} makes extensive use of \mintinline{Haskell}{(<||)} and \mintinline{Haskell}{(||>)}, which are the lifted versions of the graphically similar operations.
+\mintinline{Haskell}{app3} makes extensive use of \mintinline{Haskell}{(<||)} and \mintinline{Haskell}{(||>)}, which are the lifted versions of \mintinline{Haskell}{(<|)} and \mintinline{Haskell}{(|>)}. It enables multiple extensions at once, by folding over the input data structures.
 
 \begin{minted}{Haskell}
     (><) :: Measured a v => FingerTree v a -> FingerTree v a
@@ -85,7 +88,7 @@ When starting out with an empty list, the length of the argument to \mintinline{
 
 \subsection{Split}
 
-Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we define the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work non-empty trees. Because our digits don not lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turning these lists into Digits again has its subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
+Finally, we will define the \mintinline{Haskell}{split} function. In order to do that, we define the \mintinline{Haskell}{Split f a} type, that allows us to encode the result of a split. The function takes a predicate and finds the first element that satisfies it and uses it as the splitter. The two other structures contain every element up to the splitter all following it. Applied to the finger tree this means that a split can only work non-empty trees. Because our digits do not lend themselves to being dissected into a \mintinline{Haskell}{Split}, we split them into lists. Turning these lists into Digits again has its subtleties and is handled by \mintinline{Haskell}{deepL} and \mintinline{Haskell}{deepR}.
 
 \begin{minted}{Haskell}
     data Split f a = Split (f a) a (f a)
@@ -121,7 +124,7 @@ The critical input is \mintinline{Haskell}{[]}, as there is no matching digit. T
             vm = vpr .+| m
 \end{minted}
 
-The caches always hold the summarized measurement up to the last element of the structure, therefore we determine where to decent, by combining the handed down initial value with the summaries of the direct descendants. Once identified, it is split and the remaining descendants have to be put into this split. The node returned by the recursive call is split again to get the desired value.\par
+The caches always hold the summarized measurement up to the last element of the structure, therefore we determine where to descent, by combining the handed down initial value with the summaries of the direct descendants. Once identified, it is split and the remaining descendants have to be put into this split. The node returned by the recursive call is split again to get the desired value.\par
 This is unfortunately only part of the truth. There is another special case that needs to be considered. It occurs if the predicate never becomes true.
 The cost in \mintinline{Haskell}{mappend} depends on the position of the splitter in the tree,  more precisely how deep it is. Because this is encoded in the size of the returned trees, we use it for our estimation, \(\Theta(\log(\min\{n_l,n_r\}))\).
 
@@ -135,8 +138,7 @@ The cost in \mintinline{Haskell}{mappend} depends on the position of the splitte
         | otherwise = (xs, Empty)
 \end{minted}
 
-\mintinline{Haskell}{split} is just a thin layer, that handles the aforementioned special cases.\par
-While a lookup function could also be declared using a split, a direct approach alleviates the need for any manipulation of the tree. \mintinline{Haskell}{lookupDigit} and \mintinline{Haskell}{lookupNode} can be defined analogously.
+\mintinline{Haskell}{split} is just a thin layer, that handles the aforementioned special cases. While it can be used to provide all necessary functionality, using a non-destructive lookup function, which is employed to solely return the splitter, can result in a better runtime. \mintinline{Haskell}{lookupDigit} and \mintinline{Haskell}{lookupNode} can be defined analogously.
 
 \begin{minted}{Haskell}
     lookupTree :: Measured a v => (v -> Bool) -> v ->
