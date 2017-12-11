@@ -1,0 +1,114 @@
+\subsection{Implicit Recursive Slowdown}
+
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+data Digit = Zero | One
+type Nat = [Digit]
+
+toInteger :: Nat -> Integer
+toInteger xs = sum $
+    map (\(f,n) -> f * 2 ^ n) $
+      zip (map fromEnum xs) [0..]
+
+Φ_inc :: Nat -> Int
+Φ_inc = length . elemIndices One
+
+Φ_dec :: Nat -> Int
+Φ_dec = length . elemIndices Zero
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+data Digit = Zero | One | Two
+type Nat = [Digit]
+
+toInteger :: Nat -> Integer
+toInteger xs = sum $
+    map (\(f,n) -> f * 2 ^ n) $
+      zip (map fromEnum xs) [0..]
+
+Φ :: Nat -> Int
+Φ n = length $ elemIndices Zero n ++ elemIndices Two n
+  \end{minted}
+\end{frame}
+
+
+% \begin{frame}
+%   \begin{itemize}[<+->]
+%   	\item Generic proof assistant (meta-logic $\mathcal{M}$ + object logic)
+%     \item Pure: $\bigvee$, $\Longrightarrow$ and $\equiv$
+%     \item \texttt{thm}: Datatype encoding a theorem
+%     \item New theorems from axioms using natural deduction
+%     \item Kernel: Collection of functions modifying internals of a theorem
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+% \begin{center}
+% \scalebox{.94}{
+% \begin{displaymath}
+    % \prftree[r]{RS}
+    % {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
+    % {\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C}
+    % {B\sigma \equiv B_i\sigma}
+    % {\left( \left\llbracket B_x\,\middle|\, x \in \left[ i - 1 \right] \right\rrbracket
+    % + \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket
+    % + \left\llbracket B_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right) \right\rrbracket
+    % \Longrightarrow C \right) \sigma
+    % }
+% \end{displaymath}
+% }
+% \end{center}
+% \end{frame}
+
+\subsection{Type classes}
+
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+class Extendable a t where
+    (<|) :: a -> t a -> t a 
+    (|>) :: t a -> a -> t a
+  \end{minted}
+
+  \vspace{2em}
+
+  \begin{minted}{Haskell}
+data View t a = Nil | Cons a (t a)
+
+class Viewable a t where
+    viewL :: t a -> View t a
+    viewR :: t a -> View t a
+  \end{minted}
+
+  \vspace{2em}
+
+  \begin{minted}{Haskell}
+class Monoid v => Measured a v where
+    μ :: a -> v
+  \end{minted}
+\end{frame}
+
+\subsection{2-3 Trees}
+
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+    data Node v a = Node2 v a a | Node3 v a a a
+  \end{minted}
+  \vspace{3em}
+  \begin{center}
+  \begin{tikzpicture}[
+    every node/.style = {draw, align=center}]]
+    \node[label=right:{\mintinline{Haskell}{ :: Node Integer (Node Integer Char)}}] {5}
+      child { node {3}
+        child { node {'a'} }
+        child { node {'b'} }
+        child { node (c) {'c'} }
+      }
+      child { node [label=right:{\mintinline{Haskell}{ :: Node Integer Char}}] {2}
+        child { node (d) [right=of c] {'d'} }
+        child { node [right=of d,label=right:{\mintinline{Haskell}{ :: Char}}] {'e'} }
+      };
+  \end{tikzpicture}
+\end{center}
+\end{frame}

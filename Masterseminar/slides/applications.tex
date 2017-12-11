@@ -1,0 +1,112 @@
+\subsection{Sequence}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+newtype Size = Size { getSize :: Integer }
+
+instance Monoid Size where
+    mempty = Size 0
+    Size a `mappend` Size b = Size (a + b)
+    
+newtype Elem a = Elem { getElem :: a }
+newtype Seq a = Seq (FingerTree Size (Elem a))
+
+instance Measured (Elem a) Size where
+    μ _ = Size 1
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+length :: Seq a -> Integer
+length (Seq xs) = getSize (μ xs)
+
+(!) :: Seq a -> Integer -> a
+Seq xs ! i = (getElem . snd)
+    (lookupTree (Size i <) mempty xs)
+
+splitAt :: Integer -> Seq a -> (Seq a, Seq a)
+splitAt i (Seq xs) = (Seq l, Seq r)
+    where (l, r) = split (Size i <) xs
+
+deleteAt :: Integer -> Seq a -> Seq a
+deleteAt i (Seq xs) = Seq (l >< r)
+    where Split l x r = splitTree (Size i <) mempty xs
+\end{minted}
+\end{frame}
+
+\subsection{Priority Queue}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+data Prio a = MInfty | Prio a
+
+instance (Ord a) => Monoid (Prio a) where
+    mempty = MInfty
+    MInfty `mappend` p = p
+    p `mappend` MInfty = p
+    Prio m `mappend` Prio n = Prio (max m n)
+
+newtype PQueue a = PQueue (FingerTree (Prio a) (Elem a))
+
+instance (Ord a) => Measured (Elem a) (Prio a) where
+    μ (Elem x) = Prio x
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+extractMax :: Ord a => PQueue a -> Maybe (a, PQueue a)
+extractMax (PQueue Empty) = Nothing
+extractMax (PQueue q) = Just (x, PQueue (l >< r))
+    where 
+      Split l (Elem x) r = splitTree (μ q <=) mempty q
+\end{minted}
+\end{frame}
+
+\subsection{Ordered Sequence}
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+data Key a = NoKey | Key a
+
+instance Monoid (Key a) where
+    mempty = NoKey
+    k `mappend` NoKey = k
+    _ `mappend` k = k
+
+newtype OrdSeq a = OrdSeq (FingerTree (Key a) (Elem a))
+
+instance Measured (Elem a) (Key a) where
+    μ (Elem x) = Key x
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+partition :: Ord a => a -> OrdSeq a
+  -> (OrdSeq a, OrdSeq a)
+partition k (OrdSeq xs) = (OrdSeq l, OrdSeq r)
+    where (l, r) = split (>= Key k) xs
+
+insert :: Ord a => a -> OrdSeq a -> OrdSeq a
+insert x (OrdSeq xs) = OrdSeq (l >< Elem x <| r)
+    where (l, r) = split (>= Key x) xs
+
+deleteAll :: Ord a => a -> OrdSeq a -> OrdSeq a
+deleteAll x (OrdSeq xs) = OrdSeq (l >< r')
+    where
+        (l, r) = split (>= Key x) xs
+        (_, r') = split (< Key x) r
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+merge :: Ord a => OrdSeq a -> OrdSeq a -> OrdSeq a
+merge (OrdSeq xs) (OrdSeq ys) = OrdSeq (merge' xs ys)
+    where merge' as bs = case viewL bs of
+            Nil -> as
+            Cons a bs -> l >< a <| merge' bs r
+                where (l, r) = split (> μ a) as
+\end{minted}
+\end{frame}

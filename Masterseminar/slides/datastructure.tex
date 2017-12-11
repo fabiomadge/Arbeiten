@@ -1,0 +1,163 @@
+\begin{frame}
+  \begin{itemize}[<+->]
+    \item purely functional data structure
+    \item \mintinline{Haskell}{(<|)} and \mintinline{Haskell}{viewL} in \(\Theta(1)\)
+    \item concatenation in \(\Theta(\log(\min\{n_1,n_2\}))\)
+    \item splitting in \(\Theta(\log(\min\{n_l,n_r\}))\)
+    \item general purpose
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+data Digit a =
+    One a 
+  | Two a a 
+  | Three a a a 
+  | Four a a a a
+data FingerTree v a =
+    Empty
+  | Single a
+  | Deep v (Digit a) (FingerTree v (Node v a)) (Digit a)
+
+(><) :: Measured a v => FingerTree v a -> FingerTree v a
+  -> FingerTree v a
+split :: Measured a v => (v -> Bool) -> FingerTree v a 
+  -> (FingerTree v a, FingerTree v a)
+  \end{minted}
+\end{frame}
+
+\subsection{Elementary Operations}
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+(.+|) :: Measured a v => v -> a -> v
+i .+| s = i <> μ s
+
+node3 :: Measured a v => a -> a -> a -> Node v a
+node3 a b c = Node3 (μ a .+| b .+| c) a b c
+
+instance Measured a v =>
+  Extendable a (FingerTree v) where
+    a <| Empty = Single a
+    a <| Single b = deep (One a) Empty (One b)
+    a <| Deep _ (Four b c d e) m sf =
+        deep (Two a b) (node3 c d e <| m) sf
+    a <| Deep _ pr m sf = deep (a <| pr) m sf
+  \end{minted}
+\end{frame}
+
+\begin{frame}
+  Big Example
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+instance Measured a v => 
+  Viewable a (FingerTree v) where
+    viewL Empty = Nil
+    viewL (Single x) = Cons x Empty
+    viewL (Deep _ pr m sf) = case viewL pr of
+        Nil -> let 
+            One a = pr 
+          in Cons a (case viewL m of
+            Nil -> toTree sf
+            Cons b m -> deep (nodeTodigit b) m sf)
+        Cons a pr -> Cons a (deep pr m sf)
+  \end{minted}
+\end{frame}
+
+\subsection{Concatenate}
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+nodes :: Measured a v => [a] -> [Node v a]
+nodes [a,b] = [node2 a b]
+nodes [a,b,c] = [node3 a b c]
+nodes [a,b,c,d] = [node2 a b, node2 c d]
+nodes (a:b:c:xs) = node3 a b c : nodes xs
+
+app3 :: Measured a v => FingerTree v a -> [a]
+  -> FingerTree v a -> FingerTree v a
+app3 Empty ts xs = ts <|| xs
+app3 xs ts Empty = xs ||> ts
+app3 (Single x) ts xs = x <| (ts <|| xs)
+app3 xs ts (Single x) = (xs ||> ts) |> x
+app3 (Deep _ pr1 m1 sf1) ts (Deep _ pr2 m2 sf2) =
+  deep
+    pr1 
+    (app3 m1 (nodes (sf1 <|| (ts ||> pr2))) m2)
+    sf2
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{minted}{Haskell}
+(><) :: Measured a v => FingerTree v a -> FingerTree v a
+  -> FingerTree v a
+xs >< ys = app3 xs [] ys
+  \end{minted}
+\end{frame}
+
+\subsection{Split}
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+data Split f a = Split (f a) a (f a)
+
+deepL :: Measured a v => [a] -> FingerTree v (Node v a)
+    -> Digit a -> FingerTree v a
+deepL [] m sf = case viewL m of
+        Nil -> toTree sf
+        Cons a m -> deep (nodeTodigit a) m sf
+deepL (p:pr) m sf = deep (One p ||> pr) m sf
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+splitTree :: Measured a v => (v -> Bool) -> v ->
+    FingerTree v a -> Split (FingerTree v) a
+splitTree _ _ (Single x) = Split Empty x Empty
+splitTree p i (Deep _ pr m sf)
+    | p vpr = let Split l x r = splitDigit p i pr 
+        in Split (toTree l) x (deepL r m sf)
+    | p vm = let
+            Split ml xs mr = splitTree p vpr m
+            Split l x r = splitDigit p (vpr .+| ml)
+                (nodeTodigit xs)
+        in
+            Split (deepR pr ml l) x (deepL r mr sf)
+    | otherwise = let Split l x r = splitDigit p vm sf
+        in Split (deepR pr m l) x (toTree r)
+    where
+        vpr = i .+| pr
+        vm = vpr .+| m
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+split :: Measured a v => (v -> Bool) -> FingerTree v a
+    -> (FingerTree v a, FingerTree v a)
+split _ Empty = (Empty, Empty)
+split p xs
+    | p (μ xs) = let Split l x r = splitTree p mempty xs
+        in (l, x <| r)
+    | otherwise = (xs, Empty)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{Haskell}
+lookupTree :: Measured a v => (v -> Bool) -> v ->
+    FingerTree v a -> (v, a)
+lookupTree _ i (Single x) = (i, x)
+lookupTree p i (Deep _ pr m sf)
+    | p vpr = lookupDigit p i pr
+    | p vm = let (i', t) = lookupTree p vpr m
+        in lookupNode p i' t
+    | otherwise = lookupDigit p vm sf
+    where
+        vpr = i .+| pr
+        vm = vpr .+| m
+\end{minted}
+\end{frame}

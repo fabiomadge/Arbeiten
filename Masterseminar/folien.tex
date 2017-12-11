@@ -1,0 +1,87 @@
+\documentclass[]{beamer}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage[greek,english]{babel}
+    \usepackage{graphics}
+    \usepackage{etoolbox}
+    \usepackage{syntax}
+    \usepackage{amsmath}
+    \usepackage{stmaryrd}
+    \usepackage{color}
+    \usepackage{amssymb}
+    \usepackage{ebproof}
+    \usepackage{prftree}
+    \usepackage{listings}
+    \usepackage{tikz}
+    \usepackage{graphicx}
+    \usepackage{pgfplots}
+    \usepackage{pgfplotstable}
+    \usepackage{booktabs}
+    \usepackage{minted}
+    \usepackage{textgreek}
+    
+    \usetikzlibrary{positioning,arrows, decorations.markings}
+    \usetheme{Berlin}
+    \setbeamertemplate{footline}{}
+    \setbeamertemplate{headline}{}
+    \setbeamertemplate{theorems}[ams style]
+    \usecolortheme{dove}
+    \usefonttheme{professionalfonts}
+    \beamertemplatenavigationsymbolsempty
+    
+    \undef{\Theorem}
+    \undef{\Lemma}
+    \undef{\Definition}
+    \undef{\Korollar}
+    \newtheorem{Proposition}{Proposition}
+    \newtheorem{Theorem}{Theorem}
+    \newtheorem{Lemma}{Lemma}
+    \newtheorem{Definition}{Definition}
+    \newtheorem{Korollar}{Korollar}
+    
+    
+    \begin{document}
+    
+    \title{Finger Trees}
+    \author[F. Madge Pimentel]{Fabio Madge Pimentel}
+    \institute{Technische Universität München}
+    \date[11.12.17]{11. Dezember 2017}
+    \maketitle
+    
+    \begin{frame}
+    \setcounter{tocdepth}{1}
+    \tableofcontents[pausesections]
+    \end{frame}
+    
+    \AtBeginSection[]
+    {
+    \begin{frame}
+    \setcounter{tocdepth}{2}
+    \tableofcontents[currentsection,hideothersubsections]
+    \end{frame}
+    }
+    
+    \AtBeginSubsection[]
+    {
+    \begin{frame}
+    \setcounter{tocdepth}{2}
+    \tableofcontents[currentsection,
+            currentsubsection,
+            subsectionstyle=show/shaded/hide]
+    \end{frame}
+    }
+    
+    \section{Introduction}
+    \input{slides/intro}
+    
+    \section{Data Stucture}
+    \input{slides/datastructure}
+    
+    \section{Applications}
+    \input{slides/applications}
+    
+    \section{Conclusion}
+    \input{slides/conclusion}
+    
+    \end{document}
+    
