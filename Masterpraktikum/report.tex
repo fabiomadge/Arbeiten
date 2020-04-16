@@ -1,0 +1,219 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage{stmaryrd}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\lstset{language=ML,breaklines=true,keywordstyle=\color{blue},basicstyle=\fontsize{8}{10}\selectfont\ttfamily}
+\hypersetup{breaklinks=true}
+\title{Unification in a trusted code environment}
+\author{Fabio Madge}
+\date{}
+
+\newcommand{\type}[1]{\textit{#1}}
+\newcommand{\constructor}[1]{\textit{#1}}
+\newcommand{\recordentry}[1]{\textit{#1}}
+\newcommand{\function}[1]{\textit{#1}}
+\newcommand{\inlineterm}[1]{\fontsize{8}{10}\texttt{#1}}
+
+
+\begin{document}
+\maketitle
+The Isabelle proof assistant is at its core a term rewriting engine implementing the Isabelle/Pure logic.
+The terms are a typed lambda calculus. The ultimate goal is constructing theorems, which contain a term encoding a proposition.
+Those theorems represented by an abstract data type in the implementation, thus guaranteeing that they can only be constructed by axioms of the logic.
+In the context of this text, every function in the implementation that can directly generate new theorems becomes an axiom of the logic.
+All those functions, together with those they rely on, form the kernel of the system.
+Because theorems are only meaningful, if their proposition is well-typed, they contain a certificate attesting to that.
+Such a certificate can also be attached to both terms and types.
+
+The Pure logic contains the bicompose rule, it can be seen as a more powerful version of the modus ponens \(\llbracket A, A \Longrightarrow B \rrbracket \Longrightarrow B\).
+It doesn't require both \(A\)'s to be syntactically equivalent, but finds a unifier \(\sigma\) for them, resulting in \(A\sigma \equiv A'\sigma\).
+This results in this slightly simplified version of the rule\(\llbracket A, A' \Longrightarrow B \rrbracket \Longrightarrow B\sigma\).
+As shown in~\cite{Madge2017}, this axiom of the system is provable using the other axioms.
+It uses an axiom for instantiating variables to apply to unifier, but it requires the instance to be certified.
+As unification is currently part of the kernel, this hasn't been necessary previously.
+The approach in~\cite{Madge2017} was to extract the relevant raw subterms from the theorems and run an unmodified version of the unification algorithm on them.
+Subsequently, the unifiers are preprocessed and certified using the existing axiom for certifying terms.
+Analyzing the slowdown affected by the change revealed, that certifying the unifiers is very costly.
+This inspired the idea of running the unification algorithm on certified terms instead.
+While defining a recursive function on an algebraic datatype like a term is generally very easy, doing it on a certified term isn't.
+The central problem is the handling of loose bound, which mustn't exist in certified terms.
+The result of this limitation is, that the data structure is unsuitable to many applications among them, unification.
+This work explores adding a certified term zipper~\cite{Huet1997} to the kernel, which allows arbitrary traversal of the terms, by refocusing on a different subterm, instead of extracting part of it.
+We then use this new data structure to reimplement a part of the existing unification algorithm and finally present the results in terms of runtime and compatibility to the existing Isabelle infrastructure.
+
+\subsection*{Zipper}
+
+A zipper is generally defined based on an underlying data type.
+It this case, it is the $\lambda$-terms with de Bruijn indices used by Isabelle.
+For increased readability, we work on a simplified version of \type{cterm}s, which contain a certificate guaranteeing the well-typedness of the enclosed raw term.
+
+\begin{lstlisting}
+datatype term =
+    Const of string * typ
+  | Free  of string * typ
+  | Var   of indexname * typ
+  | Bound of int
+  | Abs   of string * typ * term
+  | op $  of term * term
+
+abstype cterm = Cterm of {cert: certificate, t: term}
+\end{lstlisting}
+
+The zipper is made up of a subterm \recordentry{it}, which represents the current focus, and a context \recordentry{ctx}, which encodes the information needed to reassemble the complete term.
+Every recursive constructor in the underlying data type gets at least one constructor in the context.
+Because one can decent into both the argument or the function in a function application, it gets two.
+The \constructor{Top} indicates a focus on the entire term.
+
+\begin{lstlisting}
+datatype ctx = Top
+  | Abs1 of string * typ * ctx
+  | App1 of ctx * term
+  | App2 of term * ctx
+
+abstype loc = At of {cert: certificate, it: term, ctx: ctx}
+\end{lstlisting}
+
+An existing \type{cterm} can be lifted to a \type{cterm} zipper \type{loc} by use of \function{top}.
+The result initially focuses on the entire term.
+To navigate the zipper, the functions \function{up}, \function{down}, \function{left}, and \function{right} are defined.
+While \function{up} deconstructs the outermost layer of the \recordentry{ctx}, down does the inverse, by deconstructing \recordentry{it}.
+
+\begin{lstlisting}
+fun top (ct as Cterm {cert, t}) = At {cert = cert, it = t, ctx = Top}
+
+fun up (At {cert, it, ctx}) = let
+    val (it,ctx) = case ctx of
+        Top => (it,ctx)
+      | Abs1 (x,T,ctx,v) => (Abs (x,T,it),ctx)
+      | App1 (ctx,t,v) => (it$t,ctx)
+      | App2 (t,ctx,v) => (t$it,ctx)
+  in At {cert = cert, it = it, ctx = ctx} end
+
+fun down (At {cert, it, ctx}) = let
+    val (it,ctx) = case it of
+        Abs (x,T,t) => (t,Abs1 (x,T,ctx))
+      | f$x => (f,App1 (ctx,x))
+      | _ => (it,ctx)
+  in At {cert = cert, it = it, ctx = ctx} end
+
+val left: loc -> loc
+val right: loc -> loc
+\end{lstlisting}
+
+Those functions are used to navigate the term \(\lambda{}x.1+x\) in the following example.
+The angle brackets are used to indicate the current focus of a zipper.
+
+\begin{tabularx}{\textwidth}{ccX}
+&\(\lambda{}x.1+x\)&\inlineterm{Abs (x, int, Const (+, int -> int -> int) \$ Const (1, int) \$ Bound 0)}\\
+\function{top}&\(\left\langle\lambda{}x.1+x\right\rangle\)&\inlineterm{At \{it=(Abs (x, int, Const (+, int -> int -> int) \$ Const (1, int) \$ Bound 0)), ctx=Top,...\}}\\
+\function{down}&\(\lambda{}x. \left\langle 1+x \right\rangle \)&\inlineterm{At \{it=(Const (+, int -> int -> int) \$ Const (1, int) \$ Bound 0), ctx=(Abs1 (x,int,Top)),...\}}\\
+\function{down}&\(\lambda{}x. \left\langle 1+ \right\rangle x \)&\inlineterm{At \{it=(Const (+, int -> int -> int) \$ Const (1, int)), ctx=(App1 (Abs1 (x,int,Top), Bound 0),...\}}\\
+\function{right}&\(\lambda{}x. 1+ \left\langle x \right\rangle \)&\inlineterm{At \{it=(Bound 0), ctx=(App2 (Const (+, int -> int -> int) \$ Const (1, int), Abs1 (x,int,Top)),...\}}
+\end{tabularx}
+
+Because simply traversing a \type{cterm} is not sufficient, the same could be done by extracting the term and working on it, we propose different functions, making use of the focused subterm.
+The first group of them allows extracting the currently focused subterm.
+The goal here is to return a \type{cterm}, but as explained this is complicated by the potential of loose \constructor{Bound}s.
+To return a valid \type{cterm} all binders belonging to otherwise loose bounds need to be attached to the focused subterm.
+This functionality is offered by \function{it}.
+Sometimes it can be desirable to include superfluous binders or change their order.
+Both can be achieved by using the more powerful \function{it\_binders}.
+It accepts a list of desired binders, identified by their distance to the focused subterm, ordered from innermost to the outermost binder to attach.
+This is only valid if the supplied list is a superset of the essential binders.
+When the certificate is not necessary, \type{it\_raw} can be used to immediately extract a regular term instead.
+
+\begin{lstlisting}
+val it_raw: loc -> term
+val it_binders: int list -> loc -> cterm option
+val it: loc -> cterm
+\end{lstlisting}
+
+To illustrate the behavior of those functions, they are used with the \type{loc} \(\lambda{}xyz. \left\langle x+z \right\rangle \) in the following examples.
+
+\begin{tabularx}{\textwidth}{ccX}
+\inlineterm{it\_raw loc}&\(?+?\)&\inlineterm{Const (+, int -> int -> int) \$ Bound 2 \$ Bound 0)}\\
+\inlineterm{it loc}&\(\lambda{}xz.x+z\)&\inlineterm{Cterm \{t=(Abs (x, int, Abs (z, int, Const (+, int -> int -> int) \$ Bound 1 \$ Bound 0))),...\}}\\
+\inlineterm{it\_binders [0,2] loc}&\(\lambda{}xz.x+z\)&\inlineterm{Cterm \{t=(Abs (x, int, Abs (z, int, Const (+, int -> int -> int) \$ Bound 1 \$ Bound 0))),...\}}\\
+\inlineterm{it\_binders [0,1,2] loc}&\(\lambda{}xyz.x+z\)&\inlineterm{Cterm \{t=(Abs (x, int, Abs (y, int, Abs (z, int, Const (+, int -> int -> int) \$ Bound 2 \$ Bound 0)))),...\}}\\
+\inlineterm{it\_binders [2,0] loc}&\(\lambda{}zx.x+z\)&\inlineterm{Cterm \{t=(Abs (z, int, Abs (x, int, Const (+, int -> int -> int) \$ Bound 0 \$ Bound 1))),...\}}
+\end{tabularx}
+
+The final desirable class of actions manipulates the term represented by the zipper.
+A simple one is \(\eta\)-expanding the focused function.
+More interesting is instantiating variables.
+A naive approach would, irrespective of focus, instantiate both \recordentry{it} and the \recordentry{ctx}.
+This is fine, as long the instantiations are not distinct events because every instantiation necessitates traversing the whole zipper.
+By lazily instantiating the zipper, only guaranteeing all instantiations to be made on \recordentry{it}, multiple updates can be combined.
+To keep things simple, updates must be monotonic, meaning that once instantiated, a variable can not be updated.
+To gain this capability, the zipper must keep track of the order of instantiations and every layer of the ctx must have a version associated, indicating how many variables have already been instantiated.
+An unfortunate side effect of laziness is, that innocuous-seeming operations like \function{it} can require updating the \recordentry{ctx} and thus, end up modifying the zipper.
+
+\begin{lstlisting}
+val inst_Var: (indexname * typ) * cterm -> loc -> loc
+val get_cenv: loc -> ((((indexname * sort) * ctyp) list * ((indexname * typ) * cterm) list) * int)
+\end{lstlisting}
+
+The example shows the interaction of traversing and instantiating the zipper \((f\,x + \left\langle f\,1 \right\rangle) + f\,x\).
+
+{
+    \begin{center}
+\begin{tabular}{cc}
+&\((f\,x + \left\langle f\,1 \right\rangle) + f\,x\)\\
+\function{inst\_Var}&\((f\,x + \left\langle g\,1 \right\rangle) + f\,x\)\\
+\function{left}&\((\left\langle g\,x\,+ \right\rangle g\,1) + f\,x\)\\
+\function{inst\_Var}&\((\left\langle g\,2\,+ \right\rangle g\,1) + f\,x\)\\
+\function{up}&\(\left\langle( g\,2 + g\,1)\right\rangle + f\,x\)\\
+\function{up}&\(\left\langle( g\,2 + g\,1) + \right\rangle f\,x\)\\
+\function{up}&\(\left\langle( g\,2 + g\,1) + g\,2 \right\rangle\)
+\end{tabular}
+\end{center}
+}
+
+\subsection*{Unification}
+Generally, higher-order unification is necessary to solve all possible problems, but at the same time known to be undecidable.
+Fortunately, it is at least semi-decidable using an algorithm by Huet~\cite{Huet1975}.
+Later Miller~\cite{Miller1991} found a big subclass of terms called higher-order pattern, for which he presented a simpler unification algorithm.
+The restriction made for higher-order patterns is, that variables can only have Bounds as their arguments.
+The Isabelle implementation is due to Nipkow~\cite{Nipkow1993}.
+For performance reasons, Isabelle uses both algorithms.
+First pattern unification is run, yielding one of three possible results.
+In case a unifier is discovered it is returned.
+When it finds two subterms that can not be unified, it stops.
+In case it encounters that the terms are not patterns, the full higher-order unification algorithm is called.
+For this work, we decided to replace the current pattern unifier working on \type{term}s, with one operating on \type{cterm} zippers.
+
+At the highest level, the pattern unifier explores two \type{term}s in parallel until it finds a difference between the two and modifies the terms to correct them.
+It unifies types, \(\eta\)-expands functions where necessary and most importantly instantiates variables.
+There are two types of differences that result in one or multiple instantiations.
+
+The first involves variables on both sides and is thus called flex-flex.
+To solve this problem the variables are replaced by new ones with only a reduced set of arguments, those available on both sides.
+In this case, an entirely new term must be created for the instantiation, but instead of certifying it afterward, it is creating using the certified information in the zipper.
+The necessary binders can be extracted from the \recordentry{ctx} as \type{cterm}s along with the certified \type{type}.
+The whole \type{cterm} is then built by starting with the new variable, adding preliminary arguments as variables, and then abstracting over them using the binders.
+
+The second case involves a variable only on one side.
+It is called a flex-rigid pair.
+In this case, the idea is, to take the rigid part and instantiate the variable with it.
+Before doing that, the rigid part needs to be projected over.
+This again is about making sure that all binders are still available within the variable.
+To ensure that, it can be necessary to replace variables in the rigid part by ones that depend only on the available arguments.
+Finally, the rigid term can be extracted using \function{it\_binders} and the variable instantiated.
+
+\subsection*{Results}
+
+The new pattern unifier was successfully integrated into \function{bicompose}.
+It is capable of building almost the entire Isabelle distribution, as well as the whole archive of formal proofs.
+The HOL-Proofs session was not functional, to begin with, due to the handing of proof terms in the new version \function{bicompose}.
+A malfunction in HOL-Probability most likely due to the different handling of labels of abstractions could not be further investigated in time.
+In terms of runtime, this first iteration of the implementation is not meeting expectations, instead of shedding time, building everything takes an additional 12\%, with 152:44:07 compared to 135:51:11 of CPU time. The slowdown is not evenly distributed, with some sessions being quicker with the changes.
+
+\bibliographystyle{plaindin}
+\bibliography{cites}
+
+\end{document}
