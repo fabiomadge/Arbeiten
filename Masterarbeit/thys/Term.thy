@@ -6,7 +6,7 @@ type_synonym name = string
 type_synonym indexname = "name \<times> nat"
 
 type_synonym "class" = name
-type_synonym sort = "class list"
+type_synonym sort = "class set"
 
 
 datatype "typ" = 
