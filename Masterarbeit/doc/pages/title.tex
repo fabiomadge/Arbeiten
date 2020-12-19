@@ -17,21 +17,21 @@
   {\Large \getDoctype{}}
 
   \vspace{15mm}
-  {\huge\bfseries \getTitle{} \par}
+  {\huge\bfseries \getTitle{}}
 
   \vspace{10mm}
-  {\huge\bfseries \foreignlanguage{ngerman}{\getTitleGer{}} \par}
+  {\huge\bfseries \foreignlanguage{ngerman}{\getTitleGer{}}}
 
   \vspace{15mm}
   \begin{tabular}{l l}
     Author:          & \getAuthor{} \\
     Supervisor:      & \getSupervisor{} \\
-    Advisor:         & \getAdvisor{} \\
+    Advisors:         & \getAdvisor{} \\
     Submission Date: & \getSubmissionDate{} \\
   \end{tabular}
 
   \IfFileExists{logos/faculty.pdf}{%
     \vfill{}
-    \includegraphics[height=20mm]{logos/faculty.pdf}
+    \includegraphics[height=25mm]{logos/faculty.pdf}
   }{}
 \end{titlepage}
