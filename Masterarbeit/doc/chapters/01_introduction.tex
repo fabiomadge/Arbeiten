@@ -3,88 +3,22 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-\section{Section}
-Citation test~\parencite{latex}.
+Isabelle is a proof assistant and belongs to the LCF family~\parencite{Gordon2000}.
+Their goal is to enable to use of rigorous formal arguments on a big scale.
+As its peers, it defines an abstract data type representing theorems.
+Combining those using inference rules yields new theorems.
+Only those can create theorems because the abstract data type hides their internals outside of the so-called kernel.
+It comprises the logical primitives and the functionality needed to implement them.
+These include things like term manipulation and type checking. The automation making the system usable, in turn, uses the functionality offered by the kernel.
+Following this design ensures that only a small part of the very complex software needs to be trusted because only that is a possible vector for inconsistencies.\\
 
-\subsection{Subsection}
+Separating the meta-logic \(\mathcal{M}\)~\parencite{Paulson1988}, and an object-logic \(\mathcal{O}\) sets Isabelle apart.
+The result is a generic system that allows reusing some functionality by embedding the desired object-logic into \(\mathcal{M}\).
+Examples include first-order logic, Zermelo–Fraenkel set theory, and higher-order logic (HOL).
+It is the most popular choice amongst users, to the point that they often use Isabelle and Isabelle/HOL interchangeably.
+These days the implementation of \(\mathcal{M}\) has a name and goes by Isabelle/Pure.
+It underwent some changes in its infancy but has been stable for many years.
+This thesis aims to formalize \(\mathcal{M}\) within Isabelle/HOL, a worthwhile endeavor in its own right.
+It presents an accessible version of the kernel's logical foundations to anyone interested but can also be a stepping stone for further developments, like a verified version of Isabelle/Pure.\\
 
-See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
-
-\begin{table}[htpb]
-  \caption[Example table]{An example for a simple table.}\label{tab:sample}
-  \centering
-  \begin{tabular}{l l l l}
-    \toprule
-      A & B & C & D \\
-    \midrule
-      1 & 2 & 1 & 2 \\
-      2 & 3 & 2 & 3 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{figure}[htpb]
-  \centering
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}[node distance=3cm]
-    \node (R0) {$R_1$};
-    \node (R1) [right of=R0] {$R_2$};
-    \node (R2) [below of=R1] {$R_4$};
-    \node (R3) [below of=R0] {$R_3$};
-    \node (R4) [right of=R1] {$R_5$};
-
-    \path[every node]
-      (R0) edge (R1)
-      (R0) edge (R3)
-      (R3) edge (R2)
-      (R2) edge (R1)
-      (R1) edge (R4);
-  \end{tikzpicture}
-  \caption[Example drawing]{An example for a simple drawing.}\label{fig:sample-drawing}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-
-  \pgfplotstableset{col sep=&, row sep=\\}
-  % This should probably go into a file in data/
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1000 \\
-    2 & 1500 \\
-    3 & 1600 \\
-  }\exampleA
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1200 \\
-    2 & 800 \\
-    3 & 1400 \\
-  }\exampleB
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}
-    \begin{axis}[
-        ymin=0,
-        legend style={legend pos=south east},
-        grid,
-        thick,
-        ylabel=Y,
-        xlabel=X
-      ]
-      \addplot table[x=a, y=b]{\exampleA};
-      \addlegendentry{Example A};
-      \addplot table[x=a, y=b]{\exampleB};
-      \addlegendentry{Example B};
-    \end{axis}
-  \end{tikzpicture}
-  \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=SQL]
-    SELECT * FROM tbl WHERE tbl.str = "str"
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
-\end{figure}
+At first, we present some preliminaries, including the term and type languages and operations on those, using those, construct the deductive system, and finally show some derived rules.

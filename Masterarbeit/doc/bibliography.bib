@@ -1,7 +1,111 @@
-@book{latex,
-  title = {LaTeX : A Documentation Preparation System User's Guide and Reference Manual},
-  publisher = {Addison-Wesley Professional},
-  year = {1994},
-  author = {Leslie Lamport}
+@TechReport{Paulson1988,
+  author =	 {Paulson, Lawrence C},
+  title = 	 {{The foundation of a generic theorem prover}},
+  year = 	 1988,
+  month = 	 mar,
+  url = 	 {https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-130.pdf},
+  institution =  {University of Cambridge, Computer Laboratory},
+  number = 	 {UCAM-CL-TR-130}
 }
 
+@book{Paulson1994,
+  title = {Isabelle. A Generic Theorem Prover},
+  publisher = {Springer},
+  series = {LNCS},
+  volume = {828},
+  year = 1994,
+  author = {Lawrence C. Paulson}
+}
+
+@article{Paulson1986,
+title = "Natural deduction as higher-order resolution",
+journal = "The Journal of Logic Programming",
+volume = "3",
+number = "3",
+pages = "237 - 258",
+year = "1986",
+url = "http://www.sciencedirect.com/science/article/pii/0743106686900154",
+author = "Lawrence C. Paulson"
+}
+
+@manual{implementation,
+  title        = {The Isabelle/Isar Implementation},
+  author       = {Makarius Wenzel},
+  month        = 4,
+  year         = 2020
+}
+
+@Inbook{Huet1975,
+author="Huet, G{\'e}rard",
+title="Unification in typed lambda calculus",
+bookTitle="$\lambda$-Calculus and Computer Science Theory: Proceedings of the Symposium Held in Rome March 25--27, 1975",
+year="1975",
+publisher="Springer",
+pages="192--212",
+url="http://dx.doi.org/10.1007/BFb0029526"
+}
+
+@Article{Paulson1999,
+  author = "Lawrence C. Paulson",
+  title = "A Generic Tableau Prover and its Integration with Isabelle",
+  abstract = "A generic tableau prover has been implemented and integrated with Isabelle (Paulson, 1994). Compared with classical first-order logic provers, it has numerous extensions that allow it to reason with any supplied set of tableau rules. It has a higher-order syntax in order to support user-defined binding operators, such as those of set theory. The unification algorithm is first-order instead of higher-order, but it includes modifications to handle bound variables. The proof, when found, is returned to Isabelle as a list of tactics. Because Isabelle verifies the proof, the prover can cut corners for efficiency's sake without compromising soundness. For example, the prover can use type information to guide the search without storing type information in full.",
+  journal = "Journal of Universal Computer Science",
+  year = "1999",
+  volume = "5",
+  number = "3",
+  pages = "73--87"
+  }
+
+  @Article{Asperti2009,
+author="Asperti, A.
+and Ricciotti, W.
+and Sacerdoti Coen, C.
+and Tassi, E.",
+title="A compact kernel for the calculus of inductive constructions",
+journal="Sadhana",
+year="2009",
+volume="34",
+number="1",
+pages="71--144",
+abstract="The paper describes the new kernel for the Calculus of Inductive Constructions (CIC) implemented inside the Matita Interactive Theorem Prover. The design of the new kernel has been completely revisited since the first release, resulting in a remarkably compact implementation of about 2300 lines of OCaml code. The work is meant for people interested in implementation aspects of Interactive Provers, and is not self contained. In particular, it requires good acquaintance with Type Theory and functional programming languages.",
+url="http://dx.doi.org/10.1007/s12046-009-0003-3"
+}
+
+@inproceedings{Nipkow91,
+author="Tobias Nipkow",
+title="Order-Sorted Polymorphism in {Isabelle}",
+booktitle="Logical Environments",
+editor="G\'erard Huet and Gordon Plotkin",
+publisher="CUP",year=1993,pages="164--188"}
+
+@INPROCEEDINGS{harrison-holhol,
+        author          = "John Harrison",
+        title           = "Towards self-verification of HOL Light",
+        editor          = "Ulrich Furbach and Natarajan Shankar",
+        booktitle       = "Proceedings of the third International Joint
+                           Conference, IJCAR 2006",
+        address         = "Seattle, WA",
+        year            = 2006,
+        publisher       = "Springer-Verlag",
+        series          = "Lecture Notes in Computer Science",
+        volume          = 4130,
+        pages           = "177--191"}
+
+@inproceedings{LPAR23:MechanisedSemanticsforHOL,
+  author    = {Johannes {{\AA}man Pohjola} and Arve Gengelbach},
+  title     = {A Mechanised Semantics for HOL with Ad-hoc Overloading},
+  booktitle = {LPAR23. LPAR-23: 23rd International Conference on Logic for
+              Programming, Artificial Intelligence and Reasoning},
+  editor    = {Elvira Albert and Laura Kov{\'{a}}cs},
+  series    = {EPiC Series in Computing},
+  volume    = {73},
+  pages     = {498--515},
+  year      = {2020},
+  publisher = {EasyChair},
+  bibsource = {EasyChair, https://easychair.org},
+  issn      = {2398-7340},
+  url       = {https://easychair.org/publications/paper/9Hcd},
+  doi       = {10.29007/413d}
+}
+
+@inbook{Gordon2000, author = {Gordon, Mike}, title = {From LCF to HOL: A Short History}, year = {2000}, isbn = {0262161885}, publisher = {MIT Press}, address = {Cambridge, MA, USA}, booktitle = {Proof, Language, and Interaction: Essays in Honour of Robin Milner}, pages = {169–185}, numpages = {17} }
