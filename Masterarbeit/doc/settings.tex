@@ -8,6 +8,8 @@
 \usepackage[%
   backend=biber,
   url=false,
+  isbn=false,
+  doi=false,
   style=alphabetic,
   maxnames=4,
   minnames=3,
@@ -65,3 +67,53 @@
   keywordstyle=\bfseries\color{TUMBlue},
   stringstyle=\color{TUMAccentGreen}
 }
+
+%Misc
+\usepackage{prftree}
+\usepackage{stmaryrd}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathpartir}
+\usepackage{enumitem}
+%Bad hack to prevent the label of the weaken rule from wrapping
+% \mprset{sep=1.0em}
+
+% Isabelle Snippets
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{ifthen}
+\newcommand{\DefineSnippet}[2]{%
+  \expandafter\newcommand\csname snippet--#1\endcsname{#2}}
+\newcommand{\Snippet}[1]{%
+  \ifcsname snippet--#1\endcsname{\begin{quote}\begin{isabelle} \csname snippet--#1\endcsname\end{isabelle}\end{quote}}%
+  \else+++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+\newcommand{\InlineSnippet}[1]{%
+  \ifcsname snippet--#1\endcsname{\csname snippet--#1\endcsname}%
+  \else+++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+\newcommand{\InlineLemma}[1]{%
+  \ifcsname snippet--#1\endcsname{\label{lemma:#1}\csname snippet--#1\endcsname}%
+  \else+++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+\input{snippets}
+
+\makeatletter
+\newcommand*\bigcdot{\mathpalette\bigcdot@{.5}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% \renewcommand{\isasymbullet}{\isamath{\boldsymbol{\cdot}}}
+\renewcommand{\isasymbullet}{\isamath{\bigcdot}}
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\newcommand{\ax}{\isa{\textsc{axiom}}}
+\newcommand{\as}{\isa{\textsc{assume}}}
+\newcommand{\wk}{\isa{\textsc{weaken}}}
+\newcommand{\aIv}{\isa{\textsc{forallI\(_{\mbox{var}}\)}}}
+\newcommand{\aIf}{\isa{\textsc{forallI\(_{\mbox{free}}\)}}}
+\newcommand{\aE}{\isa{\textsc{forallE}}}
+\newcommand{\iI}{\isa{\textsc{impliesI}}}
+\newcommand{\iE}{\isa{\textsc{impliesE}}}
+\newcommand{\bcnv}{\isa{\textsc{\(\beta\)\_conv}}}

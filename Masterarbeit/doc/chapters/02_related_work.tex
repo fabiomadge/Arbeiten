@@ -1,8 +1,10 @@
 \chapter{Related Work}\label{chapter:related}
 
-\section{Section}
-Citation test~\parencite{Paulson1989}.
+Work on proof calculi exits going back to the old Greeks~\parencite{Lukasiewicz1951}.
+The logic underpinnings of theorem provers, in particular, have also been extensively studied.
+Informal descriptions exist for both HOL~\parencite{Gordon94} and CoC~\parencite{Huet88}, the logic underlying the Coq theorem prover.
+Different authors have formalized more concrete specifications of proof calculi within provers, either the systems themselves or different ones.
+John Harrison, who created the HOL Light prover, formalized its logic and self-verified his implementation against it~\parencite{Harrison06}.
+Kumar et al.\ ported those results to the HOL4 prover and integrated it into the CakeML ecosystem~\parencite{Kumar2016}, resulting in a verification down to machine language.\\
 
-\subsection{Subsection}
-
-Finite.
+Isabelle's foundations somewhat differ from those of other systems of the HOL family. One of those ways is the support for overloaded constants. This ad-hoc overloading is challenging to get right, as Kun{\v c}ar and Popescu have shown~\parencite{Kuncar19}. Pohjola and Gengelbach have recently adapted ~\parencite{Kumar2016}, adding support for overloaded constants using those ideas.

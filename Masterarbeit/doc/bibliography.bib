@@ -71,14 +71,14 @@ abstract="The paper describes the new kernel for the Calculus of Inductive Const
 url="http://dx.doi.org/10.1007/s12046-009-0003-3"
 }
 
-@inproceedings{Nipkow91,
+@inproceedings{Nipkow93,
 author="Tobias Nipkow",
 title="Order-Sorted Polymorphism in {Isabelle}",
 booktitle="Logical Environments",
 editor="G\'erard Huet and Gordon Plotkin",
 publisher="CUP",year=1993,pages="164--188"}
 
-@INPROCEEDINGS{harrison-holhol,
+@INPROCEEDINGS{Harrison06,
         author          = "John Harrison",
         title           = "Towards self-verification of HOL Light",
         editor          = "Ulrich Furbach and Natarajan Shankar",
@@ -109,3 +109,101 @@ publisher="CUP",year=1993,pages="164--188"}
 }
 
 @inbook{Gordon2000, author = {Gordon, Mike}, title = {From LCF to HOL: A Short History}, year = {2000}, isbn = {0262161885}, publisher = {MIT Press}, address = {Cambridge, MA, USA}, booktitle = {Proof, Language, and Interaction: Essays in Honour of Robin Milner}, pages = {169–185}, numpages = {17} }
+
+@book{Lukasiewicz1951,
+  title = {Aristotle's Syllogistic from the Standpoint of Modern Formal Logic},
+  publisher = {Clarendon Press},
+  year = 1951,
+  author = {Jan {\L}ukasiewicz}
+}
+
+@article{Huet88,
+title = "The calculus of constructions",
+journal = "Information and Computation",
+volume = "76",
+number = "2",
+pages = "95 - 120",
+year = "1988",
+issn = "0890-5401",
+doi = "https://doi.org/10.1016/0890-5401(88)90005-3",
+url = "http://www.sciencedirect.com/science/article/pii/0890540188900053",
+author = "Thierry Coquand and Gérard Huet"
+}
+
+@incollection{Gordon94,
+title = "The HOL Logic and System",
+editor = "Jonathan Bowen",
+series = "Real-Time Safety Critical Systems",
+publisher = "Elsevier",
+volume = "2",
+pages = "49 - 70",
+year = "1994",
+booktitle = "Towards Verified Systems",
+issn = "1572-5960",
+doi = "https://doi.org/10.1016/B978-0-444-89901-9.50012-4",
+url = "http://www.sciencedirect.com/science/article/pii/B9780444899019500124",
+author = "M.J.C. Gordon and A.M. Pitts"
+}
+
+@article{Kumar2016,
+	Abstract = {We present a mechanised semantics for higher-order logic (HOL), and a proof of soundness for the inference system, including the rules for making definitions, implemented by the kernel of the HOL Light theorem prover. Our work extends Harrison's verification of the inference system without definitions. Soundness of the logic extends to soundness of a theorem prover, because we also show that a synthesised implementation of the kernel in CakeML refines the inference system. Apart from adding support for definitions and synthesising an implementation, we improve on Harrison's work by making our model of HOL parametric on the universe of sets, and we prove soundness for an improved principle of constant specification in the hope of encouraging its adoption. Our semantics supports defined constants directly via a context, and we find this approach cleaner than our previous work formalising Wiedijk's Stateless HOL.},
+	Author = {Kumar, Ramana and Arthan, Rob and Myreen, Magnus O. and Owens, Scott},
+	Da = {2016/03/01},
+	Date-Added = {2020-12-31 17:41:08 +0100},
+	Date-Modified = {2020-12-31 17:41:08 +0100},
+	Doi = {10.1007/s10817-015-9357-x},
+	Id = {Kumar2016},
+	Journal = {Journal of Automated Reasoning},
+	Number = {3},
+	Pages = {221--259},
+	Title = {Self-Formalisation of Higher-Order Logic},
+	Ty = {JOUR},
+	Url = {https://doi.org/10.1007/s10817-015-9357-x},
+	Volume = {56},
+	Year = {2016},
+	Bdsk-Url-1 = {https://doi.org/10.1007/s10817-015-9357-x}}
+
+
+@article{Kuncar19,
+	Abstract = {The interactive theorem prover Isabelle/HOL is based on the well understood higher-order logic (HOL), which is widely believed to be consistent (and provably consistent in set theory by a standard semantic argument). However, Isabelle/HOL brings its own personal touch to HOL: overloaded constant definitions, used to provide the users with Haskell-like type classes. These features are a delight for the users, but unfortunately are not easy to get right as an extension of HOL---they have a history of inconsistent behavior. It has been an open question under which criteria overloaded constant definitions and type definitions can be combined together while still guaranteeing consistency. This paper presents a solution to this problem: non-overlapping definitions and termination of the definition-dependency relation (tracked not only through constants but also through types) ensures relative consistency of Isabelle/HOL.},
+	Author = {Kun{\v c}ar, Ond{\v r}ej and Popescu, Andrei},
+	Da = {2019/04/01},
+	Date-Added = {2020-12-31 18:05:29 +0100},
+	Date-Modified = {2020-12-31 18:05:29 +0100},
+	Doi = {10.1007/s10817-018-9454-8},
+	Id = {Kun{\v c}ar2019},
+	Journal = {Journal of Automated Reasoning},
+	Number = {4},
+	Pages = {531--555},
+	Title = {A Consistent Foundation for Isabelle/HOL},
+	Ty = {JOUR},
+	Url = {https://doi.org/10.1007/s10817-018-9454-8},
+	Volume = {62},
+	Year = {2019},
+	Bdsk-Url-1 = {https://doi.org/10.1007/s10817-018-9454-8}}
+
+
+@mastersthesis{Madge17,
+  author       = {Fabio Madge},
+  type = "{B.Sc. Thesis}",
+  title        = {Higher-Order Unification and Resolution},
+  school       = {TU M\"unchen},
+  year         = 2017,
+  month        = 2,
+}
+
+@article{Church40, title={A formulation of the simple theory of types}, volume={5}, DOI={10.2307/2266170}, number={2}, journal={Journal of Symbolic Logic}, publisher={Cambridge University Press}, author={Church, Alonzo}, year={1940}, pages={56–68}}
+
+@article{DeBruijn72,
+title = "Lambda calculus notation with nameless dummies, a tool for automatic formula manipulation, with application to the Church-Rosser theorem",
+journal = "Indagationes Mathematicae (Proceedings)",
+volume = "75",
+number = "5",
+pages = "381 - 392",
+year = "1972",
+issn = "1385-7258",
+doi = "https://doi.org/10.1016/1385-7258(72)90034-0",
+url = "http://www.sciencedirect.com/science/article/pii/1385725872900340",
+author = "N.G {de Bruijn}",
+abstract = "In ordinary lambda calculus the occurrences of a bound variable are made recognizable by the use of one and the same (otherwise irrelevant) name at all occurrences. This convention is known to cause considerable trouble in cases of substitution. In the present paper a different notational system is developed, where occurrences of variables are indicated by integers giving the “distance” to the binding \<lambda> instead of a name attached to that \<lambda>. The system is claimed to be efficient for automatic formula manipulation as well as for metalingual discussion. As an example the most essential part of a proof of the Church-Rosser theorem is presented in this namefree calculus."
+}

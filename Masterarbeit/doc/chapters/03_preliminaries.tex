@@ -1,8 +1,267 @@
 \chapter{Preliminaries}\label{chapter:preliminaries}
 
-\section{Section}
-Citation test~\parencite{Paulson1989}.
+The general goal of this formalization is to match the current implementation where possible while avoiding unnecessary complexity.
+We will discuss the term language of our logic.
+A type system is employed to categorize these terms.
+Before we can talk about types and terms, we need to consider names.
 
-\subsection{Subsection}
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{type\_synonym}\ name\ {\isacharequal}\ string \isanewline
+        \isacommand{type\_synonym}\ indexname\ {\isacharequal}\ name {\isasymtimes}\ int
+    \end{isabelle}
+\end{quote}
 
-Finite.
+The canonical way of encoding names is using strings.
+Isabelle adds its flavor to that with the concept of index names.
+Here we attach an integer to the name.
+The rationale for using them in an implementation is purely practical, as both types are infinite on their own, at least using PolyML\@.
+Keeping track of the maximum index used within a particular environment reduces the problem of obtaining fresh names to merely incrementing that maximum.
+Combining that index with any string is guaranteed to yield a unique index name.
+The cost of including them in the logic is negligible, but it avoids formalizing a construction to embed one into the other.
+
+\section{Types}
+Like all the other HOL family members' underlying logics, Pure is a generalization of simply typed lambda calculus~\parencite{Church40}, so it's only befitting to start by talking about its type language.
+Another outstanding feature of Isabelle is its take on polymorphism.
+As previously stated, Isabelle is the only member of the HOL family with support for ad-hoc polymorphism.
+Here, the user declares a constant, the type of which contains variables, and later supplies definitions for different instantiations of those variables.
+An example of that is addition with the constant \isa{(+) :: 'a {\isasymRightarrow} 'a {\isasymRightarrow} 'a}.
+It is immediately apparent that the addition of integers must behave differently than of reals, but reusing the \isa{(+)} constant is still convenient and thus desirable.
+
+All HOL provers support parametric polymorphism up to Rank-1.
+This polymorphism allows for abstracting over unnecessarily specific type information, like in the example of lists.
+It is an abstract data type that encodes a sequence of arbitrary elements.
+\Snippet{list}
+While the element type is irrelevant to the structure, the \isa{'a} will not persist in a concrete list object.
+Those datatypes become especially useful when combined with abstract function definitions.
+\Snippet{list_append}
+This abstract definition of concatenation is oblivious to the element type and works for any two lists of the same type.
+
+
+Isabelle takes this a step further by allowing restrictions on type variables~\parencite{Nipkow93}.
+So-called sorts, representing subsets of all defined types, are added to the variable.
+Instantiating those annotated variables is only possible with types that belong to that particular sort.
+Sorts can overlap, resulting in a partial order.
+For their implementation, Isabelle adds a layer of abstraction.
+Classes, too, denote a subset of the defined types and have a partial order.
+A set of classes represents a sort.
+The empty sort is the universal sort, representing all types.
+Inserting a class restricts the sort by intersecting both sets of types.
+
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{type\_synonym}\ class\ {\isacharequal}\ string \isanewline
+        \isacommand{type\_synonym}\ sort\ {\isacharequal}\ class\ set
+    \end{isabelle}
+\end{quote}
+
+Almost every interaction a user has with the system results in a call to the resolution rule.
+While it currently resides in the kernel, we have shown how to emulate it using other kernel primitives~\parencite{Madge17}.
+
+\begin{displaymath}
+    \prftree[r]{RS}
+    {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
+    {\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C}
+    {B\sigma \equiv B_i\sigma}
+    {\left( \left\llbracket B_x\,\middle|\, x \in \left[ i - 1 \right] \right\rrbracket
+        + \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket
+        + \left\llbracket B_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right) \right\rrbracket
+        \Longrightarrow C \right) \sigma
+    }
+\end{displaymath}
+
+It is a generalization of modus ponens enabling the combination of two theorems.
+By unifying the former's conclusion with one of the latter's premises, replacing the one assumption with the former's premises becomes a valid transformation.
+Using this rule requires applying the unifier to the whole resulting theorem, potentially leading to undesired consequences in terms of instantiated variables.
+To save some variables from unification, Isabelle offers two kinds.
+\isa{Var}s are affected by unification and often referred to as schematic variables, while the unification algorithms treat free variable \isa{Free} like constants.
+
+
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{datatype}\ typ\ {\isacharequal}\ TFree\ name sort\isanewline
+        \isaindent{\ \ }{\isacharbar}\ TVar\ indexname\ sort\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Type\ name\ {\isacharparenleft}typ\ list{\isacharparenright}
+    \end{isabelle}
+\end{quote}
+
+The constructor Type is very versatile and takes a name and a list of arguments.
+An integer would come with an empty list.
+In the aforementioned \isa{'a list} example, we have a singleton list.
+For a function, it's a list with two elements.
+We can now see that not all instances of \isa{typ} are created equal.
+In \autoref{sec:validity}, we will provide rules for both types and terms.
+
+\section{Terms}
+
+The term language should be rather unsurprising at this point.
+Our basic terms are constants, potentially polymorphic, and variables.
+Again we see the two distinct kinds of variables to accommodate unification but complement them with bound variables.
+They are the counterpart to the name-giving lambda abstractions, or binders, encoded by \isa{Abs} and together allow defining functions.
+The idea is to replace all the bound variable occurrences with an argument applied to the abstraction when reducing the term.
+We call this kind of transformation \(\beta\)-reduction.
+To encode the function application, we use the \isa{\$}.
+While it is seemingly simpler to let bound and regular variables share a namespace, this approach comes with complications.
+When substituting variables by terms, binders around the variable may capture previously unbound variables.
+Capturing can be avoided by renaming bound variables, referred to as \(\alpha\)-conversion, but requires additional effort.
+Another inconvenience is that \(\alpha\)-equivalent terms, syntactically equal after \(\alpha\)-conversion, can look differently.
+Using de Bruijn indices~\parencite{DeBruijn72} instead remedies both of these shortcomings.
+Here the bounds have no lables but refer to their binder through their distance, as measured by binders in between.
+While the current Pure implementation still attaches labels to the binders for convenience, they serve no logical purpose and are consequently not part of this formalization.
+
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{datatype}\ term\ {\isacharequal}\ Const name typ\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Free name typ\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Var indexname typ\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Bound nat\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Abs typ term\isanewline
+        \isaindent{\ \ }{\isacharbar}\ term \$ term
+    \end{isabelle}
+\end{quote}
+
+\section{Validity}
+\label{sec:validity}
+
+Now that we can write down both types and terms, we want to separate the wheat from the chaff.
+There are dealing with three layers, term, type, and sort.
+First, we take care of them separately, and then we check whether the type annotations in a given term are consistent through type checking.
+We will ensure that the constants utilized are defined and used according to our expectations on all layers.
+To that end, we formalize a type signature \(\Sigma\), which encodes those expectations.
+
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{datatype}\ signature\ {\isacharequal}\ Signature\ \isanewline
+        \isaindent{\ \ }(const\_typ\_of{\isacharcolon}\ name \isasymrightharpoonup\ typ)\isanewline
+        \isaindent{\ \ }(typ\_arity\_of{\isacharcolon}\ name \isasymrightharpoonup\ nat)\isanewline
+        \isaindent{\ \ }(sorts\_of{\isacharcolon}\ algebra)
+    \end{isabelle}
+\end{quote}
+
+The explicitly partial \isa{('a \isasymrightharpoonup 'b \isasymequiv 'a \isasymrightharpoonup 'b option)} function \isa{const\_typ\_of} maps term constants to their potentially polymorphic type.
+Every kind of type constant has a fixed arity, which is provided by \isa{typ\_arity\_of}.
+The algebra combines a binary relation (\(\leq\)) over the classes with an extended idea of type arities.
+Here, the goal is to capture the restrictions imposed on the arguments of a type constructor in the context of the \isa{of\_sort :: typ \isasymRightarrow\ sort \isasymRightarrow\ bool} relation, i.e., whether a type belongs to a sort.
+
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{datatype}\ algebra\ {\isacharequal}\ Algebra\ \isanewline
+        \isaindent{\ \ }(classes{\isacharcolon}\ class\ rel)\isanewline
+        \isaindent{\ \ }(arities{\isacharcolon}\ name \isasymrightharpoonup\ class \isasymrightharpoonup\ sort list)
+    \end{isabelle}
+\end{quote}
+
+The \isa{arities} entry is a map with two levels.
+It returns a vector of sort requirements, one entry for each argument, given a type constructor and the type class to which the whole construct needs to belong.\\
+Now that we have our data structures in place, we can define some operations and employ some restrictions.
+In the following, we fix the name cs for our class relation and assume that it is both a partial order and the relation's field finite.
+Later we will hide that behind the \isa{ordered\_classes} predicate.
+
+\Snippet{ordered_classes}
+
+It follows from our definitions that any sort that exists must be finite and that the \isa{sort\_leq} is also a partial relation.
+Using those definitions, we can state the requirements for the arities.
+Trivially we expect all sorts used to be well-defined.
+Without loss of generality, we require any constructor to have type arities defined for all classes.
+The critical property of the arities is that they are coregular, which means that within a constructor that if two classes are related, so are their induced arities.
+
+\begin{quote}
+\begin{isabelle}
+\isacommand{definition} arities{\isacharunderscore}ok\ arss\ {\isacharequal}\isanewline
+{\isacharparenleft}{\isasymforall}ars{\isasymin}ran\ arss{\isachardot}\isanewline
+\isaindent{{\isacharparenleft}\ \ \ }{\isacharparenleft}{\isasymforall}c\isactrlsub {\isadigit{1}}{\isasymin}dom\ ars{\isachardot}\isanewline
+\isaindent{{\isacharparenleft}\ \ \ {\isacharparenleft}\ \ \ }{\isasymforall}c\isactrlsub {\isadigit{2}}{\isasymin}dom\ ars{\isachardot}\isanewline
+\isaindent{{\isacharparenleft}\ \ \ {\isacharparenleft}\ \ \ \ \ \ }class{\isacharunderscore}leq\ c\isactrlsub {\isadigit{1}}\ c\isactrlsub {\isadigit{2}}\ {\isasymlongrightarrow}\isanewline
+\isaindent{{\isacharparenleft}\ \ \ {\isacharparenleft}\ \ \ \ \ \ }list{\isacharunderscore}all{\isadigit{2}}\ sort{\isacharunderscore}leq\ {\isacharparenleft}the\ {\isacharparenleft}ars\ c\isactrlsub {\isadigit{1}}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}the\ {\isacharparenleft}ars\ c\isactrlsub {\isadigit{2}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}\ \ \ }dom\ ars\ {\isacharequal}\ Field\ cs\ {\isasymand}\ {\isacharparenleft}{\isasymforall}sv{\isasymin}ran\ ars{\isachardot}\ list{\isacharunderscore}all\ sort{\isacharunderscore}ex\ sv{\isacharparenright}{\isacharparenright}%
+\end{isabelle}
+\end{quote}
+
+Bringing everything together, we can now state what it means for an algebra to be wellformed.
+
+\Snippet{algebra_ok}
+
+With a solid understanding of the sort algebra, we can now define the previously teased \isa{of\_sort} predicate.
+As the type arities only have information on how the constructors behave on the class level, we lift them to sorts using \isa{mg\_domain}.
+The function looks up the constituting classes' arities and intersects all those argument constraints by folding the componentwise intersection of two sort lists over them.
+The variable cases can delegate to the \isa{sort\_leq} relation.
+
+\Snippet{of_sort}
+
+Before going a level up and defining a criterion for signatures, we explain what it means for terms, types, and sorts to adhere to them.
+All those predicates have a prime appended to denote their dependence on \(\Sigma\).
+Starting easy, \isa{sort\_ok'} only requires unpacking the signature and calling \isa{sort\_ex}.
+
+\Snippet{typ_ok'}
+
+When considering types, we want to ensure that the constructors' arities match the number of arguments and check all the sorts we encounter.
+In the case of terms, the focus again is on the constants.
+The problem we face here is that our constants are potentially polymorphic.
+Thus, while acceptable, the type annotation in the term might not match the most general one in \(\Sigma\), so we need an order on types regarding generality.
+Our approach is to use matching, which is unification on only one side.
+If we can find such a unifier, the instantiated term was either equally general or more general than the constant one.
+To do that, we need a notion of type instantiation.
+To preserve sort constraints and validity of the whole type, we check that the new types belong to the sort of the variable they are replacing and are valid themselves.
+
+\Snippet{ty_is_instance}
+
+Using \isa{ty\_is\_instance} , we can check that a given constant is valid with regards to \(\Sigma\) by looking for a unifier that matches the polymorphic type with the one found in the constant.
+Apart from that, we delegate to the type level.
+
+\Snippet{term_ok'}
+
+What we haven't covered yet, is regular type checking.
+Here we make sure that all bounds are bound, and function application respects the types.
+To that end, we reserve the name "fun" for the function type, assign it the arity two, and use the abbreviation \(\alpha\ \isasymrightarrow\ \beta \equiv\) \isa{Type {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime} [\(\alpha\),\(\beta\)]}.
+As is often the case with De Bruijn indexed terms, we need to keep track of surrounding binders when descending into a term, so we keep them in an accumulator.
+Type checking can fail, so we return an option type and use the option monad for succinctness.
+
+\Snippet{typ_of}
+
+Using all those definitions, we can finally state what makes a valid signature.
+We require the types of our constants to be valid, the function type's arity to be correct, and the sort algebra to be valid.
+Furthermore, we connect the type arities, with the sort algebra, by requiring a shared domain and matching argument counts.
+
+\begin{quote}
+\begin{isabelle}%
+\isacommand{definition} signature{\isacharunderscore}ok\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}\ {\isacharequal}\isanewline
+\ {\isacharparenleft}{\isasymforall}ty{\isasymin}ran\ const{\isacharunderscore}typ{\isachardot}\ {\isacharparenleft}typ{\isacharunderscore}ok{\isacharprime}\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{\ }typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{2}}\ {\isasymand}\isanewline
+\isaindent{\ }algebra{\isacharunderscore}ok\ sorts\ {\isasymand}\isanewline
+\isaindent{\ }dom\ typ{\isacharunderscore}arity\ {\isacharequal}\ dom\ {\isacharparenleft}arities\ sorts{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{\ }{\isacharparenleft}{\isasymforall}n{\isasymin}dom\ typ{\isacharunderscore}arity{\isachardot}\isanewline
+\isaindent{\ {\isacharparenleft}\ \ \ }{\isasymforall}os{\isasymin}ran\ {\isacharparenleft}the\ {\isacharparenleft}arities\ sorts\ n{\isacharparenright}{\isacharparenright}{\isachardot}\ the\ {\isacharparenleft}typ{\isacharunderscore}arity\ n{\isacharparenright}\ {\isacharequal}\ {\isacharbar}os{\isacharbar}{\isacharparenright}{\isacharparenright}%
+\end{isabelle}
+\end{quote}
+
+\section{Term Operations}
+
+Before putting the terms to their ultimate use, we will define type instantiation and the duals \(\beta\)-application and abstraction.
+We omit the cases where the term remains, irrespective of the other arguments, unchanged in this section's function definitions.
+Lifting \isa{ty\_instT} to the term level is straightforward with \isa{map\_types}, which maps any function over all type annotations of a term.
+
+\Snippet{instT}
+
+We will later need to abstract over a term with a new argument, i.e., replacing all argument occurrences and replacing them with a bound pointing to the top level.
+To keeps track of the current distance, we need an accumulator.
+All that is required then is attaching a new binder with the argument type with \isa{mk\_Abstraction v t \isasymequiv\ Abs (the (typ\_of v)) (abstract\_over v t)}.
+
+\Snippet{abstract_over}
+
+The story is more involved for \(\beta\)-application \isa{(\isasymbullet)} because we need to handle the De Bruijn indices correctly.
+When placing a term with unbound bounds into a bigger context, they can become bound by the additional binders.
+Although type checking doesn't allow such a term, we avoid that precondition by incrementing those dangling bounds by the depth of the term's new position.
+
+\Snippet{incr_boundvars}
+
+To substitute a bound variable, the binder previously on the top level, we have to visit all bound variables and check their binders.
+If they are otherwise bound in the term, we ignore them.
+In case the current outermost binder binds them, we replace them with the new term while dealing with its dangling bounds.
+Were they unbound in the first place, we decrement its index by one, taking into account the removal of the outermost binder.
+
+\Snippet{subst_bound}
+
+Now we are ready to define \isa{(\isasymbullet)}.
+We attach the two terms with the term application, but if we can \(\beta\)-contract the resulting term on the top-level, we do it.
+
+\Snippet{betapply}

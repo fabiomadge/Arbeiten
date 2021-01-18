@@ -1,8 +1,185 @@
-\chapter{Seductive System}\label{chapter:predicate}
+\chapter{Deductive System}\label{chapter:predicate}
 
-\section{Section}
-Citation test~\parencite{Paulson1989}.
+Once we have theorems, we can define our inference rules and ultimately prove some properties about the resulting system.
 
-\subsection{Subsection}
+\section{Theory}
 
-Finite.
+We need to introduce some constants with the goal in mind of using the terms to encode Pure propositions.
+First, reserve the type constant ``pro`` for those propositions, which strongly correlates to the more common boolean type, at least in a classical logic.
+We also introduce some abbreviations, namely \isa{propT \isasymequiv\ Type {\isacharprime}{\isacharprime}prop{\isacharprime}{\isacharprime} []} and \isa{\(\alpha\)T = TVar ({\isacharprime}{\isacharprime}{\isacharprime}a{\isacharprime}{\isacharprime}, 0) \{\}}.
+To simplify dealing with term variables, we introduce \isa{VAR x T \isasymequiv\ Var (x, 0) T}.
+For equality we  use \isa{mk\_eq' \(\tau\) t1 t2 \isasymequiv\ Const {\isacharprime}{\isacharprime}Pure.eq{\isacharprime}{\isacharprime} (\(\tau\) {\isasymrightarrow} \(\tau\) {\isasymrightarrow} propT) \$ t1 \$ t2}, and \isa{mk\_eq}, which uses typ\_of to determine the argument type.
+To use the implications we use the infix abbreviation \isa{A {\isasymlongmapsto} B \isasymequiv\ Const {\isacharprime}{\isacharprime}Pure.imp{\isacharprime}{\isacharprime} (propT {\isasymrightarrow} (propT {\isasymrightarrow} propT)) \$ A \$ B}
+The quantifier's argument is a function that expects a value for the quantified variable.
+Using \isa{all\_const T \isasymequiv\ Const {\isacharprime}{\isacharprime}Pure.all{\isacharprime}{\isacharprime} ((T {\isasymrightarrow} propT) {\isasymrightarrow} propT)}, we can get the constant and \isa{mk\_all x t \isasymequiv\ all\_const (the (typ\_of x)) \$ mk\_Abstraction x t} lets us abbreviate the whole process of universal quantification.
+We use \isa{is\_std\_sig} to verify that a given signature defines all those constants as indicated.
+
+% \Snippet{is_std_sig}
+\begin{quote}
+\begin{isabelle}%
+    \isacommand{definition}\ is{\isacharunderscore}std{\isacharunderscore}sig\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}\ {\isacharequal}\isanewline
+    \isaindent{\ }{\isacharparenleft}typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}prop{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{0}}\ {\isasymand}\ typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{2}}\ {\isasymand}\isanewline
+    \isaindent{\ {\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}eq{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymand}\isanewline
+    \isaindent{\ {\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}imp{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}propT\ {\isasymrightarrow}\ propT\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymand}\isanewline
+    \isaindent{\ {\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}all{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}{\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymrightarrow}\ propT{\isacharparenright}{\isacharparenright}%
+    \end{isabelle}
+\end{quote}
+
+Up to this point, we have only reserved the constants' names but have yet to give them their intuitive meaning within the logic by axiomatizing them.
+Because implication and universal quantification have entanglements beyond the proposition, we deal with them using inference rules.
+For equality, we use the axiomatization sketched in~\parencite{implementation}, which gives us a minimal set of axioms for the logic.
+
+\Snippet{minimal_axioms}
+
+The theory combines the type signature with the axioms of the system.
+We bring all operations on signatures to theorems naturally and mark them by appending \isa{\_thy}.
+The \isa{term\_ok\_thm} predicate adds a welltypedness requirement.
+
+\begin{quote}
+    \begin{isabelle}
+        \isacommand{datatype}\ theory\ {\isacharequal}\ Theory\isanewline
+        \isaindent{\ \ }{\isacharparenleft}signature\_of: signature{\isacharparenright}\isanewline
+        \isaindent{\ \ }{\isacharparenleft}axioms\_of: term set{\isacharparenright}
+    \end{isabelle}
+\end{quote}
+
+We only have a limited notion of a valid theory.
+While we require a valid signature that correctly defines our constants, the axioms are more challenging to get right.
+We make sure the axioms contain the equality axioms, are valid, and have the proposition type, but have no way to verify their consistency.
+
+% \Snippet{theory_ok}
+\begin{quote}
+\begin{isabelle}%
+    \isacommand{definition}\ theory{\isacharunderscore}ok\ {\isacharparenleft}Theory\ {\isasymSigma}\ axioms{\isacharparenright}\ {\isacharequal}\isanewline
+    \isaindent{\ }signature{\isacharunderscore}ok\ {\isasymSigma}\ {\isasymand}\ is{\isacharunderscore}std{\isacharunderscore}sig\ {\isasymSigma}\ {\isasymand}\isanewline
+    \isaindent{\ }minimal{\isacharunderscore}axioms\ {\isasymsubseteq}\ axioms\ {\isasymand}\isanewline
+    \isaindent{\ }{\isacharparenleft}{\isasymforall}p{\isasymin}axioms{\isachardot}\ term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ p\ {\isasymand}\ typ{\isacharunderscore}of\ p\ {\isacharequal}\ Some\ propT{\isacharparenright}{\isacharparenright}%
+\end{isabelle}
+\end{quote}
+
+\section{Theorem}
+
+Theorems are judgments in our natural deduction style system.
+They combine a theory\ \(\Theta\) and a set of hypotheses\ \(\Gamma\) with a proposition \isa{A}, and are typeset \(\Theta, \Gamma\ \isasymturnstile\ \isa{A}\).
+We expect any theorem to have a valid theory.
+The hypotheses must all be of type \isa{prop}.
+To ensure that instantiations do not affect the hypotheses, we ban schematic variables from them.
+We define functions that extract the instances of specific constructors in a given term or type.
+They share a name but capitalize the first letter.
+Those operating on types have a capital \isa{T} appended.
+This way we can express the absence of schematic variables as \isa{no\_vars A \isasymequiv\ Vars A = \{\} \isasymand\ TVars A = \{\}}.
+The inference rules described next guarantee those properties by construction, as we will prove later.
+
+\section{Inference Rules}
+
+A proof tree can represent any proof in our system.
+All nodes are instances of our inference rules, but the leaves will either use \ax\ or \as.
+As we will later see, term instantiation is a consequence of our system, but the same is not right for types.
+There are different ways of gaining that capability, but we choose to strengthen \ax.
+While this rule is typically only used to retrieve axioms from the theory to make them a theorem, we allow arbitrary type instantiations.
+\as\ lets us assume any proposition, with the caveat of adding it to the hypothesis.
+As a result, it has to be free of schematic variables.
+Instead of further complicating \ax\ and \as\ by enabling the superfluous addition hypothesis, we allow weakening at arbitrary stages of a proof using \wk.
+All variables are implicitly universally quantified, but we can also make that explicit with the universal quantifier.
+There are two types of variables that require separate handling, so we have two rules.
+We only attach the quantifier to the proposition, so we need to consider the potential for renaming a variable that is both in the proposition and the hypotheses apart.
+Because schematic variables cannot occur in the hypotheses, we need no restrictions for \aIv.
+Adding a \isa{\_Set} to the extraction functions naturally extends them to sets.
+With the help of \isa{Frees\_Set} we can state \aIf.
+To eliminate the quantifier, we can use \aE, which instantiates the variable with some term with the matching type.
+Using \iI, we can remove a hypothesis by attaching it to the proposition in an implication.
+To remove an implication using \iE, we need to prove its premise.
+\bcnv\ is an instance of \ax.
+It is needed to generate theorems for that axiom because general \(\beta\)-contraction can't be expressed in a proposition.
+
+\Snippet{proves}
+
+\section{Properties}
+Before diving right into things, we will briefly discuss how to prove theorems involving judgments.
+Knowing that judgments are always a product of the inference rules, we get an induction rule with a case for every inference rule.
+In every case, we replace the judgment with the premises needed to apply the rule and instantiate \(\Gamma\) and \isa{A} with values they have in the respective rules.
+For every judgment in the premise of a rule, we get an induction hypothesis with appropriate instantiations.
+Even though it is somewhat unwieldy, we show the induction rule in all its glory.
+
+\Snippet{induct}
+
+To show some property involving \(\Gamma\) and \isa{A}, we need there to be a judgment proving one from the other in some theory.
+We must then show that P holds for every case.
+As promised, we first show that any theorem has a valid theory and the proposition is of type \isa{prop}.
+
+\begin{theorem}
+    \InlineLemma{proves_theory_ok}
+\end{theorem}
+\begin{proof}
+    Proof by rule induction. All cases can be solved by assumption.
+    \ax, \as, and \bcnv\ have \isa{theory\_ok \(\Theta\)} in the hypotheses of their rule, while the others get it from their respective induction hypotheses.
+\end{proof}
+
+Proving welltypedness of propositions is, unfortunately, significantly more involved.
+It requires some lemmata about the interaction of \isa{typ\_of} and the various term operations.
+
+\begin{lemma}
+\label{lemma:redundant}
+    Given \isa{typ\_of1 bs (f \$ u) = Some \(\beta\)}, \isa{typ\_of1 bs u = Some \(\alpha\)}, and \isa{typ\_of1 bs f = Some (\(\alpha\ \isasymrightarrow\ \beta\))}, each follows from the remaining ones.
+\end{lemma}
+\begin{proof}
+    Follows from the definition of \isa{typ\_of1}.
+\end{proof}
+
+\begin{lemma}
+    \InlineLemma{instT_preserve_typ}
+\end{lemma}
+\begin{proof}
+Proof by structural induction on \isa{A}.
+Apart from the application \isa{f \$ x}, all cases follow immediately from the definition.
+Here, we get \isa{f \$ x} \(: \alpha\), which we need to split in order to use the induction hypotheses.
+Using that, we can obtain a type \(\beta\), such that \isa{f} \(: \beta\ \isasymrightarrow\ \alpha\), which gives us \isa{x} \(: \beta\).
+\end{proof}
+
+\begin{lemma}
+    \InlineLemma{abstract_over1_typ}
+\end{lemma}
+\begin{proof}
+    Proof by structural induction on \isa{A}.
+    \begin{description}[]
+        \item [\isa{Abs \(\beta\) A}] We first split \(\alpha\) again to obtain \(\beta\ \isasymrightarrow\ \gamma\). We give the call to \isa{abstract\_over1} the name \isa{A'} and then show \InlineSnippet{abstract_over1_typ_1}. The induction hypothesis gives us \InlineSnippet{abstract_over1_typ_2}. Now we just reduce the goal to use these facts.
+        \item [\isa{f \$ u}] We again split the type. Knowing that the application is unequal to the variable, we can use the IH's to solve the goal.
+    \end{description}
+\end{proof}
+
+Generalizing \isa{subst\_bound1} and \isa{incr\_bv} is remarkable because it requires combining a global context \isa{gs} with \isa{ls}, the local accumulator of \isa{subst\_bound1}.
+The order of the binders in the accumulators is inside out.
+
+\begin{lemma}
+    \InlineLemma{typ_of1_incr_bv}
+\end{lemma}
+\begin{proof}
+    Proof by structural induction on t. Appart from some list arithmetic, the cases all follow from the definitions.
+\end{proof}
+
+
+\begin{lemma}
+    \InlineLemma{typ_of1_subst_bound}
+\end{lemma}
+\begin{proof}
+    Proof by induction on the call to \isa{subst\_bound1}. In the \isa{Bound} case we use Lemma~\ref{lemma:typ_of1_incr_bv}.
+\end{proof}
+
+
+\begin{theorem}
+    \InlineSnippet{thm_is_prop}
+\end{theorem}
+\begin{proof}
+    Proof by rule induction on \isa{\(\Gamma\)} and \isa{A}.
+    \begin{description}[]
+        \item [\ax\ \isa{\(\sigma\) A}] We know \isa{A}'s type, because it's an axiom. Using Lemma~\ref{lemma:instT_preserve_typ} we can then solve the case.
+        \item [\aIv\ \& \aIf] Lemma~\ref{lemma:abstract_over1_typ} is sufficient.
+        \item [\aE] From the IH we get \isa{A} \(: \tau\ \isasymrightarrow\ \mathit{prop}\). Using that, we can apply Lemma~\ref{lemma:typ_of1_subst_bound}.
+        \item [\iI] We have \isa{B} \(: \mathit{prop}\), because \isa{B} is in the hypotheses. All that is needed now to prove the goal is the IH.
+        \item [\iE] Because \isa{A} \(: \mathit{prop}\) (IH) holds, we also get \isa{(\isasymlongmapsto) A} \(: \mathit{prop}\ \isasymrightarrow\ \mathit{prop}\) for the partially applied implication. Using the other IH and Lemma~\ref{lemma:redundant} we prove the goal.
+        \item [\bcnv\ \isa{\(\alpha\) A x}] We initially observe that \isa{x} \(: \alpha\) holds. Then we obtain \(\beta\) such that \isa{Abs \(\alpha\) A \$ x} \(: \beta\). Combining those using Lemma~\ref{lemma:redundant} gives us \isa{Abs \(\alpha\) A} \(: \alpha\ \isasymrightarrow\ \beta\). Ultimately we have \isa{subst\_bound x A} \(: \beta\) using lemma~\ref{lemma:typ_of1_subst_bound}. These two reductions to \(\beta\) suffice to prove the goal.
+    \end{description}
+\end{proof}
+
+By now, we know that any proposition inside a theorem has the correct type, but we left out \isa{term\_ok}.
+It requires a comparable proof and more material on type instantiation, which we will develop in the next chapter.

@@ -1,0 +1,368 @@
+\DefineSnippet{instantiate_var_same_typ'}{
+\isa{{\isasymlbrakk}typ{\isacharunderscore}of\ B\ {\isacharequal}\ Some\ {\isasymtau}{\isacharsemicolon}\ is{\isacharunderscore}closed\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\ subst{\isacharunderscore}bound\ B\ {\isacharparenleft}abstract{\isacharunderscore}over\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A{\isacharparenright}\ {\isacharequal}\ subst{\isacharunderscore}term\ {\isacharbrackleft}{\isacharparenleft}{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}{\isacharcomma}\ B{\isacharparenright}{\isacharbrackright}\ A}
+}%EndSnippet%
+\DefineSnippet{Or_Some}{
+    %
+\begin{isabelle}%
+{\isacharparenleft}e{\isadigit{1}}\ OR\ e{\isadigit{2}}\ {\isacharequal}\ Some\ x{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}e{\isadigit{1}}\ {\isacharequal}\ Some\ x\ {\isasymor}\ e{\isadigit{1}}\ {\isacharequal}\ None\ {\isasymand}\ e{\isadigit{2}}\ {\isacharequal}\ Some\ x{\isacharparenright}%
+\end{isabelle}
+    %
+\begin{isabelle}%
+\isacommand{datatype}\ typ\ {\isacharequal}\ TFree\ {\isacharparenleft}char\ list{\isacharparenright}\ {\isacharparenleft}char\ list\ set{\isacharparenright}\isanewline
+\isaindent{\ \ }{\isacharbar}\ TVar\ {\isacharparenleft}char\ list\ {\isasymtimes}\ int{\isacharparenright}\ {\isacharparenleft}char\ list\ set{\isacharparenright}\ {\isacharbar}\ Type\ {\isacharparenleft}char\ list{\isacharparenright}\ {\isacharparenleft}typ\ list{\isacharparenright}%
+\end{isabelle}
+    %
+\begin{isabelle}%
+name%
+\end{isabelle}
+ }%EndSnippet%
+\DefineSnippet{list}{
+    %
+\begin{isabelle}%
+\isacommand{datatype}\ {\isacharprime}a\ list\ {\isacharequal}\ {\isacharbrackleft}{\isacharbrackright}\ {\isacharbar}\ {\isacharparenleft}{\isacharhash}{\isacharparenright}\ {\isacharprime}a\ {\isacharparenleft}{\isacharprime}a\ list{\isacharparenright}%
+\end{isabelle}
+    \isa{{\isacharbrackleft}{\isadigit{1}}{\isacharcomma}\ {\isadigit{2}}{\isacharcomma}\ {\isadigit{3}}{\isacharbrackright}} \isa{{\isacharcolon}{\isacharcolon}} \isa{nat\ list}
+ }%EndSnippet%
+\DefineSnippet{list_append}{
+    \isacommand{fun} \isa{{\isacharparenleft}{\isacharat}{\isacharparenright}} \isa{{\isacharcolon}{\isacharcolon}} \isa{{\isacharprime}a\ list\ {\isasymRightarrow}\ {\isacharprime}a\ list\ {\isasymRightarrow}\ {\isacharprime}a\ list}\\
+    \isa{{\isacharbrackleft}{\isacharbrackright}\ {\isacharat}\ ys\ {\isacharequal}\ ys\isasep\isanewline%
+{\isacharparenleft}x\ {\isasymcdot}\ xs{\isacharparenright}\ {\isacharat}\ ys\ {\isacharequal}\ x\ {\isasymcdot}\ xs\ {\isacharat}\ ys}
+ }%EndSnippet%
+\DefineSnippet{ty_instT}{
+    \isacommand{fun} \isa{ty{\isacharunderscore}instT} \isa{{\isacharcolon}{\isacharcolon}\ {\isacharparenleft}indexname\ {\isasymtimes}\ sort\ {\isasymrightharpoonup}\ typ{\isacharparenright}\ {\isasymRightarrow}\ typ\ {\isasymRightarrow}\ typ}\\
+    \isa{ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isacharparenleft}TVar\ idn\ S{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\textsf{case}\ {\isasymsigma}\ {\isacharparenleft}idn{\isacharcomma}\ S{\isacharparenright}\ \textsf{of}\ None\ {\isasymRightarrow}\ TVar\ idn\ S\ {\isacharbar}\ Some\ T\ {\isasymRightarrow}\ T{\isacharparenright}\isasep\isanewline%
+ty{\isacharunderscore}instT\ \_\ {\isacharparenleft}TFree\ n\ S{\isacharparenright}\ {\isacharequal}\ TFree\ n\ S\isasep\isanewline%
+ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isacharparenleft}Type\ n\ Ts{\isacharparenright}\ {\isacharequal}\ Type\ n\ {\isacharparenleft}map\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}{\isacharparenright}\ Ts{\isacharparenright}}
+ }%EndSnippet%
+\DefineSnippet{typ_of}{
+\isacommand{fun} \isa{typ{\isacharunderscore}of{\isadigit{1}}} \isa{{\isacharcolon}{\isacharcolon}} \isa{typ\ list\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ typ\ option}\\
+\isa{typ{\isacharunderscore}of{\isadigit{1}}\ \_\ {\isacharparenleft}Const\ \_\ T{\isacharparenright}\ {\isacharequal}\ Some\ T\isasep\isanewline%
+typ{\isacharunderscore}of{\isadigit{1}}\ \_\ {\isacharparenleft}Var\ \_\ T{\isacharparenright}\ {\isacharequal}\ Some\ T\isasep\isanewline%
+typ{\isacharunderscore}of{\isadigit{1}}\ \_\ {\isacharparenleft}Free\ \_\ T{\isacharparenright}\ {\isacharequal}\ Some\ T\isasep\isanewline%
+typ{\isacharunderscore}of{\isadigit{1}}\ Ts\ {\isacharparenleft}Bound\ i{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\textsf{if}\ i\ {\isacharless}\ {\isacharbar}Ts{\isacharbar}\ \textsf{then}\ Some\ Ts\ensuremath{_{[\mathit{i}]}}\ \textsf{else}\ None{\isacharparenright}}\isanewline
+typ{\isacharunderscore}of{\isadigit{1}}\ Ts\ {\isacharparenleft}Abs\ T\ body{\isacharparenright}\ {\isacharequal}\isanewline
+\isaindent{\ }Option{\isachardot}bind\ {\isacharparenleft}typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}T\ {\isasymcdot}\ Ts{\isacharparenright}\ body{\isacharparenright}\ {\isacharparenleft}{\isasymlambda}x{\isachardot}\ Some\ {\isacharparenleft}T\ {\isasymrightarrow}\ x{\isacharparenright}{\isacharparenright}\isasep\isanewline
+typ{\isacharunderscore}of{\isadigit{1}}\ Ts\ {\isacharparenleft}f\ {\isachardollar}\ u{\isacharparenright}\ {\isacharequal} Option{\isachardot}bind\ {\isacharparenleft}typ{\isacharunderscore}of{\isadigit{1}}\ Ts\ u{\isacharparenright}\isanewline
+\isaindent{\ }{\isacharparenleft}{\isasymlambda}U{\isachardot}\ Option{\isachardot}bind\ {\isacharparenleft}typ{\isacharunderscore}of{\isadigit{1}}\ Ts\ f{\isacharparenright}\isanewline
+\isaindent{\ {\isacharparenleft}{\isasymlambda}U{\isachardot}\ }{\isacharparenleft}{\isasymlambda}F{\isachardot}\ \textsf{case} F \textsf{of}\isanewline
+\isaindent{\ {\isacharparenleft}{\isasymlambda}U{\isachardot}\ {\isacharparenleft}{\isasymlambda}F{\isachardot}\ \ \ \ }Type n [\isasymalpha,\isasymbeta] {\isasymRightarrow} \textsf{if} n = \isatext{{\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime}}\ {\isasymand} \isasymalpha\ = U \textsf{then} Some \isasymbeta\ \textsf{else} None\isanewline
+\isaindent{\ {\isacharparenleft}{\isasymlambda}U{\isachardot}\ {\isacharparenleft}{\isasymlambda}F{\isachardot}\ \ }{\isacharbar} \_ {\isasymRightarrow}\ None{\isacharparenright}{\isacharparenright}\smallskip\isanewline
+\isacommand{definition} \isa{typ{\isacharunderscore}of\ t\ {\isasymequiv}\ typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharbrackleft}{\isacharbrackright}\ t}
+}%EndSnippet%
+\DefineSnippet{abstract_over}{
+\isacommand{fun} \isa{abstract{\isacharunderscore}over{\isadigit{1}}} \isa{{\isacharcolon}{\isacharcolon}} \isa{term\ {\isasymRightarrow}\ nat\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ term}\\
+abstract{\isacharunderscore}over{\isadigit{1}}\ v\ lev\ tm\ {\isacharequal}\isanewline
+\isaindent{\ }{\isacharparenleft}\textsf{if}\ v\ {\isacharequal}\ tm\ \textsf{then}\ Bound\ lev\isanewline
+\isaindent{\ {\isacharparenleft}}\textsf{else}\ \textsf{case}\ tm\ \textsf{of}\ Abs\ T\ t\ {\isasymRightarrow}\ Abs\ T\ {\isacharparenleft}abstract{\isacharunderscore}over{\isadigit{1}}\ v\ {\isacharparenleft}lev\ {\isacharplus}\ {\isadigit{1}}{\isacharparenright}\ t{\isacharparenright}\isanewline
+\isaindent{\ {\isacharparenleft}\textsf{else}\ }{\isacharbar}\ t\ {\isachardollar}\ u\ {\isasymRightarrow}\ abstract{\isacharunderscore}over{\isadigit{1}}\ v\ lev\ t\ {\isachardollar}\ abstract{\isacharunderscore}over{\isadigit{1}}\ v\ lev\ u{\isacharparenright}\smallskip\isanewline
+\isacommand{definition} \isa{abstract{\isacharunderscore}over\ v\ body\ {\isacharequal}\ abstract{\isacharunderscore}over{\isadigit{1}}\ v\ {\isadigit{0}}\ body}
+}%EndSnippet%
+\DefineSnippet{abstract_over1_typ_1}{
+\isa{abstract{\isacharunderscore}over{\isadigit{1}}\ x\ {\isacharbar}Ts{\isacharbar}\ {\isacharparenleft}Abs\ {\isasymbeta}\ A{\isacharparenright}\ {\isacharequal}\ Abs\ {\isasymbeta}\ A{\isacharprime}}
+}%EndSnippet%
+\DefineSnippet{abstract_over1_typ_2}{
+\isa{typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}{\isacharparenleft}{\isasymbeta}\ {\isasymcdot}\ Ts{\isacharparenright}\ {\isacharat}\ {\isacharbrackleft}{\isasymtau}{\isacharbrackright}{\isacharparenright}\ A{\isacharprime}\ {\isacharequal}\ Some\ {\isasymgamma}}
+}%EndSnippet%
+\DefineSnippet{abstract_over1_typ}{
+\isa{{\isasymlbrakk}typ{\isacharunderscore}of{\isadigit{1}}\ Ts\ A\ {\isacharequal}\ Some\ {\isasymalpha}{\isacharsemicolon}\ typ{\isacharunderscore}of\ x\ {\isacharequal}\ Some\ {\isasymtau}{\isacharsemicolon}\ is{\isacharunderscore}variable\ x{\isasymrbrakk}\ {\isasymLongrightarrow}\ typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}Ts\ {\isacharat}\ {\isacharbrackleft}{\isasymtau}{\isacharbrackright}{\isacharparenright}\ {\isacharparenleft}abstract{\isacharunderscore}over{\isadigit{1}}\ x\ {\isacharbar}Ts{\isacharbar}\ A{\isacharparenright}\ {\isacharequal}\ Some\ {\isasymalpha}}
+}%EndSnippet%
+\DefineSnippet{typ_of1_incr_bv}{
+\isa{typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}ls\ {\isacharat}\ gs{\isacharparenright}\ t\ {\isacharequal}\ Some\ {\isasymalpha}\ {\isasymLongrightarrow}\ typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}{\isacharparenleft}ls\ {\isacharat}\ ns{\isacharparenright}\ {\isacharat}\ gs{\isacharparenright}\ {\isacharparenleft}incr{\isacharunderscore}bv\ {\isacharbar}ns{\isacharbar}\ {\isacharbar}ls{\isacharbar}\ t{\isacharparenright}\ {\isacharequal}\ Some\ {\isasymalpha}}
+}%EndSnippet%
+\DefineSnippet{incr_boundvars}{
+\isacommand{fun} \isa{incr{\isacharunderscore}bv} \isa{{\isacharcolon}{\isacharcolon}} \isa{nat\ {\isasymRightarrow}\ nat\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ term}\\
+\isa{incr{\isacharunderscore}bv\ inc\ lev\ {\isacharparenleft}Bound\ i{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\textsf{if}\ lev\ {\isasymle}\ i\ \textsf{then}\ Bound\ {\isacharparenleft}i\ {\isacharplus}\ inc{\isacharparenright}\ \textsf{else}\ Bound\ i{\isacharparenright}\isasep\isanewline%
+incr{\isacharunderscore}bv\ inc\ lev\ {\isacharparenleft}Abs\ T\ body{\isacharparenright}\ {\isacharequal}\ Abs\ T\ {\isacharparenleft}incr{\isacharunderscore}bv\ inc\ {\isacharparenleft}lev\ {\isacharplus}\ {\isadigit{1}}{\isacharparenright}\ body{\isacharparenright}\isasep\isanewline%
+incr{\isacharunderscore}bv\ inc\ lev\ {\isacharparenleft}f\ {\isachardollar}\ t{\isacharparenright}\ {\isacharequal}\ incr{\isacharunderscore}bv\ inc\ lev\ f\ {\isachardollar}\ incr{\isacharunderscore}bv\ inc\ lev\ t}\smallskip\isanewline
+\isacommand{fun} \isa{incr{\isacharunderscore}boundvars} \isa{{\isacharcolon}{\isacharcolon}} \isa{nat\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ term}\\
+\isa{incr{\isacharunderscore}boundvars\ {\isadigit{0}}\ t\ {\isacharequal}\ t\isasep\isanewline%
+incr{\isacharunderscore}boundvars\ {\isacharparenleft}Suc\ v{\isacharparenright}\ t\ {\isacharequal}\ incr{\isacharunderscore}bv\ {\isacharparenleft}Suc\ v{\isacharparenright}\ {\isadigit{0}}\ t}
+}%EndSnippet%
+\DefineSnippet{subst_bound}{
+\isacommand{fun} \isa{subst{\isacharunderscore}bound{\isadigit{1}}} \isa{{\isacharcolon}{\isacharcolon}} \isa{term\ {\isasymRightarrow}\ nat\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ term}\\
+\isa{subst{\isacharunderscore}bound{\isadigit{1}}\ {\isacharparenleft}Bound\ i{\isacharparenright}\ lev\ arg\ {\isacharequal}\ {\isacharparenleft}\textsf{if}\ i\ {\isacharless}\ lev\ \textsf{then}\ Bound\ i\ \textsf{else}\ \textsf{if}\ i\ {\isacharequal}\ lev\ \textsf{then}\ incr{\isacharunderscore}boundvars\ lev\ arg\ \textsf{else}\ Bound\ {\isacharparenleft}i\ {\isacharminus}\ {\isadigit{1}}{\isacharparenright}{\isacharparenright}\isasep\isanewline%
+subst{\isacharunderscore}bound{\isadigit{1}}\ {\isacharparenleft}Abs\ T\ body{\isacharparenright}\ lev\ arg\ {\isacharequal}\ Abs\ T\ {\isacharparenleft}subst{\isacharunderscore}bound{\isadigit{1}}\ body\ {\isacharparenleft}lev\ {\isacharplus}\ {\isadigit{1}}{\isacharparenright}\ arg{\isacharparenright}\isasep\isanewline%
+subst{\isacharunderscore}bound{\isadigit{1}}\ {\isacharparenleft}f\ {\isachardollar}\ t{\isacharparenright}\ lev\ arg\ {\isacharequal}\ subst{\isacharunderscore}bound{\isadigit{1}}\ f\ lev\ arg\ {\isachardollar}\ subst{\isacharunderscore}bound{\isadigit{1}}\ t\ lev\ arg}\smallskip\isanewline
+\isacommand{definition} \isa{subst{\isacharunderscore}bound\ arg\ t\ {\isasymequiv}\ subst{\isacharunderscore}bound{\isadigit{1}}\ t\ {\isadigit{0}}\ arg}
+}%EndSnippet%
+\DefineSnippet{typ_of1_subst_bound}{
+\isa{{\isasymlbrakk}typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}{\isacharparenleft}ls\ {\isacharat}\ {\isacharbrackleft}{\isasymalpha}{\isacharbrackright}{\isacharparenright}\ {\isacharat}\ gs{\isacharparenright}\ t\ {\isacharequal}\ Some\ {\isasymbeta}{\isacharsemicolon}\ typ{\isacharunderscore}of{\isadigit{1}}\ gs\ a\ {\isacharequal}\ Some\ {\isasymalpha}{\isasymrbrakk}\isanewline
+\isaindent{\ }{\isasymLongrightarrow}\ typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}ls\ {\isacharat}\ gs{\isacharparenright}\ {\isacharparenleft}subst{\isacharunderscore}bound{\isadigit{1}}\ t\ {\isacharbar}ls{\isacharbar}\ a{\isacharparenright}\ {\isacharequal}\ Some\ {\isasymbeta}}
+}%EndSnippet%
+\DefineSnippet{betapply}{
+\isacommand{fun} \isa{{\isacharparenleft}{\isasymbullet}{\isacharparenright}} \isa{{\isacharcolon}{\isacharcolon}} \isa{term\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ term}\\
+\isa{Abs\ \_\ t\ {\isasymbullet}\ u\ {\isacharequal}\ subst{\isacharunderscore}bound\ u\ t}\\
+\isa{f {\isasymbullet}\ u\ {\isacharequal}\ f {\isachardollar} u}
+}%EndSnippet%
+\DefineSnippet{signature_ok}{
+    %
+\begin{isabelle}%
+signature{\isacharunderscore}ok\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}\ {\isacharequal}\isanewline
+{\isacharparenleft}Ball\ {\isacharparenleft}ran\ const{\isacharunderscore}typ{\isacharparenright}\ {\isacharparenleft}typ{\isacharunderscore}ok{\isacharprime}\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{2}}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}algebra{\isacharunderscore}ok\ sorts\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}dom\ typ{\isacharunderscore}arity\ {\isacharequal}\ dom\ {\isacharparenleft}arities\ sorts{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}{\isacharparenleft}{\isasymforall}n{\isasymin}dom\ typ{\isacharunderscore}arity{\isachardot}\isanewline
+\isaindent{{\isacharparenleft}{\isacharparenleft}\ \ \ }{\isasymforall}os{\isasymin}ran\ {\isacharparenleft}the\ {\isacharparenleft}arities\ sorts\ n{\isacharparenright}{\isacharparenright}{\isachardot}\ the\ {\isacharparenleft}typ{\isacharunderscore}arity\ n{\isacharparenright}\ {\isacharequal}\ {\isacharbar}os{\isacharbar}{\isacharparenright}{\isacharparenright}%
+\end{isabelle}
+ }%EndSnippet%
+\DefineSnippet{instT}{
+\isacommand{fun} \isa{map{\isacharunderscore}types} \isa{{\isacharcolon}{\isacharcolon}} \isa{{\isacharparenleft}typ\ {\isasymRightarrow}\ typ{\isacharparenright}\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ term}\\
+\isa{map{\isacharunderscore}types\ f\ {\isacharparenleft}Const\ a\ T{\isacharparenright}\ {\isacharequal}\ Const\ a\ {\isacharparenleft}f\ T{\isacharparenright}\isasep\isanewline%
+map{\isacharunderscore}types\ f\ {\isacharparenleft}Free\ a\ T{\isacharparenright}\ {\isacharequal}\ Free\ a\ {\isacharparenleft}f\ T{\isacharparenright}\isasep\isanewline%
+map{\isacharunderscore}types\ f\ {\isacharparenleft}Var\ v\ T{\isacharparenright}\ {\isacharequal}\ Var\ v\ {\isacharparenleft}f\ T{\isacharparenright}}\\
+\isa{map{\isacharunderscore}types\ f\ {\isacharparenleft}Abs\ T\ t{\isacharparenright}\ {\isacharequal}\ Abs\ {\isacharparenleft}f\ T{\isacharparenright}\ {\isacharparenleft}map{\isacharunderscore}types\ f\ t{\isacharparenright}\isasep\isanewline%
+map{\isacharunderscore}types\ f\ {\isacharparenleft}t\ {\isachardollar}\ u{\isacharparenright}\ {\isacharequal}\ map{\isacharunderscore}types\ f\ t\ {\isachardollar}\ map{\isacharunderscore}types\ f\ u}\smallskip\isanewline
+\isacommand{definition} \isa{instT\ {\isasymsigma}\ t\ {\isasymequiv}\ map{\isacharunderscore}types\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}{\isacharparenright}\ t}
+}%EndSnippet%
+\DefineSnippet{instT_ok'}{
+ }%EndSnippet%
+\DefineSnippet{ty_is_instance}{
+    \isacommand{fun} \isa{ty{\isacharunderscore}instT} \isa{{\isacharcolon}{\isacharcolon}\ {\isacharparenleft}indexname\ {\isasymtimes}\ sort\ {\isasymrightharpoonup}\ typ{\isacharparenright}\ {\isasymRightarrow}\ typ\ {\isasymRightarrow}\ typ}\\
+    \isa{ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isacharparenleft}TVar\ idn\ S{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\textsf{case}\ {\isasymsigma}\ {\isacharparenleft}idn{\isacharcomma}\ S{\isacharparenright}\ \textsf{of}\ None\ {\isasymRightarrow}\ TVar\ idn\ S\ {\isacharbar}\ Some\ T\ {\isasymRightarrow}\ T{\isacharparenright}\isasep\isanewline%
+ty{\isacharunderscore}instT\ \_\ {\isacharparenleft}TFree\ n\ S{\isacharparenright}\ {\isacharequal}\ TFree\ n\ S\isasep\isanewline%
+ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isacharparenleft}Type\ n\ Ts{\isacharparenright}\ {\isacharequal}\ Type\ n\ {\isacharparenleft}map\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}{\isacharparenright}\ Ts{\isacharparenright}}\smallskip\isanewline
+    \isacommand{definition} \isa{instT{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isasymsigma}\ {\isasymequiv}\ {\isasymforall}T{\isasymin}ran\ {\isasymsigma}{\isachardot}\ typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ T\ {\isasymand}\ {\isacharparenleft}{\isasymforall}{\isacharparenleft}idn{\isacharcomma}\ S{\isacharparenright}{\isasymin}dom\ {\isasymsigma}{\isachardot}\ sort{\isacharunderscore}ex{\isacharprime}\ {\isasymSigma}\ S\ {\isasymand}\ of{\isacharunderscore}sort{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}the\ {\isacharparenleft}{\isasymsigma}\ {\isacharparenleft}idn{\isacharcomma}\ S{\isacharparenright}{\isacharparenright}{\isacharparenright}\ S{\isacharparenright}}\smallskip\isanewline
+    \isacommand{definition} \isa{ty{\isacharunderscore}is{\isacharunderscore}instance\ {\isasymSigma}\ T\ U\ {\isasymequiv}\ {\isasymexists}{\isasymsigma}{\isachardot}\ instT{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isasymsigma}\ {\isasymand}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ U\ {\isacharequal}\ T}
+ }%EndSnippet%
+\DefineSnippet{typ_ok'}{
+    \isacommand{fun} \isa{typ{\isacharunderscore}ok{\isacharprime}} \isa{{\isacharcolon}{\isacharcolon}} \isa{signature\ {\isasymRightarrow}\ typ\ {\isasymRightarrow}\ bool}\\
+    \isa{typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}Type\ c\ Ts{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\textsf{case}\ typ{\isacharunderscore}arity{\isacharunderscore}of\ {\isasymSigma}\ c\ \textsf{of}\ None\ {\isasymRightarrow}\ False\ {\isacharbar}\ Some\ ar\ {\isasymRightarrow}\ {\isacharbar}Ts{\isacharbar}\ {\isacharequal}\ ar\ {\isasymand}\ list{\isacharunderscore}all\ {\isacharparenleft}typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}{\isacharparenright}\ Ts{\isacharparenright}\isasep\isanewline%
+typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}TVar\ \_\ S{\isacharparenright}\ {\isacharequal}\ sort{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ S\isasep\isanewline%
+typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}TFree\ \_\ S{\isacharparenright}\ {\isacharequal}\ sort{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ S}
+ }%EndSnippet%
+\DefineSnippet{term_ok'}{
+    \isacommand{fun} \isa{term{\isacharunderscore}ok{\isacharprime}} \isa{{\isacharcolon}{\isacharcolon}} \isa{signature\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ bool}\\
+    \isa{term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}Const\ n\ T{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}\textsf{case}\ const{\isacharunderscore}typ{\isacharunderscore}of\ {\isasymSigma}\ n\ \textsf{of}\ None\ {\isasymRightarrow}\ False\ {\isacharbar}\ Some\ ty\ {\isasymRightarrow}\ typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ T\ {\isasymand}\ ty{\isacharunderscore}is{\isacharunderscore}instance\ {\isasymSigma}\ T\ ty{\isacharparenright}\isasep\isanewline%
+term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}Var\ \_\ T{\isacharparenright}\ {\isacharequal}\ typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ T\isasep\isanewline%
+term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}Free\ \_\ T{\isacharparenright}\ {\isacharequal}\ typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ T\isasep\isanewline%
+term{\isacharunderscore}ok{\isacharprime}\ \_\ {\isacharparenleft}Bound\ \_{\isacharparenright}\ {\isacharequal}\ True\isasep\isanewline%
+term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}f\ {\isachardollar}\ u{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ f\ {\isasymand}\ term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ u{\isacharparenright}\isasep\isanewline%
+term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ {\isacharparenleft}Abs\ T\ t{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}typ{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ T\ {\isasymand}\ term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ t{\isacharparenright}}
+ }%EndSnippet%
+\DefineSnippet{is_std_sig}{
+\isacommand{fun} %
+\begin{isabelle}%
+is{\isacharunderscore}std{\isacharunderscore}sig\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}\ {\isacharequal}\isanewline
+{\isacharparenleft}typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}prop{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{0}}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{2}}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}eq{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}imp{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}propT\ {\isasymrightarrow}\ propT\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}all{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}{\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymrightarrow}\ propT{\isacharparenright}{\isacharparenright}%
+\end{isabelle}
+}%EndSnippet%
+\DefineSnippet{minimal_axioms}{
+\isacommand{definition} \isa{reflexivity\ {\isasymequiv}\ mk{\isacharunderscore}eq\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}x{\isacharprime}{\isacharprime}\ {\isasymalpha}T{\isacharparenright}\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}x{\isacharprime}{\isacharprime}\ {\isasymalpha}T{\isacharparenright}}\smallskip\isanewline
+\isacommand{definition} \isa{substitution\ {\isasymequiv}\ mk{\isacharunderscore}eq\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}x{\isacharprime}{\isacharprime}\ {\isasymalpha}T{\isacharparenright}\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}y{\isacharprime}{\isacharprime}\ {\isasymalpha}T{\isacharparenright}\ {\isasymlongmapsto}\ VAR\ {\isacharprime}{\isacharprime}P{\isacharprime}{\isacharprime}\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isachardollar}\ VAR\ {\isacharprime}{\isacharprime}x{\isacharprime}{\isacharprime}\ {\isasymalpha}T\ {\isasymlongmapsto}\ VAR\ {\isacharprime}{\isacharprime}P{\isacharprime}{\isacharprime}\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isachardollar}\ VAR\ {\isacharprime}{\isacharprime}y{\isacharprime}{\isacharprime}\ {\isasymalpha}T}\smallskip\isanewline
+\isacommand{definition} \isa{extensionality\ {\isasymequiv}\ all{\isacharunderscore}const\ {\isasymalpha}T\ {\isachardollar}\ Abs\ {\isasymalpha}T\ {\isacharparenleft}mk{\isacharunderscore}eq{\isacharprime}\ {\isasymbeta}T\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}f{\isacharprime}{\isacharprime}\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymbeta}T{\isacharparenright}\ {\isachardollar}\ Bound\ {\isadigit{0}}{\isacharparenright}\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}g{\isacharprime}{\isacharprime}\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymbeta}T{\isacharparenright}\ {\isachardollar}\ Bound\ {\isadigit{0}}{\isacharparenright}{\isacharparenright}\ {\isasymlongmapsto}\ mk{\isacharunderscore}eq\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}f{\isacharprime}{\isacharprime}\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymbeta}T{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}g{\isacharprime}{\isacharprime}\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymbeta}T{\isacharparenright}{\isacharparenright}}\smallskip\isanewline
+\isacommand{definition} \isa{eqI\ {\isasymequiv}\ VAR\ {\isacharprime}{\isacharprime}A{\isacharprime}{\isacharprime}\ propT\ {\isasymlongmapsto}\ VAR\ {\isacharprime}{\isacharprime}B{\isacharprime}{\isacharprime}\ propT\ {\isasymlongmapsto}\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}B{\isacharprime}{\isacharprime}\ propT\ {\isasymlongmapsto}\ VAR\ {\isacharprime}{\isacharprime}A{\isacharprime}{\isacharprime}\ propT{\isacharparenright}\ {\isasymlongmapsto}\ mk{\isacharunderscore}eq\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}A{\isacharprime}{\isacharprime}\ propT{\isacharparenright}\ {\isacharparenleft}VAR\ {\isacharprime}{\isacharprime}B{\isacharprime}{\isacharprime}\ propT{\isacharparenright}}\smallskip\isanewline
+\isacommand{definition} \isa{minimal{\isacharunderscore}axioms\ {\isacharequal}\ {\isacharbraceleft}reflexivity{\isacharcomma}\ substitution{\isacharcomma}\ extensionality{\isacharcomma}\ eqI{\isacharbraceright}}
+}%EndSnippet%
+\DefineSnippet{theory_ok}{
+\isacommand{fun} %
+\begin{isabelle}%
+theory{\isacharunderscore}ok\ {\isacharparenleft}Theory\ {\isasymSigma}\ axioms{\isacharparenright}\ {\isacharequal}\isanewline
+{\isacharparenleft}signature{\isacharunderscore}ok\ {\isasymSigma}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}is{\isacharunderscore}std{\isacharunderscore}sig\ {\isasymSigma}\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}minimal{\isacharunderscore}axioms\ {\isasymsubseteq}\ axioms\ {\isasymand}\isanewline
+\isaindent{{\isacharparenleft}}{\isacharparenleft}{\isasymforall}p{\isasymin}axioms{\isachardot}\ term{\isacharunderscore}ok{\isacharprime}\ {\isasymSigma}\ p\ {\isasymand}\ typ{\isacharunderscore}of\ p\ {\isacharequal}\ Some\ propT{\isacharparenright}{\isacharparenright}%
+\end{isabelle}
+}%EndSnippet%
+\DefineSnippet{algebra}{
+    \isa{\isacommand{datatype}\ algebra\ {\isacharequal}\ Algebra\ {\isacharparenleft}{\isacharparenleft}char\ list\ {\isasymtimes}\ char\ list{\isacharparenright}\ set{\isacharparenright}\ {\isacharparenleft}char\ list\ {\isasymRightarrow}\ {\isacharparenleft}char\ list\ {\isasymRightarrow}\ char\ list\ set\ list\ option{\isacharparenright}\ option{\isacharparenright}}
+ }%EndSnippet%
+\DefineSnippet{ordered_classes}{
+    \isacommand{definition} \isa{class{\isacharunderscore}leq\ c\isactrlsub {\isadigit{1}}\ c\isactrlsub {\isadigit{2}}\ {\isasymequiv}\ {\isacharparenleft}c\isactrlsub {\isadigit{1}}{\isacharcomma}\ c\isactrlsub {\isadigit{2}}{\isacharparenright}\ {\isasymin}\ cs}\smallskip\isanewline
+    \isacommand{definition} \isa{sort{\isacharunderscore}leq\ s\isactrlsub {\isadigit{1}}\ s\isactrlsub {\isadigit{2}}\ {\isasymequiv}\ {\isasymforall}c\isactrlsub {\isadigit{2}}{\isasymin}s\isactrlsub {\isadigit{2}}{\isachardot}\ {\isasymexists}c\isactrlsub {\isadigit{1}}{\isasymin}s\isactrlsub {\isadigit{1}}{\isachardot}\ class{\isacharunderscore}leq\ c\isactrlsub {\isadigit{1}}\ c\isactrlsub {\isadigit{2}}}\smallskip\isanewline
+    \isacommand{definition} \isa{sort{\isacharunderscore}ex\ S\ {\isasymequiv}\ S\ {\isasymsubseteq}\ Field\ cs}
+ }%EndSnippet%
+\DefineSnippet{arities_ok}{
+    \isacommand{definition} %
+\begin{isabelle}%
+arities{\isacharunderscore}ok\ arss\ {\isasymequiv}\isanewline
+{\isasymforall}ars{\isasymin}ran\ arss{\isachardot}\isanewline
+\isaindent{\ \ \ }{\isacharparenleft}{\isasymforall}c\isactrlsub {\isadigit{1}}{\isasymin}dom\ ars{\isachardot}\isanewline
+\isaindent{\ \ \ {\isacharparenleft}\ \ \ }{\isasymforall}c\isactrlsub {\isadigit{2}}{\isasymin}dom\ ars{\isachardot}\isanewline
+\isaindent{\ \ \ {\isacharparenleft}\ \ \ \ \ \ }class{\isacharunderscore}leq\ c\isactrlsub {\isadigit{1}}\ c\isactrlsub {\isadigit{2}}\ {\isasymlongrightarrow}\isanewline
+\isaindent{\ \ \ {\isacharparenleft}\ \ \ \ \ \ }list{\isacharunderscore}all{\isadigit{2}}\ sort{\isacharunderscore}leq\ {\isacharparenleft}the\ {\isacharparenleft}ars\ c\isactrlsub {\isadigit{1}}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}the\ {\isacharparenleft}ars\ c\isactrlsub {\isadigit{2}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isasymand}\isanewline
+\isaindent{\ \ \ }dom\ ars\ {\isacharequal}\ Field\ cs\ {\isasymand}\ {\isacharparenleft}{\isasymforall}sv{\isasymin}ran\ ars{\isachardot}\ list{\isacharunderscore}all\ sort{\isacharunderscore}ex\ sv{\isacharparenright}%
+\end{isabelle}
+ }%EndSnippet%
+\DefineSnippet{algebra_ok}{
+    \isacommand{definition} \isa{algebra{\isacharunderscore}ok\ a\ {\isasymequiv}\ ordered{\isacharunderscore}classes\ {\isacharparenleft}classes\ a{\isacharparenright}\isanewline
+    \isaindent{\ }{\isasymand}\ ordered{\isacharunderscore}classes{\isachardot}arities{\isacharunderscore}ok\ {\isacharparenleft}classes\ a{\isacharparenright}\ {\isacharparenleft}arities\ a{\isacharparenright}}
+ }%EndSnippet%
+\DefineSnippet{of_sort}{
+\isacommand{definition} \isa{mg{\isacharunderscore}domain\ A\ a\ S\ {\isacharequal}\isanewline
+\isaindent{\ }{\isacharparenleft}\textsf{if}\ S\ {\isacharequal}\ {\isasymemptyset}\ \textsf{then}\ None\ \textsf{else}\ sort{\isacharunderscore}vector{\isacharunderscore}l{\isachardot}F\ A\ {\isacharparenleft}lookup{\isacharunderscore}class\ A\ a\ {\isacharbackquote}\ S{\isacharparenright}{\isacharparenright}}\smallskip\isanewline
+\isacommand{fun} \isa{of{\isacharunderscore}sort} \isa{{\isacharcolon}{\isacharcolon}\ algebra\ {\isasymRightarrow}\ typ\ {\isasymRightarrow}\ sort\ {\isasymRightarrow}\ bool}\\
+\isa{of{\isacharunderscore}sort\ A\ {\isacharparenleft}TFree\ \_\ S{\isacharparenright}\ S{\isacharprime}\ {\isacharequal}\ {\isacharparenleft}S{\isacharprime}\ {\isacharequal}\ {\isasymemptyset}\ {\isasymor}\ ordered{\isacharunderscore}classes{\isachardot}sort{\isacharunderscore}leq\ {\isacharparenleft}classes\ A{\isacharparenright}\ S\ S{\isacharprime}{\isacharparenright}\isasep\isanewline%
+of{\isacharunderscore}sort\ A\ {\isacharparenleft}TVar\ \_\ S{\isacharparenright}\ S{\isacharprime}\ {\isacharequal}\ {\isacharparenleft}S{\isacharprime}\ {\isacharequal}\ {\isasymemptyset}\ {\isasymor}\ ordered{\isacharunderscore}classes{\isachardot}sort{\isacharunderscore}leq\ {\isacharparenleft}classes\ A{\isacharparenright}\ S\ S{\isacharprime}{\isacharparenright}\isasep\isanewline%
+of{\isacharunderscore}sort\ A\ {\isacharparenleft}Type\ a\ Ts{\isacharparenright}\ S{\isacharprime}\ {\isacharequal}\ {\isacharparenleft}S{\isacharprime}\ {\isacharequal}\ {\isasymemptyset}\ {\isasymor}\ {\isacharparenleft}\textsf{case}\ mg{\isacharunderscore}domain\ A\ a\ S{\isacharprime}\ \textsf{of}\ None\ {\isasymRightarrow}\ False\ {\isacharbar}\ Some\ x\ {\isasymRightarrow}\ list{\isacharunderscore}all{\isadigit{2}}\ {\isacharparenleft}of{\isacharunderscore}sort\ A{\isacharparenright}\ Ts\ x{\isacharparenright}{\isacharparenright}}
+ }%EndSnippet%
+\DefineSnippet{proves}{
+  \begin{center}{\small
+    \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}}\\\ \mbox{A\ {\isasymin}\ axioms{\isacharunderscore}of\ {\isasymTheta}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymemptyset}\ {\isasymturnstile}\ instT\ {\isasymsigma}\ A}}} {\textsc{axiom}}\\[1ex]
+    \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ A}\\\ \mbox{no{\isacharunderscore}vars\ A}\\\ \mbox{typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}}{\mbox{{\isasymTheta}{\isacharcomma}{\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ A}}} {\textsc{assume}}\\[1ex]
+    \mprset{sep=1.4em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ B}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ A}\\\ \mbox{no{\isacharunderscore}vars\ A}\\\ \mbox{typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ B}}} {\textsc{weaken}}\\[1ex]
+    \mprset{sep=2.0em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A}}} {\textsc{forallI\(_{\mbox{var}}\)}}\\[1ex]
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A}\\\ \mbox{{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}\ {\isasymnotin}\ Frees{\isacharunderscore}Set\ {\isasymGamma}}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Free\ x\ {\isasymtau}{\isacharparenright}\ A}}} {\textsc{forallI\(_{\mbox{free}}\)}}\\[1ex]
+    \mprset{sep=1.7em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ all{\isacharunderscore}const\ {\isasymtau}\ {\isachardollar}\ A}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ x}\\\ \mbox{typ{\isacharunderscore}of\ x\ {\isacharequal}\ Some\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymbullet}\ x}}} {\textsc{forallE}}\\[1ex]
+    \mprset{sep=2.0em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ B}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B}}} {\textsc{impliesI}} \qquad
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B}\\\ \mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ A}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymunion}\ {\isasymGamma}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ B}}} {\textsc{impliesE}}\\[1ex]
+    \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymemptyset}\ {\isasymturnstile}\ mk{\isacharunderscore}eq\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isasymbullet}\ x{\isacharparenright}}}} {\textsc{\(\beta\)\_conv}}}
+  \end{center}
+}%EndSnippet%
+\DefineSnippet{induct}{
+%
+\begin{isabelle}%
+{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymsigma}\ A{\isachardot}\ {\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ A\ {\isasymin}\ axioms{\isacharunderscore}of\ {\isasymTheta}{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isasymemptyset}\ {\isacharparenleft}instT\ {\isasymsigma}\ A{\isacharparenright}{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}A{\isachardot}\ {\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ term{\isacharunderscore}ok\ {\isasymTheta}\ A{\isacharsemicolon}\ no{\isacharunderscore}vars\ A{\isacharsemicolon}\ typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT{\isasymrbrakk}\isanewline
+\isaindent{\ {\isasymAnd}A{\isachardot}\ }{\isasymLongrightarrow}\ P\ {\isacharbraceleft}A{\isacharbraceright}\ A{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymGamma}\ B\ A{\isachardot}\isanewline
+\isaindent{\ \ \ \ }{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ B{\isacharsemicolon}\ P\ {\isasymGamma}\ B{\isacharsemicolon}\ term{\isacharunderscore}ok\ {\isasymTheta}\ A{\isacharsemicolon}\ no{\isacharunderscore}vars\ A{\isacharsemicolon}\ typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT{\isasymrbrakk}\isanewline
+\isaindent{\ \ \ \ }{\isasymLongrightarrow}\ P\ {\isacharparenleft}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}{\isacharparenright}\ B{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymGamma}\ A\ {\isasymtau}\ x{\isachardot}\ {\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharsemicolon}\ P\ {\isasymGamma}\ A{\isacharsemicolon}\ typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isasymGamma}\ {\isacharparenleft}mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A{\isacharparenright}{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymGamma}\ A\ x\ {\isasymtau}{\isachardot}\isanewline
+\isaindent{\ \ \ \ }{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharsemicolon}\ P\ {\isasymGamma}\ A{\isacharsemicolon}\ {\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}\ {\isasymnotin}\ Frees{\isacharunderscore}Set\ {\isasymGamma}{\isacharsemicolon}\ typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}{\isasymrbrakk}\isanewline
+\isaindent{\ \ \ \ }{\isasymLongrightarrow}\ P\ {\isasymGamma}\ {\isacharparenleft}mk{\isacharunderscore}all\ {\isacharparenleft}Free\ x\ {\isasymtau}{\isacharparenright}\ A{\isacharparenright}{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymGamma}\ {\isasymtau}\ A\ x{\isachardot}\isanewline
+\isaindent{\ \ \ \ }{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ all{\isacharunderscore}const\ {\isasymtau}\ {\isachardollar}\ A{\isacharsemicolon}\ P\ {\isasymGamma}\ {\isacharparenleft}all{\isacharunderscore}const\ {\isasymtau}\ {\isachardollar}\ A{\isacharparenright}{\isacharsemicolon}\ term{\isacharunderscore}ok\ {\isasymTheta}\ x{\isacharsemicolon}\isanewline
+\isaindent{\ \ \ \ \ }typ{\isacharunderscore}of\ x\ {\isacharequal}\ Some\ {\isasymtau}{\isasymrbrakk}\isanewline
+\isaindent{\ \ \ \ }{\isasymLongrightarrow}\ P\ {\isasymGamma}\ {\isacharparenleft}A\ {\isasymbullet}\ x{\isacharparenright}{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymGamma}\ A\ B{\isachardot}\ {\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ B{\isacharsemicolon}\ P\ {\isacharparenleft}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}{\isacharparenright}\ B{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isasymGamma}\ {\isacharparenleft}A\ {\isasymlongmapsto}\ B{\isacharparenright}{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymGamma}\isactrlsub {\isadigit{1}}\ A\ B\ {\isasymGamma}\isactrlsub {\isadigit{2}}{\isachardot}\isanewline
+\isaindent{\ \ \ \ }{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B{\isacharsemicolon}\ P\ {\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isacharparenleft}A\ {\isasymlongmapsto}\ B{\isacharparenright}{\isacharsemicolon}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ A{\isacharsemicolon}\ P\ {\isasymGamma}\isactrlsub {\isadigit{2}}\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isacharparenleft}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymunion}\ {\isasymGamma}\isactrlsub {\isadigit{2}}{\isacharparenright}\ B{\isacharsemicolon}\isanewline
+\isaindent{\ }{\isasymAnd}{\isasymtau}\ A\ x{\isachardot}\isanewline
+\isaindent{\ \ \ \ }{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ term{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}{\isasymrbrakk}\isanewline
+\isaindent{\ \ \ \ }{\isasymLongrightarrow}\ P\ {\isasymemptyset}\ {\isacharparenleft}mk{\isacharunderscore}eq\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isasymbullet}\ x{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\isanewline
+{\isasymLongrightarrow}\ P\ {\isasymGamma}\ A%
+\end{isabelle}
+}%EndSnippet%
+\DefineSnippet{proves_theory_ok}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ theory{\isacharunderscore}ok\ {\isasymTheta}}
+}%EndSnippet%
+\DefineSnippet{instT_preserve_typ}{
+\isa{typ{\isacharunderscore}of{\isadigit{1}}\ bs\ A\ {\isacharequal}\ Some\ {\isasymalpha}\ {\isasymLongrightarrow}\ typ{\isacharunderscore}of{\isadigit{1}}\ {\isacharparenleft}map\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}{\isacharparenright}\ bs{\isacharparenright}\ {\isacharparenleft}instT\ {\isasymsigma}\ A{\isacharparenright}\ {\isacharequal}\ Some\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymalpha}{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{thm_is_prop}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}
+}%EndSnippet%
+\DefineSnippet{weaken_proves}{
+\isa{{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharsemicolon}\ finite\ {\isasymdelta}{\isacharsemicolon}\ {\isasymGamma}\ {\isasymsubseteq}\ {\isasymGamma}{\isacharprime}{\isacharsemicolon}\ {\isasymdelta}\ {\isacharequal}\ {\isasymGamma}{\isacharprime}\ {\isacharminus}\ {\isasymGamma}{\isacharsemicolon}\ {\isasymforall}B{\isasymin}{\isasymdelta}{\isachardot}\ term{\isacharunderscore}ok\ {\isasymTheta}\ B{\isacharsemicolon}\ {\isasymforall}B{\isasymin}{\isasymdelta}{\isachardot}\ no{\isacharunderscore}vars\ B{\isacharsemicolon}\ {\isasymforall}B{\isasymin}{\isasymdelta}{\isachardot}\ typ{\isacharunderscore}of\ B\ {\isacharequal}\ Some\ propT{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharprime}\ {\isasymturnstile}\ A}
+}%EndSnippet%
+\DefineSnippet{mg_domain_length}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ constructor{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ n{\isacharsemicolon}\ finite\ S{\isacharsemicolon}\ mg{\isacharunderscore}domain{\isacharunderscore}thy\ {\isasymTheta}\ n\ S\ {\isacharequal}\ Some\ sv{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isacharbar}sv{\isacharbar}\ {\isacharequal}\ the\ {\isacharparenleft}typ{\isacharunderscore}arity{\isacharunderscore}of\ {\isacharparenleft}signature{\isacharunderscore}of\ {\isasymTheta}{\isacharparenright}\ n{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{weaken_mg_domain}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ constructor{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ n{\isacharsemicolon}\ sort{\isacharunderscore}leq{\isacharunderscore}thy\ {\isasymTheta}\ S\ S{\isacharprime}{\isacharsemicolon}\isanewline
+\isaindent{\ }mg{\isacharunderscore}domain{\isacharunderscore}thy\ {\isasymTheta}\ n\ S\ {\isacharequal}\ Some\ sv{\isacharsemicolon}\ mg{\isacharunderscore}domain{\isacharunderscore}thy\ {\isasymTheta}\ n\ S{\isacharprime}\ {\isacharequal}\ Some\ sv{\isacharprime}{\isacharsemicolon}\ finite\ S{\isacharsemicolon}\isanewline
+\isaindent{\ }finite\ S{\isacharprime}{\isasymrbrakk}\ {\isasymLongrightarrow}\ list{\isacharunderscore}all{\isadigit{2}}\ {\isacharparenleft}sort{\isacharunderscore}leq{\isacharunderscore}thy\ {\isasymTheta}{\isacharparenright}\ sv\ sv{\isacharprime}}
+}%EndSnippet%
+\DefineSnippet{mg_domain_exits}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ S\ {\isasymnoteq}\ {\isasymemptyset}{\isacharsemicolon}\ finite\ S{\isacharsemicolon}\ sort{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ S{\isacharsemicolon}\ constructor{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ n{\isasymrbrakk}\ {\isasymLongrightarrow}\ mg{\isacharunderscore}domain{\isacharunderscore}thy\ {\isasymTheta}\ n\ S\ {\isasymnoteq}\ None}
+}%EndSnippet%
+\DefineSnippet{mg_domain_sort_good}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ S\ {\isasymnoteq}\ {\isasymemptyset}{\isacharsemicolon}\ finite\ S{\isacharsemicolon}\ sort{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ S{\isacharsemicolon}\ constructor{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ n{\isacharsemicolon}\ mg{\isacharunderscore}domain{\isacharunderscore}thy\ {\isasymTheta}\ n\ S\ {\isacharequal}\ Some\ sv{\isasymrbrakk}\ {\isasymLongrightarrow}\ list{\isacharunderscore}all\ {\isacharparenleft}sort{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}{\isacharparenright}\ sv}
+}%EndSnippet%
+\DefineSnippet{weaken_of_sort}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ sort{\isacharunderscore}leq{\isacharunderscore}thy\ {\isasymTheta}\ S\ S{\isacharprime}{\isacharsemicolon}\ typ{\isacharunderscore}ok\ {\isasymTheta}\ T{\isacharsemicolon}\ of{\isacharunderscore}sort{\isacharunderscore}thy\ {\isasymTheta}\ T\ S{\isacharsemicolon}\ finite\ S{\isacharsemicolon}\ finite\ S{\isacharprime}{\isacharsemicolon}\ sort{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ S{\isacharsemicolon}\ sort{\isacharunderscore}ex{\isacharunderscore}thy\ {\isasymTheta}\ S{\isacharprime}{\isasymrbrakk}\ {\isasymLongrightarrow}\ of{\isacharunderscore}sort{\isacharunderscore}thy\ {\isasymTheta}\ T\ S{\isacharprime}}
+}%EndSnippet%
+\DefineSnippet{of_sort_ty_instT}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ of{\isacharunderscore}sort{\isacharunderscore}thy\ {\isasymTheta}\ {\isasymtau}\ S{\isasymrbrakk}\ {\isasymLongrightarrow}\ of{\isacharunderscore}sort{\isacharunderscore}thy\ {\isasymTheta}\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymtau}{\isacharparenright}\ S}
+}%EndSnippet%
+\DefineSnippet{ty_instT_typ_ok}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}{\isasymrbrakk}\ {\isasymLongrightarrow}\ typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymtau}{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{instT_comp}{
+\isacommand{definition} \isa{f\ {\isasymcirc}\isactrlsub i\isactrlsub n\isactrlsub s\isactrlsub t\isactrlsub T\ g\ {\isacharequal}\ {\isacharparenleft}{\isasymlambda}k{\isachardot}\ \textsf{case}\ g\ k\ \textsf{of}\ None\ {\isasymRightarrow}\ f\ k\ {\isacharbar}\ Some\ T\ {\isasymRightarrow}\ Some\ {\isacharparenleft}ty{\isacharunderscore}instT\ f\ T{\isacharparenright}{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{collapse_ty_instT}{
+\isa{ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}{\isacharprime}\ {\isasymtau}{\isacharparenright}\ {\isacharequal}\ ty{\isacharunderscore}instT\ {\isacharparenleft}{\isasymsigma}\ {\isasymcirc}\isactrlsub i\isactrlsub n\isactrlsub s\isactrlsub t\isactrlsub T\ {\isasymsigma}{\isacharprime}{\isacharparenright}\ {\isasymtau}}
+}%EndSnippet%
+\DefineSnippet{collapse_instT}{
+\isa{instT\ {\isasymsigma}\ {\isacharparenleft}instT\ {\isasymsigma}{\isacharprime}\ A{\isacharparenright}\ {\isacharequal}\ instT\ {\isacharparenleft}{\isasymsigma}\ {\isasymcirc}\isactrlsub i\isactrlsub n\isactrlsub s\isactrlsub t\isactrlsub T\ {\isasymsigma}{\isacharprime}{\isacharparenright}\ A}
+}%EndSnippet%
+\DefineSnippet{instT_comp_inst_ok}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharprime}{\isasymrbrakk}\ {\isasymLongrightarrow}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}{\isasymsigma}\ {\isasymcirc}\isactrlsub i\isactrlsub n\isactrlsub s\isactrlsub t\isactrlsub T\ {\isasymsigma}{\isacharprime}{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{instT_term_ok'}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ term{\isacharunderscore}ok{\isacharprime}\ {\isacharparenleft}signature{\isacharunderscore}of\ {\isasymTheta}{\isacharparenright}\ A{\isasymrbrakk}\isanewline
+\isaindent{\ }{\isasymLongrightarrow}\ term{\isacharunderscore}ok{\isacharprime}\ {\isacharparenleft}signature{\isacharunderscore}of\ {\isasymTheta}{\isacharparenright}\ {\isacharparenleft}instT\ {\isasymsigma}\ A{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{instT_term_ok}{
+\isa{{\isasymlbrakk}theory{\isacharunderscore}ok\ {\isasymTheta}{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ term{\isacharunderscore}ok\ {\isasymTheta}\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\ term{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}instT\ {\isasymsigma}\ A{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{instT_mk_all_var}{
+\isa{{\isasymforall}{\isacharparenleft}y{\isacharcomma}\ {\isasymbeta}{\isacharparenright}{\isasymin}Vars\ B{\isachardot}\ x\ {\isacharequal}\ y\ {\isasymlongrightarrow}\ {\isasymalpha}\ {\isasymnoteq}\ {\isasymbeta}\ {\isasymlongrightarrow}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymalpha}\ {\isasymnoteq}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymbeta}\isanewline
+\isaindent{\ }{\isasymLongrightarrow}\ instT\ {\isasymsigma}\ {\isacharparenleft}mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymalpha}{\isacharparenright}\ B{\isacharparenright}\ {\isacharequal}\ mk{\isacharunderscore}all\ {\isacharparenleft}instT\ {\isasymsigma}\ {\isacharparenleft}Var\ x\ {\isasymalpha}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}instT\ {\isasymsigma}\ B{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{instT_mk_all_free}{
+\isa{{\isasymforall}{\isacharparenleft}y{\isacharcomma}\ {\isasymbeta}{\isacharparenright}{\isasymin}Frees\ B{\isachardot}\ x\ {\isacharequal}\ y\ {\isasymlongrightarrow}\ {\isasymalpha}\ {\isasymnoteq}\ {\isasymbeta}\ {\isasymlongrightarrow}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymalpha}\ {\isasymnoteq}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymbeta}\ {\isasymLongrightarrow}\ instT\ {\isasymsigma}\ {\isacharparenleft}mk{\isacharunderscore}all\ {\isacharparenleft}Free\ x\ {\isasymalpha}{\isacharparenright}\ B{\isacharparenright}\ {\isacharequal}\ mk{\isacharunderscore}all\ {\isacharparenleft}instT\ {\isasymsigma}\ {\isacharparenleft}Free\ x\ {\isasymalpha}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}instT\ {\isasymsigma}\ B{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{inst_var_1}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A}
+}%EndSnippet%
+\DefineSnippet{inst_var_2}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ Abs\ {\isasymtau}\ {\isacharparenleft}abstract{\isacharunderscore}over\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A{\isacharparenright}\ {\isasymbullet}\ B}
+}%EndSnippet%
+\DefineSnippet{inst_var}{
+\isa{{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharsemicolon}\ term{\isacharunderscore}ok\ {\isasymTheta}\ B{\isacharsemicolon}\ typ{\isacharunderscore}of\ B\ {\isacharequal}\ Some\ {\isasymtau}{\isasymrbrakk}\isanewline
+\isaindent{\ }{\isasymLongrightarrow}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ subst{\isacharunderscore}term\ {\isacharbrackleft}{\isacharparenleft}{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}{\isacharcomma}\ B{\isacharparenright}{\isacharbrackright}\ A}
+}%EndSnippet%
+\DefineSnippet{proves_with_variables}{
+  \begin{center}{\small
+    \scalebox{0.75}{\isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}}\\\ \mbox{A\ {\isasymin}\ axioms{\isacharunderscore}of\ {\isasymTheta}}\\\ \mbox{finite\ {\isasymPsi}}\\\ \mbox{finite\ {\isasymOmega}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymemptyset}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ Vars\ {\isacharparenleft}instT\ {\isasymsigma}\ A{\isacharparenright}\ {\isasymunion}\ Vars\ A{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ Frees\ {\isacharparenleft}instT\ {\isasymsigma}\ A{\isacharparenright}\ {\isasymunion}\ Frees\ A\ {\isasymturnstile}\ instT\ {\isasymsigma}\ A}}}} {\textsc{axiom}}\\[1ex]
+    \mprset{sep=1.7em}
+    \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ A}\\\ \mbox{no{\isacharunderscore}vars\ A}\\\ \mbox{typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}\\\ \mbox{finite\ {\isasymPsi}}\\\ \mbox{finite\ {\isasymOmega}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isacharbraceleft}A{\isacharbraceright}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ Frees\ A\ {\isasymturnstile}\ A}}} {\textsc{assume}}\\[1ex]
+    \mprset{sep=0.55em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ B}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ A}\\\ \mbox{no{\isacharunderscore}vars\ A}\\\ \mbox{typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ Vars\ A{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ Frees\ A\ {\isasymturnstile}\ B}}} {\textsc{weaken}}\\[1ex]
+    \mprset{sep=2.0em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}{\isacharbraceright}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A}}} {\textsc{forallI\(_{\mbox{var}}\)}}\\[1ex]
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A}\\\ \mbox{{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}\ {\isasymnotin}\ Frees{\isacharunderscore}Set\ {\isasymGamma}}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}{\isacharbraceright}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Free\ x\ {\isasymtau}{\isacharparenright}\ A}}} {\textsc{forallI\(_{\mbox{free}}\)}}\\[1ex]
+    \mprset{sep=2.5em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ all{\isacharunderscore}const\ {\isasymtau}\ {\isachardollar}\ A}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ x}\\\ \mbox{typ{\isacharunderscore}of\ x\ {\isacharequal}\ Some\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ Vars\ x{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ Frees\ x\ {\isasymturnstile}\ A\ {\isasymbullet}\ x}}} {\textsc{forallE}}\\[1ex]
+    \mprset{sep=2.0em}
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ B}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ Frees\ A\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B}}} {\textsc{impliesI}}\\[1ex]
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}{\isacharcomma}{\isasymPsi}\isactrlsub {\isadigit{1}}{\isacharcomma}{\isasymOmega}\isactrlsub {\isadigit{1}}\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B}\\\ \mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{2}}{\isacharcomma}{\isasymPsi}\isactrlsub {\isadigit{2}}{\isacharcomma}{\isasymOmega}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ A}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymunion}\ {\isasymGamma}\isactrlsub {\isadigit{2}}{\isacharcomma}{\isasymPsi}\isactrlsub {\isadigit{1}}\ {\isasymunion}\ {\isasymPsi}\isactrlsub {\isadigit{2}}{\isacharcomma}{\isasymOmega}\isactrlsub {\isadigit{1}}\ {\isasymunion}\ {\isasymOmega}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ B}}} {\textsc{impliesE}}\\[1ex]
+    \scalebox{0.65}{\isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}}\\\ \mbox{finite\ {\isasymPsi}}\\\ \mbox{finite\ {\isasymOmega}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymemptyset}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ Vars\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ Frees\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}\ {\isasymturnstile}\ mk{\isacharunderscore}eq\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isasymbullet}\ x{\isacharparenright}}}}} {\textsc{\(\beta\)\_conv}}}
+  \end{center}
+}%EndSnippet%
+\DefineSnippet{add_var_free_hyps}{
+\isa{{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A{\isacharsemicolon}\ finite\ {\isasymPsi}{\isacharprime}{\isacharsemicolon}\ finite\ {\isasymOmega}{\isacharprime}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ {\isasymPsi}{\isacharprime}{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ {\isasymOmega}{\isacharprime}\ {\isasymturnstile}\ A}
+}%EndSnippet%
+\DefineSnippet{vars_finite}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ finite\ {\isasymPsi}}
+}%EndSnippet%
+\DefineSnippet{frees_finite}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ finite\ {\isasymOmega}}
+}%EndSnippet%
+\DefineSnippet{proves_with_variables_proves}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A}
+}%EndSnippet%
+\DefineSnippet{proves_proves_with_variables}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ {\isasymexists}{\isasymPsi}\ {\isasymOmega}{\isachardot}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A}
+}%EndSnippet%
+\DefineSnippet{proves_with_variables_eqivalent}{
+\isa{{\isasymexists}{\isasymPsi}\ {\isasymOmega}{\isachardot}\ {\isacharparenleft}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{vars_varhyps}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ Vars\ A\ {\isasymsubseteq}\ {\isasymPsi}}
+}%EndSnippet%
+\DefineSnippet{frees_freehyps}{
+\isa{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A\ {\isasymLongrightarrow}\ Frees\ A\ {\isasymsubseteq}\ {\isasymOmega}}
+}%EndSnippet%
+\DefineSnippet{subst_flat}{
+\isacommand{definition} \isa{instU\ {\isasymsigma}\ U\ {\isasymequiv}\ {\isacharparenleft}{\isasymlambda}{\isacharparenleft}x{\isacharcomma}\ T{\isacharparenright}{\isachardot}\ {\isacharparenleft}x{\isacharcomma}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ T{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ U}\smallskip\isanewline
+\isacommand{definition} \isa{no{\isacharunderscore}cap\ U\ {\isasymsigma}\ {\isasymequiv}\ {\isasymforall}{\isacharparenleft}x{\isacharcomma}\ {\isasymalpha}{\isacharparenright}{\isasymin}U{\isachardot}\ {\isasymforall}{\isacharparenleft}y{\isacharcomma}\ {\isasymbeta}{\isacharparenright}{\isasymin}U{\isachardot}\ x\ {\isacharequal}\ y\ {\isasymlongrightarrow}\ {\isasymalpha}\ {\isasymnoteq}\ {\isasymbeta}\isanewline
+\isaindent{\ }{\isasymlongrightarrow}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymalpha}\ {\isasymnoteq}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymbeta}}\smallskip\isanewline
+\isacommand{definition} \isa{subst{\isacharunderscore}flat\ {\isasymsigma}\ {\isasymequiv}\ {\isasymforall}{\isasymtau}{\isachardot}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymtau}\ {\isacharequal}\ ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}\ {\isasymtau}{\isacharparenright}}
+}%EndSnippet%
+\DefineSnippet{instT_proves_with_variables_flat_subst}{
+\isa{{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isacharsemicolon}\ no{\isacharunderscore}cap\ {\isasymPsi}\ {\isasymsigma}{\isacharsemicolon}\ no{\isacharunderscore}cap\ {\isasymOmega}\ {\isasymsigma}{\isacharsemicolon}\ subst{\isacharunderscore}flat\ {\isasymsigma}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ instU\ {\isasymsigma}\ {\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymunion}\ instU\ {\isasymsigma}\ {\isasymOmega}\ {\isasymturnstile}\ instT\ {\isasymsigma}\ A}
+}%EndSnippet%
