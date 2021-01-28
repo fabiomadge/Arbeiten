@@ -1,9 +1,8 @@
 \chapter{Preliminaries}\label{chapter:preliminaries}
 
 The general goal of this formalization is to match the current implementation where possible while avoiding unnecessary complexity.
-We will discuss the term language of our logic.
-A type system is employed to categorize these terms.
-Before we can talk about types and terms, we need to consider names.
+As a first step we will discuss the term language of our logic, which we categorize by employing a type system.
+Before examining types and terms, we need to consider names.
 
 \begin{quote}
     \begin{isabelle}
@@ -12,16 +11,15 @@ Before we can talk about types and terms, we need to consider names.
     \end{isabelle}
 \end{quote}
 
-The canonical way of encoding names is using strings.
-Isabelle adds its flavor to that with the concept of index names.
+The canonical way of encoding names is using strings, while Isabelle extends that with the concept of index names.
 Here we attach an integer to the name.
 The rationale for using them in an implementation is purely practical, as both types are infinite on their own, at least using PolyML\@.
-Keeping track of the maximum index used within a particular environment reduces the problem of obtaining fresh names to merely incrementing that maximum.
+Keeping track of the maximum index used within a particular environment simplifies the problem of obtaining fresh names by merely incrementing that maximum.
 Combining that index with any string is guaranteed to yield a unique index name.
 The cost of including them in the logic is negligible, but it avoids formalizing a construction to embed one into the other.
 
 \section{Types}
-Like all the other HOL family members' underlying logics, Pure is a generalization of simply typed lambda calculus~\parencite{Church40}, so it's only befitting to start by talking about its type language.
+Like all the other LCF family members' underlying logics, Pure is a generalization of simply typed lambda calculus~\parencite{Church40}, so it is only fitting to start by talking about its type language.
 Another outstanding feature of Isabelle is its take on polymorphism.
 As previously stated, Isabelle is the only member of the HOL family with support for ad-hoc polymorphism.
 Here, the user declares a constant, the type of which contains variables, and later supplies definitions for different instantiations of those variables.

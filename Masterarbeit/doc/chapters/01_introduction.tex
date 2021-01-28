@@ -3,22 +3,22 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-Isabelle is a proof assistant and belongs to the LCF family~\parencite{Gordon2000}.
-Their goal is to enable to use of rigorous formal arguments on a big scale.
-As its peers, it defines an abstract data type representing theorems.
-Combining those using inference rules yields new theorems.
-Only those can create theorems because the abstract data type hides their internals outside of the so-called kernel.
-It comprises the logical primitives and the functionality needed to implement them.
-These include things like term manipulation and type checking. The automation making the system usable, in turn, uses the functionality offered by the kernel.
-Following this design ensures that only a small part of the very complex software needs to be trusted because only that is a possible vector for inconsistencies.\\
+The goal of proof assistants is to enable the use of rigorous formal arguments on a big scale with the help of software.
+There are different ways of designing such a system, one of them pioneered by the LCF prover.
+The programs that belong to the LCF family~\parencite{Gordon2000}, all define an abstract data type to represent theorems and allows them to be combined using inference rules to yield new theorems.
+Only inference rules can create theorems because the type hides their internals outside of the so-called kernel.
+It is comprised of the logical primitives and the functionalities needed to implement them, including term manipulation and type checking.
+The automation that makes the system usable, in turn, uses the functionalities offered by the kernel.
+Following this design ensures that only a small part of the very complex software needs to be trusted because only that part is a possible vector for inconsistencies.\\
 
-Separating the meta-logic \(\mathcal{M}\)~\parencite{Paulson1988}, and an object-logic \(\mathcal{O}\) sets Isabelle apart.
-The result is a generic system that allows reusing some functionality by embedding the desired object-logic into \(\mathcal{M}\).
-Examples include first-order logic, Zermelo–Fraenkel set theory, and higher-order logic (HOL).
-It is the most popular choice amongst users, to the point that they often use Isabelle and Isabelle/HOL interchangeably.
-These days the implementation of \(\mathcal{M}\) has a name and goes by Isabelle/Pure.
+Out the LCF family programs, Isabelle is at present one of most frequently used.
+Its feature of separating the meta-logic \(\mathcal{M}\)~\parencite{Paulson1988} and an object-logic \(\mathcal{O}\) sets Isabelle apart.
+The result is a generic system that allows some functionalities to be reused by embedding the desired object-logic into \(\mathcal{M}\).
+Examples of embedded object-logics include first-order logic, Zermelo–Fraenkel set theory, and higher-order logic (HOL).
+HOL is the most popular choice amongst users, to the point that they often use the names Isabelle and Isabelle/HOL interchangeably.
+In recent years, the implementation of \(\mathcal{M}\) has begun to be referred to as Isabelle/Pure.
 It underwent some changes in its infancy but has been stable for many years.
-This thesis aims to formalize \(\mathcal{M}\) within Isabelle/HOL, a worthwhile endeavor in its own right.
-It presents an accessible version of the kernel's logical foundations to anyone interested but can also be a stepping stone for further developments, like a verified version of Isabelle/Pure.\\
+This thesis aims to formalize \(\mathcal{M}\) within Isabelle/HOL, which not only presents an accessible version of the kernel's logical foundations, but also a stepping stone for further developments, like a verified version of Isabelle/Pure.\\
 
-At first, we present some preliminaries, including the term and type languages and operations on those, using those, construct the deductive system, and finally show some derived rules.
+At first, we present some definitions in Chapter~\ref{chapter:preliminaries}, including the term and type languages and operations on these languages.
+Using these definitions, we construct the deductive system in Chapter~\ref{chapter:predicate}, and finally, show some derived rules in Chapter~\ref{chapter:derived}.
