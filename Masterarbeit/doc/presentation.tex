@@ -1,0 +1,80 @@
+\documentclass{beamer}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage[greek,english]{babel}
+    \usepackage{bookmark}
+    \usepackage{mathtools}
+    \usepackage[compatibility,nofetsolderdot,nooldvoltagedirection,european,betterproportions]{circuitikz}
+    \usepackage{tikz}
+    \usepackage{pgf}
+    \usepackage{pgfplots}
+    \usepackage{listings}
+    \usepackage{ifthen}
+    \usepackage{algorithm}% http://ctan.org/pkg/algorithms
+    \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
+    \usepackage[backend=biber,isbn=false,doi=false,url=false]{biblatex}
+
+    \usetikzlibrary{positioning, arrows, patterns}
+
+    \usetheme{Berlin}
+    \setbeamertemplate{footline}{}
+    \setbeamertemplate{headline}{}
+    \setbeamertemplate{theorems}[ams style]
+    \setbeamertemplate{caption}[numbered]
+    % \setbeamercolor{normal text}{bg=gray!5}
+    \usecolortheme{lily}
+    \usefonttheme{professionalfonts}
+    \beamertemplatenavigationsymbolsempty
+
+    % \bibliographystyle{abbrv}
+    % \bibliography{cites}
+
+    \title{Formalization of the Isabelle/Pure Logic}
+    \author[F. Madge]{Fabio Madge}
+    % \institute{Technische Universität München}
+    \date[24.02.21]{24 February 2021}
+
+\begin{document}
+
+    \maketitle
+
+    \begin{frame}
+    \setcounter{tocdepth}{1}
+    \tableofcontents[pausesections]
+    \end{frame}
+
+    \AtBeginSection[]
+    {
+    \begin{frame}
+    \setcounter{tocdepth}{2}
+    \tableofcontents[currentsection,hideothersubsections]
+    \end{frame}
+    }
+
+    \AtBeginSubsection[]
+    {
+    \begin{frame}
+    \setcounter{tocdepth}{2}
+    \tableofcontents[currentsection,
+            currentsubsection,
+            subsectionstyle=show/shaded/hide]
+    \end{frame}
+    }
+
+    \section{Introduction}
+    \input{slides/intro}
+
+    \section{Preliminaries}
+    \input{slides/preliminaries}
+
+    \section{Inductive Predicate}
+    \input{slides/predicate}
+
+    \section{Derived Rules}
+    \input{slides/derived}
+
+    \section{Conclusion}
+    \input{slides/conclusion}
+
+
+\end{document}
