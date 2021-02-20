@@ -9,7 +9,7 @@ The programs that belong to the LCF family~\parencite{Gordon2000}, all define an
 Only inference rules can create theorems because the type hides their internals outside of the so-called kernel.
 It is comprised of the logical primitives and the functionalities needed to implement them, including term manipulation and type checking.
 The automation that makes the system usable, in turn, uses the functionalities offered by the kernel.
-Following this design ensures that only a small part of the very complex software needs to be trusted because only that part is a possible vector for inconsistencies.\\
+Following this design ensures that only a small part of the very complex software needs to be trusted because only that part is a possible vector for inconsistencies (\(A \land \neg A\)).\\
 
 Out the LCF family programs, Isabelle is at present one of most frequently used.
 Its feature of separating the meta-logic \(\mathcal{M}\)~\parencite{Paulson1988} and an object-logic \(\mathcal{O}\) sets Isabelle apart.

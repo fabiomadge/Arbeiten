@@ -1,8 +1,8 @@
 \chapter{Preliminaries}\label{chapter:preliminaries}
 
-The general goal of this formalization is to match the current implementation where possible while avoiding unnecessary complexity.
-As a first step we will discuss the term language of our logic, which we categorize by employing a type system.
-Before examining types and terms, we need to consider names.
+The general goal of this formalization is to match the current implementation of the logic where possible, while avoiding unnecessary complexity.
+First, we will discuss the term language of our logic, which we categorize by employing a type system.
+However, before examining types and terms, we need to consider names.
 
 \begin{quote}
     \begin{isabelle}
@@ -11,49 +11,48 @@ Before examining types and terms, we need to consider names.
     \end{isabelle}
 \end{quote}
 
-The canonical way of encoding names is using strings, while Isabelle extends that with the concept of index names.
-Here we attach an integer to the name.
-The rationale for using them in an implementation is purely practical, as both types are infinite on their own, at least using PolyML\@.
-Keeping track of the maximum index used within a particular environment simplifies the problem of obtaining fresh names by merely incrementing that maximum.
-Combining that index with any string is guaranteed to yield a unique index name.
-The cost of including them in the logic is negligible, but it avoids formalizing a construction to embed one into the other.
+Isabelle extends the canonical way of encoding names.
+Instead of just using strings, it uses the concept of index names, which entails attaching an integer to the \isa{name}.
+The rationale for using index names in an implementation is purely practical, as both \isa{name} and \isa{int} are infinite on their own, at least in the context of PolyML, the only compiler capable of building the current implementation.
+Keeping track of the maximum index used within a particular environment simplifies the problem of obtaining fresh names.
+Instead of traversing the whole term to ensure uniqueness, we merely increment the maximum index of the term.
+Combining the resulting index with any string is then guaranteed to yield a unique index name.
+The cost of including index names in the logic is negligible, but it avoids formalizing a construction to embed index names into regular ones.
 
 \section{Types}
 Like all the other LCF family members' underlying logics, Pure is a generalization of simply typed lambda calculus~\parencite{Church40}, so it is only fitting to start by talking about its type language.
-Another outstanding feature of Isabelle is its take on polymorphism.
-As previously stated, Isabelle is the only member of the HOL family with support for ad-hoc polymorphism.
-Here, the user declares a constant, the type of which contains variables, and later supplies definitions for different instantiations of those variables.
-An example of that is addition with the constant \isa{(+) :: 'a {\isasymRightarrow} 'a {\isasymRightarrow} 'a}.
-It is immediately apparent that the addition of integers must behave differently than of reals, but reusing the \isa{(+)} constant is still convenient and thus desirable.
+Isabelle's take on polymorphism makes it unique.
+As previously stated, Isabelle is the only member of the LCF family with support for ad-hoc polymorphism.
+Here, the user declares a term constant, the type of which contains variables, and later supplies definitions for different instances of that type.
+An example of that is addition using the constant \isa{(+) :: 'a {\isasymRightarrow} 'a {\isasymRightarrow} 'a}.
+It is immediately apparent that the addition of integers must behave differently than the addition of reals.
+Therefore we need separate definitions for these operations, but reusing the \isa{(+)} constant for them is convenient and thus desirable.
 
-All HOL provers support parametric polymorphism up to Rank-1.
-This polymorphism allows for abstracting over unnecessarily specific type information, like in the example of lists.
-It is an abstract data type that encodes a sequence of arbitrary elements.
+All HOL provers support parametric polymorphism up to Rank-1, which allows for abstracting over unnecessarily specific type information.
+\isa{'a list}, an abstract data type that encodes a sequence of arbitrary elements, exemplifies that.
 \Snippet{list}
-While the element type is irrelevant to the structure, the \isa{'a} will not persist in a concrete list object.
-Those datatypes become especially useful when combined with abstract function definitions.
+While the element type is irrelevant to the structure, the \isa{'a} can not persist in a concrete list object.
+Abstract data types become especially useful when combined with abstract function definitions.
+The following abstract definition of concatenation is oblivious to the element type and works for any two lists of the same type.
 \Snippet{list_append}
-This abstract definition of concatenation is oblivious to the element type and works for any two lists of the same type.
-
 
 Isabelle takes this a step further by allowing restrictions on type variables~\parencite{Nipkow93}.
 So-called sorts, representing subsets of all defined types, are added to the variable.
 Instantiating those annotated variables is only possible with types that belong to that particular sort.
-Sorts can overlap, resulting in a partial order.
-For their implementation, Isabelle adds a layer of abstraction.
-Classes, too, denote a subset of the defined types and have a partial order.
-A set of classes represents a sort.
-The empty sort is the universal sort, representing all types.
-Inserting a class restricts the sort by intersecting both sets of types.
+To compare sorts, we consider the underlying sets to obtain a partial order via the subset relation.
+For their implementation, Isabelle adds a layer of abstraction, in which a set of classes makes up a sort.
+Classes, too, denote a subset of the defined types and have a partial order, just like typeclasses in the Haskell programming language.
+The empty sort is the universal sort, containing all types.
+Inserting a class into a sort restricts it by intersecting both sets of types.
 
 \begin{quote}
     \begin{isabelle}
-        \isacommand{type\_synonym}\ class\ {\isacharequal}\ string \isanewline
+        \isacommand{type\_synonym}\ class\ {\isacharequal}\ name \isanewline
         \isacommand{type\_synonym}\ sort\ {\isacharequal}\ class\ set
     \end{isabelle}
 \end{quote}
 
-Almost every interaction a user has with the system results in a call to the resolution rule.
+We motivate that Isabelle has two different kinds of variables by presenting the resolution rule, which is involved in almost every interaction a user has with the system.
 While it currently resides in the kernel, we have shown how to emulate it using other kernel primitives~\parencite{Madge17}.
 
 \begin{displaymath}
@@ -68,10 +67,11 @@ While it currently resides in the kernel, we have shown how to emulate it using 
     }
 \end{displaymath}
 
-It is a generalization of modus ponens enabling the combination of two theorems.
-By unifying the former's conclusion with one of the latter's premises, replacing the one assumption with the former's premises becomes a valid transformation.
-Using this rule requires applying the unifier to the whole resulting theorem, potentially leading to undesired consequences in terms of instantiated variables.
-To save some variables from unification, Isabelle offers two kinds.
+It is a generalization of modus ponens (\(A \Longrightarrow (A \Longrightarrow B) \Longrightarrow B\)) enabling the combination of two theorems.
+By unifying (\(\sigma\)) the conclusion of the former theorem \(B\) with one of the latter's premises \(B_i\), replacing the assumption \(B_i\) with the former's premises becomes a valid transformation, so successful unification is imperative to applying the rule.
+Using RS requires applying the unifier \(\sigma\) to the whole resulting theorem, which may instantiate variables we desire to remain unchanged.
+One way of addressing this is limiting the variables that unification may operate on and thus prevent the system from applying the rule.
+To express which variables to save from unification, Isabelle offers two kinds:
 \isa{Var}s are affected by unification and often referred to as schematic variables, while the unification algorithms treat free variable \isa{Free} like constants.
 
 
@@ -83,28 +83,28 @@ To save some variables from unification, Isabelle offers two kinds.
     \end{isabelle}
 \end{quote}
 
-The constructor Type is very versatile and takes a name and a list of arguments.
-An integer would come with an empty list.
-In the aforementioned \isa{'a list} example, we have a singleton list.
-For a function, it's a list with two elements.
-We can now see that not all instances of \isa{typ} are created equal.
-In \autoref{sec:validity}, we will provide rules for both types and terms.
+The final constructor Type is very versatile and takes a name and a list of arguments.
+An integer type constant, which comes with an empty list, is one of the several examples to illustrate its use.
+For the aforementioned \isa{\(\alpha\) list}, we have the singleton list \isa{[\(\alpha\)]}, and the function \isa{\(\alpha\) \isasymRightarrow\ \(\beta\)} needs \isa{[\(\alpha\), \(\beta\)]}.
+We can already see that not all instances of \isa{typ} are necessarily valid, as there is a fixed argument count for each type.
+In \autoref{sec:validity}, we will provide rules for both types and terms to ascertain validity.
 
 \section{Terms}
 
 The term language should be rather unsurprising at this point.
 Our basic terms are constants, potentially polymorphic, and variables.
-Again we see the two distinct kinds of variables to accommodate unification but complement them with bound variables.
-They are the counterpart to the name-giving lambda abstractions, or binders, encoded by \isa{Abs} and together allow defining functions.
-The idea is to replace all the bound variable occurrences with an argument applied to the abstraction when reducing the term.
-We call this kind of transformation \(\beta\)-reduction.
-To encode the function application, we use the \isa{\$}.
-While it is seemingly simpler to let bound and regular variables share a namespace, this approach comes with complications.
-When substituting variables by terms, binders around the variable may capture previously unbound variables.
+The two distinct kinds of variables make a reappearance, but we complement them with bound variables.
+They are the counterpart to the name-giving lambda abstractions, or binders, encoded by \isa{Abs}.
+Together both allow defining anonymous functions, like the successor function \(\lambda x.\ x + 1\).
+The idea is to replace all the bound variable occurrences with the argument applied to the abstraction when reducing a term, which we call \(\beta\)-reduce.
+This way, we can obtain a term for the successor of 5: \((\lambda x.\ x + 1)\ 5 \equiv_\beta 5 + 1\).
+To encode the function application, we use the \isa{\$}, so \(1 + 2\) becomes \isa{(+) \$ 1 \$ 2}.
+While it appears straightforward to let bound and regular variables share a namespace, this approach comes with complications.
+When substituting variables by terms, binders around the variable may capture previously unbound variables, as in \((\lambda x y.\ f\ x\ y)\ y\).
 Capturing can be avoided by renaming bound variables, referred to as \(\alpha\)-conversion, but requires additional effort.
-Another inconvenience is that \(\alpha\)-equivalent terms, syntactically equal after \(\alpha\)-conversion, can look differently.
+Another inconvenience is that \(\alpha\)-equivalent terms, syntactically equal after \(\alpha\)-conversion, can take different shapes: \(\lambda x.\ x \equiv_\alpha \lambda y.\ y\).
 Using de Bruijn indices~\parencite{DeBruijn72} instead remedies both of these shortcomings.
-Here the bounds have no lables but refer to their binder through their distance, as measured by binders in between.
+Here, the bounds have no lables but refer to their binder through their distance, as measured by binders in between.
 While the current Pure implementation still attaches labels to the binders for convenience, they serve no logical purpose and are consequently not part of this formalization.
 
 \begin{quote}
@@ -122,9 +122,9 @@ While the current Pure implementation still attaches labels to the binders for c
 \label{sec:validity}
 
 Now that we can write down both types and terms, we want to separate the wheat from the chaff.
-There are dealing with three layers, term, type, and sort.
-First, we take care of them separately, and then we check whether the type annotations in a given term are consistent through type checking.
-We will ensure that the constants utilized are defined and used according to our expectations on all layers.
+To that end, we have to deal with three layers, term, type, and sort.
+First, we take care of them separately, and then we check whether the type annotations in a given term are consistent with its structure through type checking.
+On all layers, we will ensure that the constants utilized are defined and used according to our expectations
 To that end, we formalize a type signature \(\Sigma\), which encodes those expectations.
 
 \begin{quote}
@@ -136,7 +136,7 @@ To that end, we formalize a type signature \(\Sigma\), which encodes those expec
     \end{isabelle}
 \end{quote}
 
-The explicitly partial \isa{('a \isasymrightharpoonup 'b \isasymequiv 'a \isasymrightharpoonup 'b option)} function \isa{const\_typ\_of} maps term constants to their potentially polymorphic type.
+The explicitly partial \isa{('a \isasymrightharpoonup\ 'b \isasymequiv\ 'a {\isasymRightarrow} 'b option)} function \isa{const\_typ\_of} maps term constants to their potentially polymorphic type.
 Every kind of type constant has a fixed arity, which is provided by \isa{typ\_arity\_of}.
 The algebra combines a binary relation (\(\leq\)) over the classes with an extended idea of type arities.
 Here, the goal is to capture the restrictions imposed on the arguments of a type constructor in the context of the \isa{of\_sort :: typ \isasymRightarrow\ sort \isasymRightarrow\ bool} relation, i.e., whether a type belongs to a sort.
