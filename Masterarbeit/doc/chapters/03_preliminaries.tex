@@ -100,7 +100,7 @@ The idea is to replace all the bound variable occurrences with the argument appl
 This way, we can obtain a term for the successor of 5: \((\lambda x.\ x + 1)\ 5 \equiv_\beta 5 + 1\).
 To encode the function application, we use the \isa{\$}, so \(1 + 2\) becomes \isa{(+) \$ 1 \$ 2}.
 While it appears straightforward to let bound and regular variables share a namespace, this approach comes with complications.
-When substituting variables by terms, binders around the variable may capture previously unbound variables, as in \((\lambda x y.\ f\ x\ y)\ y\).
+When substituting variables by terms, binders around the variable may capture previously unbound variables, as in \(\lambda y. (\lambda x y.\ f\ x\ y)\ y\).
 Capturing can be avoided by renaming bound variables, referred to as \(\alpha\)-conversion, but requires additional effort.
 Another inconvenience is that \(\alpha\)-equivalent terms, syntactically equal after \(\alpha\)-conversion, can take different shapes: \(\lambda x.\ x \equiv_\alpha \lambda y.\ y\).
 Using de Bruijn indices~\parencite{DeBruijn72} instead remedies both of these shortcomings.

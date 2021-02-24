@@ -1,38 +1,87 @@
-\documentclass{beamer}
-    \usepackage[utf8]{inputenc}
-    \usepackage[T1]{fontenc}
-    \usepackage[greek,english]{babel}
-    \usepackage{bookmark}
-    \usepackage{mathtools}
-    \usepackage[compatibility,nofetsolderdot,nooldvoltagedirection,european,betterproportions]{circuitikz}
-    \usepackage{tikz}
-    \usepackage{pgf}
-    \usepackage{pgfplots}
-    \usepackage{listings}
-    \usepackage{ifthen}
-    \usepackage{algorithm}% http://ctan.org/pkg/algorithms
-    \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
-    \usepackage[backend=biber,isbn=false,doi=false,url=false]{biblatex}
+\documentclass[handout]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[greek,english]{babel}
+\usepackage{bookmark}
+% \usepackage{mathtools}
+\usepackage{prftree}
+\usepackage{stmaryrd}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathpartir}
+% \usepackage{enumitem}
+\usepackage[compatibility,nofetsolderdot,nooldvoltagedirection,european,betterproportions]{circuitikz}
+\usepackage{tikz}
+\usepackage{pgf}
+\usepackage{pgfplots}
+\usepackage{prftree}
+% \usepackage{listings}
+% \usepackage{ifthen}
+\usepackage{algorithm}% http://ctan.org/pkg/algorithms
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
+\usepackage[backend=biber,isbn=false,doi=false,url=false]{biblatex}
 
-    \usetikzlibrary{positioning, arrows, patterns}
+\usetikzlibrary{positioning, arrows, patterns}
 
-    \usetheme{Berlin}
-    \setbeamertemplate{footline}{}
-    \setbeamertemplate{headline}{}
-    \setbeamertemplate{theorems}[ams style]
-    \setbeamertemplate{caption}[numbered]
-    % \setbeamercolor{normal text}{bg=gray!5}
-    \usecolortheme{lily}
-    \usefonttheme{professionalfonts}
-    \beamertemplatenavigationsymbolsempty
+\usetheme{Berlin}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{theorems}[ams style]
+\setbeamertemplate{caption}[numbered]
+% \setbeamercolor{normal text}{bg=gray!5}
+\usecolortheme{lily}
+\usefonttheme{professionalfonts}
+\beamertemplatenavigationsymbolsempty
 
-    % \bibliographystyle{abbrv}
-    % \bibliography{cites}
+% Isabelle Snippets
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{ifthen}
+\newcommand{\DefineSnippet}[2]{%
+\expandafter\newcommand\csname snippet--#1\endcsname{#2}}
+\newcommand{\Snippet}[1]{%
+\ifcsname snippet--#1\endcsname{\begin{quote}\begin{isabelle} \csname snippet--#1\endcsname\end{isabelle}\end{quote}}%
+\else+++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+\newcommand{\InlineSnippet}[1]{%
+\ifcsname snippet--#1\endcsname{\csname snippet--#1\endcsname}%
+\else+++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+\newcommand{\InlineLemma}[1]{%
+\ifcsname snippet--#1\endcsname{\label{lemma:#1}\csname snippet--#1\endcsname}%
+\else+++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+\input{snippets}
 
-    \title{Formalization of the Isabelle/Pure Logic}
-    \author[F. Madge]{Fabio Madge}
-    % \institute{Technische Universität München}
-    \date[24.02.21]{24 February 2021}
+\makeatletter
+\newcommand*\bigcdot{\mathpalette\bigcdot@{.5}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% \renewcommand{\isasymbullet}{\isamath{\boldsymbol{\cdot}}}
+\renewcommand{\isasymbullet}{\isamath{\bigcdot}}
+
+\usepackage{amsthm}
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{corollary}[theorem]{Corollary}
+% \newtheorem{lemma}[theorem]{Lemma}
+
+\newcommand{\ax}{\isa{\textsc{axiom}}}
+\newcommand{\as}{\isa{\textsc{assume}}}
+\newcommand{\wk}{\isa{\textsc{weaken}}}
+\newcommand{\aIv}{\isa{\textsc{forallI\(_{\mbox{var}}\)}}}
+\newcommand{\aIf}{\isa{\textsc{forallI\(_{\mbox{free}}\)}}}
+\newcommand{\aE}{\isa{\textsc{forallE}}}
+\newcommand{\iI}{\isa{\textsc{impliesI}}}
+\newcommand{\iE}{\isa{\textsc{impliesE}}}
+\newcommand{\bcnv}{\isa{\textsc{\(\beta\)\_conv}}}
+
+\newcommand{\rs}{\isa{\textsc{rs}}}
+
+% \bibliographystyle{abbrv}
+% \bibliography{cites}
+
+\title{Formalization of the Isabelle/Pure Logic}
+\author[F. Madge]{Fabio Madge}
+% \institute{Technische Universität München}
+\date[24.02.21]{24 February 2021}
 
 \begin{document}
 

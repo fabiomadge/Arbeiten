@@ -1,0 +1,98 @@
+\subsection{Theory}
+
+% \begin{frame}{Additional constants}
+%     \begin{itemize}
+%         \item
+%         \begin{quote}
+%             \isa{minimal{\isacharunderscore}axioms\ {\isacharequal}\ {\isacharbraceleft}reflexivity{\isacharcomma}\ substitution{\isacharcomma}\ extensionality{\isacharcomma}\ eqI{\isacharbraceright}}
+%         \end{quote}
+
+%     \end{itemize}
+% % \begin{quote}
+%     \begin{isabelle}%
+%         \footnotesize
+%         \isacommand{definition}\ is{\isacharunderscore}std{\isacharunderscore}sig\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}\ {\isacharequal}\isanewline
+%         \isaindent{\ }{\isacharparenleft}typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}prop{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{0}}\isanewline
+%         \isaindent{\ {\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}eq{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ {\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymand}\isanewline
+%         \isaindent{\ {\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}imp{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}propT\ {\isasymrightarrow}\ propT\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymand}\isanewline
+%         \isaindent{\ {\isacharparenleft}}const{\isacharunderscore}typ\ {\isacharprime}{\isacharprime}Pure{\isachardot}all{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isacharparenleft}{\isacharparenleft}{\isasymalpha}T\ {\isasymrightarrow}\ propT{\isacharparenright}\ {\isasymrightarrow}\ propT{\isacharparenright}{\isacharparenright}%
+%         \end{isabelle}
+
+%     % \end{quote}
+% \end{frame}
+
+% \begin{frame}{Axioms}
+%     \Snippet{minimal_axioms}
+% \end{frame}
+
+\begin{frame}{Is a theory valid?}
+    \begin{quote}
+        \begin{isabelle}
+            \isacommand{datatype}\ theory\ {\isacharequal}\ Theory\isanewline
+            \isaindent{\ \ }{\isacharparenleft}signature\_of: signature{\isacharparenright}\isanewline
+            \isaindent{\ \ }{\isacharparenleft}axioms\_of: term set{\isacharparenright}
+        \end{isabelle}
+    \end{quote}
+    \begin{itemize}
+        \item \isa{signature\_ok}
+        \item Axiomatizes equality: refl, subst, ext, and eqI
+        \item \isa{prop} type and logical constants
+        \item The axioms are valid terms of type \isa{prop}
+    \end{itemize}
+\end{frame}
+
+\subsection{Theorem}
+
+\begin{frame}
+    \begin{itemize}
+        \item Valid theory\ \(\Theta\)
+        \item Set of hypotheses\ \(\Gamma\) of type \isa{prop}
+        \item Hypotheses must be free of schematic variables: \isa{no\_vars A \isasymequiv\ Vars A = \{\} \isasymand\ TVars A = \{\}}
+        \item Proposition \isa{A}
+        \item Typeset as \(\Theta, \Gamma \vdash\) \isa{A}
+
+    \end{itemize}
+\end{frame}
+
+\subsection{Inference Rules}
+\begin{frame}
+    \begin{isabelle}
+    \begin{center}{
+        \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}}\\\ \mbox{A\ {\isasymin}\ axioms{\isacharunderscore}of\ {\isasymTheta}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymemptyset}\ {\isasymturnstile}\ instT\ {\isasymsigma}\ A}}} {\textsc{axiom}}\\[1ex]
+        \mprset{sep=1.6em}
+        \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ A}\\\ \mbox{no{\isacharunderscore}vars\ A}\\\ \mbox{typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}}{\mbox{{\isasymTheta}{\isacharcomma}{\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ A}}} {\textsc{assume}}\\[1ex]
+        \mprset{sep=2.0em}
+        \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A}}} {\textsc{forallI\(_{\mbox{var}}\)}}\\[1ex]
+        \mprset{sep=1.2em}
+        \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A}\\\ \mbox{{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}\ {\isasymnotin}\ Frees{\isacharunderscore}Set\ {\isasymGamma}}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Free\ x\ {\isasymtau}{\isacharparenright}\ A}}} {\textsc{forallI\(_{\mbox{free}}\)}}\\[1ex]
+        \mprset{sep=2.0em}
+        \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ all{\isacharunderscore}const\ {\isasymtau}\ {\isachardollar}\ A}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ x}\\\ \mbox{typ{\isacharunderscore}of\ x\ {\isacharequal}\ Some\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymbullet}\ x}}} {\textsc{forallE}}
+    }
+    \end{center}
+\end{isabelle}
+\end{frame}
+
+\begin{frame}
+    \begin{isabelle}
+    \begin{center}{
+        \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ B}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B}}} {\textsc{impliesI}}\\[1ex]
+        \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymturnstile}\ A\ {\isasymlongmapsto}\ B}\\\ \mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ A}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\isactrlsub {\isadigit{1}}\ {\isasymunion}\ {\isasymGamma}\isactrlsub {\isadigit{2}}\ {\isasymturnstile}\ B}}} {\textsc{impliesE}}\\[1ex]
+        \isa{\mbox{}\inferrule{\mbox{theory{\isacharunderscore}ok\ {\isasymTheta}}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymemptyset}\ {\isasymturnstile}\ mk{\isacharunderscore}eq\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isachardollar}\ x{\isacharparenright}\ {\isacharparenleft}Abs\ {\isasymtau}\ A\ {\isasymbullet}\ x{\isacharparenright}}}} {\textsc{\(\beta\)\_conv}}\\[1ex]
+        \mprset{sep=1.6em}
+        \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ B}\\\ \mbox{term{\isacharunderscore}ok\ {\isasymTheta}\ A}\\\ \mbox{no{\isacharunderscore}vars\ A}\\\ \mbox{typ{\isacharunderscore}of\ A\ {\isacharequal}\ Some\ propT}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymunion}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isasymturnstile}\ B}}} {\textsc{weaken}}
+        \mprset{sep=2.0em}}
+      \end{center}
+    \end{isabelle}
+\end{frame}
+
+\begin{frame}{Properties}
+    \begin{theorem}
+        \InlineLemma{proves_theory_ok}
+    \end{theorem}
+    \begin{theorem}
+        \InlineSnippet{thm_is_prop}
+    \end{theorem}
+    \begin{proof}
+        Rule induction on \isa{\(\Gamma\)} and \isa{A}
+    \end{proof}
+\end{frame}

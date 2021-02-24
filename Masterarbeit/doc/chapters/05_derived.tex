@@ -105,6 +105,7 @@ We encode the existence of type constructors using \isa{constructor\_ex\_thy \(\
     \InlineLemma{weaken_of_sort}
 \end{theorem}
 \begin{proof}
+    Proof by induction using the rule derived from the definition of \isa{of\_sort}.\\
     For \isa{TFree n S\(_T\)} we can show both \(S_T \leq S\) and \(S \leq S'\).
     We then use transitivity.
     \isa{TVar} works analogously.\\
@@ -257,7 +258,7 @@ To make sure that the variables in the domain of a map \isa{\(\sigma\)} are disj
 \begin{proof}
     Proofs by rule induction on \isa{\(\Gamma\)}, \isa{\(\Psi\)}, \isa{\(\Omega\)}, and \isa{A}.
     \begin{description}[]
-        \item [\ax] The key idea is to compose the two maps, letting us use \ax with both maps. We show the compatibility of \isa{\(\Psi\)} and \isa{\(\Omega\)} using the material on map composition.
+        \item [\ax] The key idea is to compose the two maps, letting us use \ax\ with both maps. We show the compatibility of \isa{\(\Psi\)} and \isa{\(\Omega\)} using the material on map composition.
         \item [\as] The case is trivial, as we have full control over \isa{A}.
         \item [\wk] As \isa{B} is free of variables, type instantiation can have no effect on it.
         \item [\aIv] The premises give us that variable capture is impossible, which lets us use Lemma~\ref{lemma:instT_mk_all_var}.

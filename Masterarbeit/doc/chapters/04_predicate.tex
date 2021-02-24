@@ -5,7 +5,7 @@ Once we have theorems, we can define our inference rules and ultimately prove so
 \section{Theory}
 
 We need to introduce some constants with the goal in mind of using the terms to encode Pure propositions.
-First, reserve the type constant ``pro`` for those propositions, which strongly correlates to the more common boolean type, at least in a classical logic.
+First, reserve the type constant ``prop`` for those propositions, which strongly correlates to the more common boolean type, at least in a classical logic.
 We also introduce some abbreviations, namely \isa{propT \isasymequiv\ Type {\isacharprime}{\isacharprime}prop{\isacharprime}{\isacharprime} []} and \isa{\(\alpha\)T = TVar ({\isacharprime}{\isacharprime}{\isacharprime}a{\isacharprime}{\isacharprime}, 0) \{\}}.
 To simplify dealing with term variables, we introduce \isa{VAR x T \isasymequiv\ Var (x, 0) T}.
 For equality we  use \isa{mk\_eq' \(\tau\) t1 t2 \isasymequiv\ Const {\isacharprime}{\isacharprime}Pure.eq{\isacharprime}{\isacharprime} (\(\tau\) {\isasymrightarrow} \(\tau\) {\isasymrightarrow} propT) \$ t1 \$ t2}, and \isa{mk\_eq}, which uses typ\_of to determine the argument type.

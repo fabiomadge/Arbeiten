@@ -1,0 +1,208 @@
+\begin{frame}{Names}
+    \begin{isabelle}
+        \isacommand{type\_synonym}\ name\ {\isacharequal}\ string \isanewline
+        \isacommand{type\_synonym}\ indexname\ {\isacharequal}\ name {\isasymtimes}\ int
+    \end{isabelle}
+    \begin{itemize}
+        \item Logically equivalent
+        \item \isa{indexname}: Cheaper generation of fresh names
+    \end{itemize}
+\end{frame}
+
+
+\subsection{Types}
+\begin{frame}{Polymorphism}
+  \begin{itemize}[<+->]
+    \item ad-hoc polymorphism (constant overloading)
+        \begin{quote}
+            \isa{(+) :: 'a {\isasymRightarrow} 'a {\isasymRightarrow} 'a}
+        \end{quote}
+    \item parametric polymorphism (quantified type variables)
+        \begin{quote}
+            \Snippet{list}
+        \end{quote}
+        \phantom{1em}
+        \begin{quote}
+            \Snippet{list_append}
+        \end{quote}
+    \item type classes (restricting type variables with sort annotations)
+        \begin{quote}
+            \begin{isabelle}
+                \isacommand{type\_synonym}\ class\ {\isacharequal}\ name \isanewline
+                \isacommand{type\_synonym}\ sort\ {\isacharequal}\ class\ set
+            \end{isabelle}
+        \end{quote}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Unification}
+\begin{center}
+\scalebox{.94}{
+    \prftree[r]{\rs}
+    {\left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket \Longrightarrow B}
+    {\left\llbracket B_x\,\middle|\, x \in \left[ n \right] \right\rrbracket \Longrightarrow C}
+    {B\sigma \equiv B_i\sigma}
+    {\left( \left\llbracket B_x\,\middle|\, x \in \left[ i - 1 \right] \right\rrbracket
+    + \left\llbracket A_x\,\middle|\, x \in \left[ m \right] \right\rrbracket
+    + \left\llbracket B_x\,\middle|\, x \in \left( \left[ n \right] \setminus \left[ i \right] \right) \right\rrbracket
+    \Longrightarrow C \right) \sigma
+    }
+}
+\end{center}
+\begin{itemize}
+    \item Unification integral part of Isabelle
+    \item Might instantiate undesired variables
+    \item Preserve with special variable kind
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{isabelle}
+        \isacommand{datatype}\ typ\ {\isacharequal}\ TFree\ name sort\isanewline
+        \isaindent{\ \ }{\isacharbar}\ TVar\ indexname\ sort\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Type\ name\ {\isacharparenleft}typ\ list{\isacharparenright}
+    \end{isabelle}
+\end{frame}
+
+\subsection{Term}
+
+% \begin{frame}{De Bruijn Indices}
+% \begin{itemize}
+%     \item Alternative way of encoding anonymous function using \(\lambda\)-abstractions, e.g. \(\lambda x.\ x + 1\).
+%     \item Usually: Binder and bound variable are connected by common name
+%     \item De Bruijn: Bound variable holds the distance to its binder
+%     \item Good: \(\equiv_\alpha\) becomes structural equality; Potentially smaller memory footprint; No Capturing (\(\lambda y. (\lambda x y.\ f\ x\ y)\ y\))
+%     \item Bad: Hard to implement
+% \end{itemize}
+% \end{frame}
+
+\begin{frame}
+    \begin{isabelle}
+        \isacommand{datatype}\ term\ {\isacharequal}\ Const name typ\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Free name typ\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Var indexname typ\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Bound nat\isanewline
+        \isaindent{\ \ }{\isacharbar}\ Abs typ term\isanewline
+        \isaindent{\ \ }{\isacharbar}\ term \$ term
+    \end{isabelle}
+\end{frame}
+
+
+\subsection{Validity}
+
+\begin{frame}{Type Signature}
+    \begin{quote}
+        \begin{isabelle}
+            \isacommand{datatype}\ signature\ {\isacharequal}\ Signature\ \isanewline
+            \isaindent{\ \ }(const\_typ\_of{\isacharcolon}\ name \isasymrightharpoonup\ typ)\isanewline
+            \isaindent{\ \ }(typ\_arity\_of{\isacharcolon}\ name \isasymrightharpoonup\ nat)\isanewline
+            \isaindent{\ \ }(sorts\_of{\isacharcolon}\ algebra)
+        \end{isabelle}
+    \end{quote}
+\end{frame}
+
+\begin{frame}
+    \begin{quote}
+        \begin{isabelle}
+            \isacommand{datatype}\ algebra\ {\isacharequal}\ Algebra\ \isanewline
+            \isaindent{\ \ }(classes{\isacharcolon}\ class\ rel)\isanewline
+            \isaindent{\ \ }(arities{\isacharcolon}\ name \isasymrightharpoonup\ class \isasymrightharpoonup\ sort list)
+        \end{isabelle}
+    \end{quote}
+    \begin{itemize}
+        \item Operations on classes/sorts: \isa{class\_leq}, \isa{sort\_ex}, and \isa{sort{\isacharunderscore}leq\ s\isactrlsub {\isadigit{1}}\ s\isactrlsub {\isadigit{2}}\ {\isasymequiv}\ {\isasymforall}c\isactrlsub {\isadigit{2}}{\isasymin}s\isactrlsub {\isadigit{2}}{\isachardot}\ {\isasymexists}c\isactrlsub {\isadigit{1}}{\isasymin}s\isactrlsub {\isadigit{1}}{\isachardot}\ class{\isacharunderscore}leq\ c\isactrlsub {\isadigit{1}}\ c\isactrlsub {\isadigit{2}}}
+        \item \isa{algebra\_ok}
+            \begin{itemize}
+                \item Coregularity: \(c_1 \leq c_2 \Longrightarrow \texttt{arities}\ n\ c_1 \leq \texttt{arities}\ n\ c_2\)
+                \item All sorts in the arities exist
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Does a given type belong to a sort?}
+    \begin{itemize}
+        \item \isa{of{\isacharunderscore}sort} \isa{{\isacharcolon}{\isacharcolon}\ algebra\ {\isasymRightarrow}\ typ\ {\isasymRightarrow}\ sort\ {\isasymRightarrow}\ bool}
+        \item Trivial for variables
+        \item Constructors need to regard the sort obligations
+        \item Sort obligations are computed by intersecting the class arities
+    \end{itemize}
+    % \Snippet{of_sort}
+\end{frame}
+
+\begin{frame}{Does a given type adhere to a signature?}
+    \begin{itemize}
+        \item \isa{sort\_ok'} is just \isa{sort\_ex}
+        \item Constants must have the correct number of arguments
+    \end{itemize}
+    \Snippet{typ_ok'}
+\end{frame}
+
+\begin{frame}{Are two types related?}
+    \begin{itemize}
+        \item Type instantiations must respect the sort obligations
+        \item One type is an instance of another, iff it can be matched.
+    \end{itemize}
+    \Snippet{ty_is_instance}
+\end{frame}
+
+\begin{frame}{Does a given term adhere to a signature?}
+    \begin{itemize}
+        \item \isa{term{\isacharunderscore}ok{\isacharprime}} \isa{{\isacharcolon}{\isacharcolon}} \isa{signature\ {\isasymRightarrow}\ term\ {\isasymRightarrow}\ bool}
+        \item Term constant types need to match their most general type
+        \item Does no type checking: \isa{typ{\isacharunderscore}of} \isa{{{\isacharcolon}{\isacharcolon}}\ term\ {\isasymRightarrow}\ typ\ option}
+    \end{itemize}
+    % \Snippet{term_ok'}
+\end{frame}
+
+\begin{frame}{Is a signature valid?}
+    \begin{quote}
+        \begin{isabelle}
+            \isacommand{datatype}\ signature\ {\isacharequal}\ Signature\ \isanewline
+            \isaindent{\ \ }(const\_typ\_of{\isacharcolon}\ name \isasymrightharpoonup\ typ)\isanewline
+            \isaindent{\ \ }(typ\_arity\_of{\isacharcolon}\ name \isasymrightharpoonup\ nat)\isanewline
+            \isaindent{\ \ }(sorts\_of{\isacharcolon}\ algebra)
+        \end{isabelle}
+    \end{quote}
+    \begin{itemize}
+        \item \isa{algebra\_ok}
+        \item Term constant types are valid
+        \item Function type has an arity of two
+        \item The type constructor arities are in sync with the class arities
+    \end{itemize}
+
+
+
+    % \begin{quote}
+        % \begin{isabelle}%
+        % \isacommand{definition} signature{\isacharunderscore}ok\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}\ {\isacharequal}\isanewline
+        % \ {\isacharparenleft}{\isasymforall}ty{\isasymin}ran\ const{\isacharunderscore}typ{\isachardot}\ {\isacharparenleft}typ{\isacharunderscore}ok{\isacharprime}\ {\isacharparenleft}Signature\ const{\isacharunderscore}typ\ typ{\isacharunderscore}arity\ sorts{\isacharparenright}{\isacharparenright}\ {\isasymand}\isanewline
+        % \isaindent{\ }typ{\isacharunderscore}arity\ {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime}\ {\isacharequal}\ Some\ {\isadigit{2}}\ {\isasymand}\isanewline
+        % \isaindent{\ }algebra{\isacharunderscore}ok\ sorts\ {\isasymand}\isanewline
+        % \isaindent{\ }dom\ typ{\isacharunderscore}arity\ {\isacharequal}\ dom\ {\isacharparenleft}arities\ sorts{\isacharparenright}\ {\isasymand}\isanewline
+        % \isaindent{\ }{\isacharparenleft}{\isasymforall}n{\isasymin}dom\ typ{\isacharunderscore}arity{\isachardot}\isanewline
+        % \isaindent{\ {\isacharparenleft}\ \ \ }{\isasymforall}os{\isasymin}ran\ {\isacharparenleft}the\ {\isacharparenleft}arities\ sorts\ n{\isacharparenright}{\isacharparenright}{\isachardot}\ the\ {\isacharparenleft}typ{\isacharunderscore}arity\ n{\isacharparenright}\ {\isacharequal}\ {\isacharbar}os{\isacharbar}{\isacharparenright}{\isacharparenright}%
+        % \end{isabelle}
+    % \end{quote}
+\end{frame}
+
+
+\subsection{Term Operations}
+\begin{frame}
+    \begin{itemize}[<+->]
+      \item Type instantiation
+        \begin{quote}
+            \begin{isabelle}
+                \isacommand{definition} \isa{instT\ {\isasymsigma}\ t\ {\isasymequiv}\ map{\isacharunderscore}types\ {\isacharparenleft}ty{\isacharunderscore}instT\ {\isasymsigma}{\isacharparenright}\ t}
+            \end{isabelle}
+        \end{quote}
+      \item \isa{abstract\_over v t} replaces all occurrences of \isa{v} in \isa{t} by bound variables
+        %   \begin{quote}
+            %   \Snippet{abstract_over}
+        %   \end{quote}
+      \item Function application with potential \(\beta\)-contraction
+          \begin{quote}
+              \Snippet{betapply}
+          \end{quote}
+    \end{itemize}
+  \end{frame}

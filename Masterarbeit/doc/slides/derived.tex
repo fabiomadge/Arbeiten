@@ -1,0 +1,131 @@
+\subsection{Term Instantation}
+
+\begin{frame}
+    \begin{lemma}
+        \InlineLemma{instantiate_var_same_typ'}
+    \end{lemma}
+    \begin{proof}
+        Structural induction on \isa{B} after appropriate generalization.
+    \end{proof}
+
+    \begin{theorem}
+        \InlineLemma{inst_var}
+    \end{theorem}
+    \begin{proof}
+        \begin{itemize}
+            \item \InlineSnippet{inst_var_1} (\aIv)
+            \item \InlineSnippet{inst_var_2} (\aE)
+        \end{itemize}
+    \end{proof}
+\end{frame}
+
+\begin{frame}{Parallel Instantation}
+    \begin{itemize}
+        \item Problem: \(x [a/x, b/a] \neq x [a/x][b/a]\)
+        \item Overlap of the left and right sides of the substitution
+        \item Solution: rename the offending variables in the substituters
+    \end{itemize}
+\end{frame}
+
+\subsection{Type Instantation}
+\begin{frame}{Weaken \isa{of\_sort}}
+    \begin{theorem}
+        \InlineLemma{weaken_of_sort}
+    \end{theorem}
+    \begin{corollary}
+        \InlineLemma{of_sort_ty_instT}
+    \end{corollary}
+    \begin{proof}
+        \begin{itemize}
+            \item Structural induction on \(\tau\)
+            \item Case: \isa{TVar n S'}
+            \begin{itemize}
+                \item \isa{TVar n S'} belongs to sort \(S\) \(\Longrightarrow S' \leq S\)
+                \item \isa{instT\_ok} \(\Longrightarrow \sigma (n, S')\) belongs to sort \(S'\)
+                \item Theorem~\ref{lemma:weaken_of_sort}
+            \end{itemize}
+        \end{itemize}
+    \end{proof}
+\end{frame}
+
+\begin{frame}{Compose Instantiation (1)}
+    \begin{quote}
+        \begin{isabelle}
+            \isacommand{definition} \isa{f\ {\isasymcirc}\isactrlsub i\isactrlsub n\isactrlsub s\isactrlsub t\isactrlsub T\ g\ {\isacharequal}\ {\isacharparenleft}{\isasymlambda}k{\isachardot}\ \textsf{case}\ g\ k\ \textsf{of}\isanewline
+            \isaindent{\ \ \ }None\ {\isasymRightarrow}\ f\ k\isanewline
+            \isaindent{\ }{\isacharbar}\ Some\ T\ {\isasymRightarrow}\ Some\ {\isacharparenleft}ty{\isacharunderscore}instT\ f\ T{\isacharparenright}{\isacharparenright}}
+        \end{isabelle}
+    \end{quote}
+    \begin{lemma}
+        \InlineLemma{collapse_instT}
+    \end{lemma}
+    \begin{theorem}
+        \InlineLemma{instT_term_ok'}
+    \end{theorem}
+    \begin{proof}
+        \begin{itemize}
+            \item Structural induction on \isa{A}
+            \item Case: \isa{Const n \isamath{\tau}}
+            \begin{itemize}
+                \item Map \(\sigma^\prime\) from \(\tau\) to polymorphic type of \isa{n} exits
+                \item \isa{{\isasymsigma}\ {\isasymcirc}\isactrlsub i\isactrlsub n\isactrlsub s\isactrlsub t\isactrlsub T\ {\isasymsigma}{\isacharprime}} preserves \isa{instT\_ok}
+            \end{itemize}
+        \end{itemize}
+    \end{proof}
+\end{frame}
+
+\begin{frame}{Compose Instantiation (2)}
+    \begin{corollary}
+        \InlineLemma{instT_term_ok}
+    \end{corollary}
+\end{frame}
+
+\begin{frame}{Alternative Inference Rules}
+    \begin{itemize}
+        \item Observation: Not all variables used to derive a theorem are in the proposition
+        \item Problem: No way to tell if capturing may occur
+        \item Solution: Keep track of all variables used
+    \end{itemize}
+    \begin{center}{
+    \isa{\mbox{}\inferrule{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ A}\\\ \mbox{typ{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymtau}}}{\mbox{{\isasymTheta}{\isacharcomma}{\isasymGamma}{\isacharcomma}{\isasymPsi}\ {\isasymunion}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ {\isasymtau}{\isacharparenright}{\isacharbraceright}{\isacharcomma}{\isasymOmega}\ {\isasymturnstile}\ mk{\isacharunderscore}all\ {\isacharparenleft}Var\ x\ {\isasymtau}{\isacharparenright}\ A}}} \aIv}
+    \end{center}
+    \begin{lemma}
+        \InlineLemma{vars_varhyps}
+    \end{lemma}
+    \begin{lemma}
+        \InlineLemma{frees_freehyps}
+    \end{lemma}
+    \begin{Theorem}
+        \InlineLemma{proves_with_variables_eqivalent}
+    \end{Theorem}
+\end{frame}
+
+\begin{frame}{\isa{instT} Theorem}
+    \Snippet{subst_flat}
+    \begin{theorem}
+        \InlineLemma{instT_proves_with_variables_flat_subst}
+    \end{theorem}
+\end{frame}
+
+\begin{frame}
+    \begin{theorem}
+        \InlineLemma{instT_proves_with_variables_flat_subst}
+    \end{theorem}
+    \begin{corollary}
+        \begin{isabelle}
+            \isa{{\isasymlbrakk}{\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ A{\isacharsemicolon}\ instT{\isacharunderscore}ok\ {\isasymTheta}\ {\isasymsigma}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isasymTheta}{\isacharcomma}{\isasymGamma}\ {\isasymturnstile}\ instT\ {\isasymsigma}\ A}
+        \end{isabelle}
+    \end{corollary}
+    \begin{proof}
+        \begin{enumerate}
+            \item Flatten substitution by renaming
+            \item Convert to tracked theorem
+            \begin{enumerate}
+                \item Rename captured variables in the map
+                \item Theorem~\ref{lemma:instT_proves_with_variables_flat_subst}
+            \end{enumerate}
+            \item Reconvert
+            \item Revert renamings
+        \end{enumerate}
+    \end{proof}
+\end{frame}
