@@ -124,7 +124,7 @@ While the current Pure implementation still attaches labels to the binders for c
 Now that we can write down both types and terms, we want to separate the wheat from the chaff.
 To that end, we have to deal with three layers, term, type, and sort.
 First, we take care of them separately, and then we check whether the type annotations in a given term are consistent with its structure through type checking.
-On all layers, we will ensure that the constants utilized are defined and used according to our expectations
+On all layers, we will ensure that the constants utilized are defined and used according to our expectations.
 To that end, we formalize a type signature \(\Sigma\), which encodes those expectations.
 
 \begin{quote}
@@ -137,9 +137,11 @@ To that end, we formalize a type signature \(\Sigma\), which encodes those expec
 \end{quote}
 
 The explicitly partial \isa{('a \isasymrightharpoonup\ 'b \isasymequiv\ 'a {\isasymRightarrow} 'b option)} function \isa{const\_typ\_of} maps term constants to their potentially polymorphic type.
-Every kind of type constant has a fixed arity, which is provided by \isa{typ\_arity\_of}.
+Every type constructor has a fixed arity, which \isa{typ\_arity\_of} returns.
 The algebra combines a binary relation (\(\leq\)) over the classes with an extended idea of type arities.
-Here, the goal is to capture the restrictions imposed on the arguments of a type constructor in the context of the \isa{of\_sort :: typ \isasymRightarrow\ sort \isasymRightarrow\ bool} relation, i.e., whether a type belongs to a sort.
+The extension aims to capture the restrictions imposed on the arguments of a type constructor in the context of the \isa{of\_sort :: typ \isasymRightarrow\ sort \isasymRightarrow\ bool} relation, which indicates whether a type belongs to a sort.
+We achieve this with a two-leveled map returning a vector of sort requirements.
+It has an entry for each argument of a type constructor and only exists for individual type classes.
 
 \begin{quote}
     \begin{isabelle}
@@ -149,19 +151,17 @@ Here, the goal is to capture the restrictions imposed on the arguments of a type
     \end{isabelle}
 \end{quote}
 
-The \isa{arities} entry is a map with two levels.
-It returns a vector of sort requirements, one entry for each argument, given a type constructor and the type class to which the whole construct needs to belong.\\
-Now that we have our data structures in place, we can define some operations and employ some restrictions.
-In the following, we fix the name cs for our class relation and assume that it is both a partial order and the relation's field finite.
+Now that we have our data structures in place, we can define some operations on them and discuss validity criteria.
+In the following, we fix the name \isa{cs} for our class relation and assume that it is a partial order and the relation's field to be finite.
 Later we will hide that behind the \isa{ordered\_classes} predicate.
 
 \Snippet{ordered_classes}
-
-It follows from our definitions that any sort that exists must be finite and that the \isa{sort\_leq} is also a partial relation.
-Using those definitions, we can state the requirements for the arities.
+It follows from our definitions that any sort that exists must be finite because there are only finitely many classes.
+Like the relation on classes, \isa{sort\_leq} is also a partial relation.
+Using those definitions, we can state the requirements for the validity of arities.
 Trivially we expect all sorts used to be well-defined.
 Without loss of generality, we require any constructor to have type arities defined for all classes.
-The critical property of the arities is that they are coregular, which means that within a constructor that if two classes are related, so are their induced arities.
+The critical property of the arities is that they are coregular, which means that the relation between two classes dictates that of the induced arities.
 
 \begin{quote}
 \begin{isabelle}
@@ -175,49 +175,49 @@ The critical property of the arities is that they are coregular, which means tha
 \end{isabelle}
 \end{quote}
 
-Bringing everything together, we can now state what it means for an algebra to be wellformed.
+Bringing everything together, we can now state what it means for an algebra to be well-formed.
 
 \Snippet{algebra_ok}
 
 With a solid understanding of the sort algebra, we can now define the previously teased \isa{of\_sort} predicate.
 As the type arities only have information on how the constructors behave on the class level, we lift them to sorts using \isa{mg\_domain}.
-The function looks up the constituting classes' arities and intersects all those argument constraints by folding the componentwise intersection of two sort lists over them.
-The variable cases can delegate to the \isa{sort\_leq} relation.
+That function looks up the constituting classes' arities and intersects all those argument constraints by folding the componentwise intersection of two sort lists over them.
+Fortunately, the variable cases can simply delegate to the \isa{sort\_leq} relation.
 
 \Snippet{of_sort}
 
 Before going a level up and defining a criterion for signatures, we explain what it means for terms, types, and sorts to adhere to them.
-All those predicates have a prime appended to denote their dependence on \(\Sigma\).
+All predicates for them have a prime appended to denote their dependence on \(\Sigma\).
 Starting easy, \isa{sort\_ok'} only requires unpacking the signature and calling \isa{sort\_ex}.
 
 \Snippet{typ_ok'}
 
-When considering types, we want to ensure that the constructors' arities match the number of arguments and check all the sorts we encounter.
+When considering types, we want to ensure that the constructors' arities match the number of arguments found in the type and check all the sorts we encounter.
 In the case of terms, the focus again is on the constants.
-The problem we face here is that our constants are potentially polymorphic.
-Thus, while acceptable, the type annotation in the term might not match the most general one in \(\Sigma\), so we need an order on types regarding generality.
-Our approach is to use matching, which is unification on only one side.
-If we can find such a unifier, the instantiated term was either equally general or more general than the constant one.
+They can be polymorphic, complicating things.
+Thus, while perfectly valid, the type annotation in the term might not be equal to the most general one in \(\Sigma\), so we need an order on types regarding generality.
+Our approach is to use matching, which is unification restricted to one side.
+If we can find such a unifier, the instantiated term was either equally general or more general than the fixed one.
 To do that, we need a notion of type instantiation.
-To preserve sort constraints and validity of the whole type, we check that the new types belong to the sort of the variable they are replacing and are valid themselves.
+Preserving sort constraints and validity of the whole type is essential, so we check that the new types belong to the sort of the variable they are replacing and are valid themselves.
 
 \Snippet{ty_is_instance}
 
-Using \isa{ty\_is\_instance} , we can check that a given constant is valid with regards to \(\Sigma\) by looking for a unifier that matches the polymorphic type with the one found in the constant.
-Apart from that, we delegate to the type level.
+Using \isa{ty\_is\_instance}, we can check that a given constant is valid with regards to \(\Sigma\) by looking for a unifier that matches the polymorphic type to the one found in the constant.
+Additionally, we delegate to the type level.
 
 \Snippet{term_ok'}
 
 What we haven't covered yet, is regular type checking.
-Here we make sure that all bounds are bound, and function application respects the types.
-To that end, we reserve the name "fun" for the function type, assign it the arity two, and use the abbreviation \(\alpha\ \isasymrightarrow\ \beta \equiv\) \isa{Type {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime} [\(\alpha\),\(\beta\)]}.
-As is often the case with De Bruijn indexed terms, we need to keep track of surrounding binders when descending into a term, so we keep them in an accumulator.
+It is about making sure that all bounds are bound and function application respects the types.
+To that end, we reserve the name \isa{fun} for the function type, assign it the arity two, and use the abbreviation \(\alpha\ \isasymrightarrow\ \beta \equiv\) \isa{Type {\isacharprime}{\isacharprime}fun{\isacharprime}{\isacharprime} [\(\alpha\),\(\beta\)]}.
+As is often the case with De Bruijn indexed terms, we need to keep track of surrounding binders when descending into a term, so we put them in an accumulator.
 Type checking can fail, so we return an option type and use the option monad for succinctness.
 
 \Snippet{typ_of}
 
 Using all those definitions, we can finally state what makes a valid signature.
-We require the types of our constants to be valid, the function type's arity to be correct, and the sort algebra to be valid.
+We require the types of the declared constants to be valid, the function type's arity to be correct, and the sort algebra to be valid.
 Furthermore, we connect the type arities, with the sort algebra, by requiring a shared domain and matching argument counts.
 
 \begin{quote}
@@ -235,31 +235,33 @@ Furthermore, we connect the type arities, with the sort algebra, by requiring a 
 \section{Term Operations}
 
 Before putting the terms to their ultimate use, we will define type instantiation and the duals \(\beta\)-application and abstraction.
-We omit the cases where the term remains, irrespective of the other arguments, unchanged in this section's function definitions.
+For this section's function definitions, we omit the cases where the term remains unchanged, irrespective of the other arguments.
 Lifting \isa{ty\_instT} to the term level is straightforward with \isa{map\_types}, which maps any function over all type annotations of a term.
 
 \Snippet{instT}
 
-We will later need to abstract over a term with a new argument, i.e., replacing all argument occurrences and replacing them with a bound pointing to the top level.
-To keeps track of the current distance, we need an accumulator.
-All that is required then is attaching a new binder with the argument type with \isa{mk\_Abstraction v t \isasymequiv\ Abs (the (typ\_of v)) (abstract\_over v t)}.
+Later, we will need to abstract over a subterm, i.e., replacing all occurrences of the subterm with a bound pointing to the top level.
+This requires us to keep track of the current distance when descending into the term, so we need an accumulator.
+All that is left then is attaching a new binder with the subterm's type with \isa{mk\_Abstraction v t \isasymequiv\ Abs (the (typ\_of v)) (abstract\_over v t)}.
 
 \Snippet{abstract_over}
 
 The story is more involved for \(\beta\)-application \isa{(\isasymbullet)} because we need to handle the De Bruijn indices correctly.
 When placing a term with unbound bounds into a bigger context, they can become bound by the additional binders.
-Although type checking doesn't allow such a term, we avoid that precondition by incrementing those dangling bounds by the depth of the term's new position.
+Although type checking rejects such a term, we avoid requiring type correctness by means of incrementing those dangling bounds by the depth of the term's new position.
 
 \Snippet{incr_boundvars}
 
-To substitute a bound variable, the binder previously on the top level, we have to visit all bound variables and check their binders.
+Substituting bound variables necessitates removing a binder.
+After that, \isa{subst\_bound} replaces those bound linked to the binder previously on the top level.
+We achieve this by visiting all bound variables and checking their binders.
 If they are otherwise bound in the term, we ignore them.
-In case the current outermost binder binds them, we replace them with the new term while dealing with its dangling bounds.
-Were they unbound in the first place, we decrement its index by one, taking into account the removal of the outermost binder.
+In case the previously outermost binder binds them, we replace them with the new term while dealing with its dangling bounds.
+Were they unbound in the first place, we decrement their index by one, to account for the removal of the outermost binder.
 
 \Snippet{subst_bound}
 
 Now we are ready to define \isa{(\isasymbullet)}.
-We attach the two terms with the term application, but if we can \(\beta\)-contract the resulting term on the top-level, we do it.
+We connect the two terms with the term application, but if we can \(\beta\)-contract the resulting term on the top-level, we do it.
 
 \Snippet{betapply}
