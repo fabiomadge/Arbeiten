@@ -9,59 +9,62 @@ We start simple with a generalization of \wk.
 \end{theorem}
 \begin{proof}
     Proof by induction over the finite set of additional hypotheses \(\delta\).
-    The empty set requires no actions, and adding a single hypothesis can be achieved using \wk.
+    The empty set requires no action, and adding a single hypothesis can be achieved using \wk.
 \end{proof}
 
 \section{Term Instantation}
-Term instantiation for single variables \(A[x \rightarrow B]\) is fundamentally just a combination of \aIv\ and \aE.
+Term instantiation for single variables \(A[B / x]\) is accomplished with a combination of \aIv\ and \aE.
 First, the variable x is explicitly universally quantified, and then the quantifier is eliminated by providing a witness in the form of B.
-We have \isa{subst\_term} in our formalization to perform instantations.
-As it's not essential to the core logic, we don't cover it in great detail.
-We use \isa{is\_close} to encode the lack of dangling bounds in a term.
+To perform instantiation differently, we have \isa{subst\_term}.
+As it's not part of core logic, we don't cover it in detail.
+We use \isa{is\_closed} to encode the lack of dangling bounds in a term.
 
 \begin{lemma}
     \InlineLemma{instantiate_var_same_typ'}
 \end{lemma}
 \begin{proof}
-    Proof by structural induction on \isa{B} after appropriate generalization.
+    Proof by structural induction on \isa{B} after appropriate generalizations.
 \end{proof}
 
 \begin{theorem}
     \InlineLemma{inst_var}
 \end{theorem}
 \begin{proof}
-    \(\tau\) is valid because \(B\) is. From that, our assumptions, and \aIv\ we get \InlineSnippet{inst_var_1}. Then, using \aE\ and the assumptions on \isa{B}, results in \InlineSnippet{inst_var_2}. Finally, we can use Lemma~\ref{lemma:instantiate_var_same_typ'}, because \isa{B} is closed, as it is welltyped.
+    \(\tau\) is valid because \(B\) is.
+    With this and our assumptions, we can use \aIv\ to get: \InlineSnippet{inst_var_1}.
+    Then, using \aE\ with the assumptions on \isa{B}, results in: \InlineSnippet{inst_var_2}.
+    Finally, we can use Lemma~\ref{lemma:instantiate_var_same_typ'}, because \isa{B} is closed, as it is well-typed.
 \end{proof}
 
 The more general simultaneous instantiation of multiple variables requires more attention.
-We can simulate that by instantiating the variables individually in some sequence, which can have unintended consequences.
+We can simulate it by instantiating the variables individually in some sequence but need to recognize some unintended consequences.
 Take a map \(\sigma\) from variables to terms.
-If \isa{dom(\(\sigma\))} \(\cap\) \isa{Vars\_Set(ran(\(\sigma\)))} is not empty, there is a sequence in which the right side of a substitution would change after a supposedly unrelated instantiation.
-Fortunately, there are plenty of fresh variables, so we can always map the offending variables on the right sides to fresh ones using \(\pi\).
+If \isa{dom(\(\sigma\))} \(\cap\) \isa{Vars\_Set(ran(\(\sigma\)))} is not empty, there must be a sequence of instantiations in which the right side of a substitution would change as a result of a intendedly unrelated instantiation.
+Fortunately, there are plenty of fresh variables, so we can always map the offending variables on the right sides to fresh ones using a new map \(\pi\).
 This lets us construct an unproblematic \(\sigma' = \pi \circ \sigma\).
-After the sequential instantiations, the map \(\pi^{-1}\) can be applied to revert the names.
-This construction is not part of the current formalization.
+After the sequential instantiations using \(\sigma'\), the map \(\pi^{-1}\) can be applied, in any sequence, to revert the names.
+At this point, we have not yet formalized this construction.
 
 \section{Type Instantation}
 
 Before we can approach the actual proof, we need some lemmata about type instantiation.
 The core result is that it respects term validity.
 To show that any instantiated type is still of the same sort, we need to weaken \isa{of\_sort} statements.
-It appears trivial that any term belonging to sort \(S\) also belongs to the more general \(S^\prime\), but the proof is rather laborious.
-We often encounter situations where we see successive instantiations.
-To handle them, we introduce the composition of two maps and prove some prominent properties of them.
+It appears trivial that any term belonging to sort \(S\) should also belong to the more general \(S^\prime\), but the proof is rather laborious.
+During the proof, we often encounter situations where we see successive instantiations.
+To handle them, we will introduce the composition of two maps and prove some conspicuous properties of it.
 
 \subsection{Weaken \isa{of\_sort}}
 
-The big problem with the proofs about \isa{of\_sort} is ensuring that all constants are adequately defined.
+A big problem with the proofs about \isa{of\_sort} is ensuring that all constants are adequately defined.
 We encode the existence of type constructors using \isa{constructor\_ex\_thy \(\Theta\) n \isasymequiv\ n \isasymin\ dom (arities (signature.sorts\_of (signature\_of \(\Theta\))))}.
 
 \begin{lemma}
     \InlineLemma{mg_domain_exits}
 \end{lemma}
 \begin{proof}
-    Because the constructor and all classes in \isa{S} are defined, all individual class arities are defined.
-    As \isa{S} is finite, intersecting them is also possible.
+    Because the constructor and all classes in \isa{S} are defined, all individual class arities must be defined.
+    Their intersection also exists, as \isa{S} is finite.
 \end{proof}
 
 \begin{lemma}
@@ -86,17 +89,17 @@ We encode the existence of type constructors using \isa{constructor\_ex\_thy \(\
 \end{lemma}
 \begin{proof}
     Proof by induction on the finite sort \isa{S'}.
-    From coregularity we have that for every class vector induced by S', there must exist one induced by S that smaller elementwise.
+    From coregularity we have that for every class vector induced by S', there must exist one induced by S that is smaller.
     \begin{description}[]
         \item [\(\{c\}\)] \isa{sv'} is just the class arity of \(c\).
             We know that one of the class vectors making up \isa{sv} is smaller than \isa{sv'} at every postion.
-            The restrictions it imposes on \isa{sv} will persist through intersection.
-        \item [\(\{x\}\cup(\{c\}\cup\ F)\)] The domain of \(\{x\}\cup(\{c\}\cup\ F)\) is called \isa{sv'}.
-        We obtain the name \isa{sv'\(_0\)} for the one without \(x\).
-        The IH gives us that it is bigger than \isa{sv}.
-        From coregularity we get that \isa{S} contrains a class that induces a vector that is smaller than the one induced by \(x\).
+            The restrictions it imposes on \isa{sv} are preserved by intersection.
+        \item [\(\{x\}\cup(\{c\}\cup\ F)\)] The the obligations under the sort \(\{x\}\cup(\{c\}\cup\ F)\) are called \isa{sv'}.
+        We obtain the name \isa{sv'\(_0\)} for those without \(x\).
+        The IH gives us that \isa{sv'\(_0\)} is bigger than \isa{sv}.
+        From coregularity and \(S < S'\) we get that \isa{S} contrains a class that induces a vector that is smaller than the one induced by \(x\).
         This again gives us that \isa{sv} is smaller than the vector induced by \(x\).
-        As both \(x\) and \isa{sv'\(_0\)} are independently bigger than \isa{sv}, so is their intersection.
+        As both the obligations induced by \(x\) and \isa{sv'\(_0\)} are independently bigger than \isa{sv}, so is their intersection.
     \end{description}
 \end{proof}
 
@@ -108,11 +111,11 @@ We encode the existence of type constructors using \isa{constructor\_ex\_thy \(\
     Proof by induction using the rule derived from the definition of \isa{of\_sort}.\\
     For \isa{TFree n S\(_T\)} we can show both \(S_T \leq S\) and \(S \leq S'\).
     We then use transitivity.
-    \isa{TVar} works analogously.\\
-    In the case of \isa{Type}, we assume w.l.o.g. that both sorts are not the universal sort.
+    \isa{TVar} works analogously.\par
+    In the case of \isa{Type n Ts}, we assume w.l.o.g. that neither sort is the universal sort.
     Using Lemma~\ref{lemma:mg_domain_exits} we can obtain the names \isa{sv} and \isa{sv'} for the sort obligations computed by \isa{mg\_domain}.
     Lemma~\ref{lemma:mg_domain_length} shows that they and \isa{Ts} have a common length.
-    To show that \isa{Ts} are of sort \isa{sv'}, we show it elementwise.
+    To show that \isa{Ts} satisfy the sort obligations in \isa{sv'}, we show it elementwise.
     This way we can apply the IH to every type and sort pair, using lemmata~\ref{lemma:mg_domain_sort_good}\ and~\ref{lemma:weaken_mg_domain} (\isa{sv} \(\leq\) \isa{sv'}).
 \end{proof}
 
@@ -122,10 +125,10 @@ We encode the existence of type constructors using \isa{constructor\_ex\_thy \(\
 \begin{proof}
 Proof by structural induction on \(\tau\).
 The interesting case is \isa{TVar n S'}.
-Without loss of generality, we assume \isa{(n, S') \(\in\) dom \(\sigma\)}
+W.l.o.g., we assume \isa{(n, S') \(\in\) dom \(\sigma\)}
 From the premises, we get \(S' \leq S\).
 \isa{instT\_ok} gives us that \(\sigma (n, S')\) is of sort \(S'\).
-Now, all that's left is weakening using Theorem~\ref{lemma:weaken_of_sort}.
+Now, all that is left is weakening using Theorem~\ref{lemma:weaken_of_sort}.
 \end{proof}
 
 \subsection{Compose Instantiation}
@@ -176,7 +179,7 @@ Composition mimics successive application by applying \isa{f} to the right sides
     Proof by structural induction on \isa{A}.
     The troublesome case is \isa{Const n \isamath{\tau}}.
     It requires proving that \isa{ty\_instT \isamath{\sigma\ \tau}} is still an instance of the polymorphic type associated with the constant.
-    Because we know that the original term is valid, we already have a map \(\sigma^\prime\) that matches the polymorphic type to \(\tau\).
+    Because we know that the original term is valid, there must be a map \(\sigma^\prime\) that matches the polymorphic type to \(\tau\).
     We can compose \(\sigma\) and \(\sigma^\prime\) with the help of the lemmata~\ref{lemma:collapse_ty_instT} and~\ref{lemma:instT_comp_inst_ok} prove the goal.
 \end{proof}
 
@@ -191,11 +194,12 @@ Composition mimics successive application by applying \isa{f} to the right sides
 \subsection{Alternative Inference Rules}
 
 Our original definition of theorems does not contain enough information about the derivation that led to it to enable the proof.
-Our system lets us remove variables without leaving a trace in the resulting theorem.
-As we have to push the instantiation through the entire proof tree, we need to consider those lost variables when looking for potential variable capture.
-To that end, we add variables universes for both \isa{Vars} and \isa{Frees}, which overapproximate the variables used to derive a theorem to it.
-Both systems are equally powerful, as we show, along with some presumed properties.
-We assume that no variables capture is possible for the proof, and later show that is not necessary.
+The system lets us remove variables without leaving a trace in the resulting theorem.
+As we have to push the instantiation through the entire proof tree, we need to consider those lost variables when counteracting potential variable capture.
+To that end, we add variables universes for both \isa{Vars} and \isa{Frees}, which overapproximate the set of variables occurring in the theorem's proof tree.
+Both systems are equally powerful, as we will show, along with some properties of this alternative system.
+For our central proof, we use those universes to restrict the instantiation to avoid capturing.
+We then present a construction that removes the need for that precondition.
 
 \Snippet{proves_with_variables}
 
@@ -235,7 +239,7 @@ We assume that no variables capture is possible for the proof, and later show th
     Combining lemmata~\ref{lemma:proves_with_variables_proves} and~\ref{lemma:proves_proves_with_variables}.
 \end{proof}
 
-To state the theorem, we define constants.
+To state the theorem, we define a function and a couple of predicates.
 We use \isa{instS} to instantiate variable universes.
 A map \isa{\(\sigma\)} will not identify variables in the universe \isa{U}, if \isa{no\_cap U \(\sigma\)}.
 To make sure that the variables in the domain of a map \isa{\(\sigma\)} are disjunct from the ones in the range, we use \isa{subst\_flat \(\sigma\)}.
@@ -258,7 +262,7 @@ To make sure that the variables in the domain of a map \isa{\(\sigma\)} are disj
 \begin{proof}
     Proofs by rule induction on \isa{\(\Gamma\)}, \isa{\(\Psi\)}, \isa{\(\Omega\)}, and \isa{A}.
     \begin{description}[]
-        \item [\ax] The key idea is to compose the two maps, letting us use \ax\ with both maps. We show the compatibility of \isa{\(\Psi\)} and \isa{\(\Omega\)} using the material on map composition.
+        \item [\ax] The key idea is to compose the two maps, letting us use \ax\ with both maps at once. We show the compatibility of \isa{\(\Psi\)} and \isa{\(\Omega\)} using the material on map composition.
         \item [\as] The case is trivial, as we have full control over \isa{A}.
         \item [\wk] As \isa{B} is free of variables, type instantiation can have no effect on it.
         \item [\aIv] The premises give us that variable capture is impossible, which lets us use Lemma~\ref{lemma:instT_mk_all_var}.
@@ -280,5 +284,5 @@ To make sure that the variables in the domain of a map \isa{\(\sigma\)} are disj
     We need two different constructions to remove our preconditions.
     The captured variables can be renamed using term instantation.
     For \isa{subst\_flat} we calculate a new map, like in the proof of Theorem~\ref{lemma:inst_var}.
-    Finally we use~\ref{lemma:proves_with_variables_eqivalent} to translate between the two systems.
+    Finally we use Corollary~\ref{lemma:proves_with_variables_eqivalent} to translate between the two systems.
 \end{proof}
